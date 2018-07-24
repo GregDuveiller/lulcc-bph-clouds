@@ -2,12 +2,16 @@ require(tidyverse)
 require(ncdf4)
 require(raster)
 
+
 fpath <- '/ESS_Datasets/USERS/Duveiller/Workspace/lulcc-bph_clouds/firstResults/climSpace/'
+cloud_path <- '/ESS_Datasets/USERS/Filipponi/Space4Time/cloud_global/avhrr_pm_2004_2016_s4t_results/'
+era5_path <- '/ESS_Datasets/USERS/Filipponi/era5/stack_2004_2016/'
+
 dir.create(fpath, showWarnings = F,recursive = T)
 
 
 
-cloud_file <- '/ESS_Datasets/USERS/Filipponi/Space4Time/cloud_global/avhrr_pm_2004_2016_s4t_results/Space4Time_cloud_cfc_all_from_2004_masked_aggregated_0.25_deg_line_att.nc'
+cloud_file <- paste0(cloud_path,'Space4Time_cloud_cfc_all_from_2004_masked_aggregated_0.25_deg_line_att.nc')
 nc_cloud <- nc_open(cloud_file)
 
 TrString <- ncatt_get(nc_cloud,'class_transition',attname = 'class_transition_list')$value
@@ -19,7 +23,6 @@ TrLabel <- str_split(TrString,', ')[[1]][iTr]
 delta_cloud <- ncvar_get(nc_cloud,varid='delta',start=c(1,1,1,mm),count = c(-1,-1,1,1))
 delta_cloud <- ncvar_get(nc_cloud,varid='delta',start=c(1,1,iTr,1),count = c(-1,-1,1,-1))
 
-era5_path <- '/ESS_Datasets/USERS/Filipponi/era5/stack_2004_2016/'
 
 nc_t2_climato <- nc_open(paste0(era5_path,'2t/ERA5_2t_2004-2016_climatology_stack.nc'))
 # t2_climato <- ncvar_get(nc_t2_climato,varid='t2m',start=c(1,1,mm),count = c(-1,-1,1))
