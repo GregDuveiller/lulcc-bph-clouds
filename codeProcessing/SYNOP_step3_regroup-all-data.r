@@ -3,7 +3,7 @@ require(ncdf4)
 require(raster)
 require(dplyr)
 require(ggplot2)
-
+require(here)
 
 topoDataPath <- '/ESS_EarthObs/DATA_PRODUCTS/Elevation/Topo-description-moving-windows'
 
@@ -33,17 +33,17 @@ pts <- sf::st_read('dataProcessing/SYNOP/cleaned_points.shp', quiet = TRUE) %>%
 vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
 world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
 
-ggplot(pts)+geom_sf(data=world,fill='grey20') + 
-  geom_sf(aes(fill=local_tree_cover),shape = 21) +
-  coord_sf(xlim=c(20,140),ylim=c(50,70)) +
-  scale_fill_viridis_c(option = 'viridis')
+# ggplot(pts)+geom_sf(data=world,fill='grey20') + 
+#   geom_sf(aes(fill=local_tree_cover),shape = 21) +
+#   coord_sf(xlim=c(20,140),ylim=c(50,70)) +
+#   scale_fill_viridis_c(option = 'viridis')
+# 
+# 
+# ggplot(pts)+geom_sf(data=world,fill='grey20') + 
+#   geom_sf(aes(fill=local_water_cover),shape = 21) +
+#   coord_sf(xlim=c(20,140),ylim=c(50,70))+
+#   scale_fill_viridis_c(option = 'magma')
 
 
-ggplot(pts)+geom_sf(data=world,fill='grey20') + 
-  geom_sf(aes(fill=local_water_cover),shape = 21) +
-  coord_sf(xlim=c(20,140),ylim=c(50,70))+
-  scale_fill_viridis_c(option = 'magma')
-
-
-write_sf(pts, 'dataProcessing/SYNOP/final_boreal_points.shp')
+write_sf(pts, 'dataProcessing/SYNOP/SYNOPpoints_withAncillaryData.shp')
 

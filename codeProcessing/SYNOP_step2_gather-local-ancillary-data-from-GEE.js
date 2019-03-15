@@ -5,7 +5,7 @@ var hansen = ee.Image("UMD/hansen/global_forest_change_2017_v1_5"),
 /// Prepare points where to do the analysis
 
 // SYNOP points
-var pts = ee.FeatureCollection("users/gduveiller/boreal_cleaned_SYNOP_points");
+var pts = ee.FeatureCollection("users/gduveiller/SYNOP_global_cleaned_points");
 
 // Function to get buffers around those points
 function bufferFeature(ft){
