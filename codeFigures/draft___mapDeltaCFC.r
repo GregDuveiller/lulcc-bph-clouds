@@ -131,7 +131,7 @@ mk.tmp.plot <- function(zn.dum){
         panel.grid = element_blank(),
         axis.line.y = element_line(size = 0.5),
         axis.text.x = element_blank()) + 
-    ggtitle(unique(zn.eur$lbl))
+    ggtitle(unique(zn.dum$lbl))
 
 }
 
@@ -147,10 +147,10 @@ g.map <- ggplot(df_FOR_delta %>%
          filter(month == 'Apr')) + 
   geom_sf(data = world, fill = landColor, size = 0) +
   geom_raster(aes(x = lon, y = lat, fill = delta_cfc)) +
-  geom_path(data = zn, aes(group = lbl, x = lon, y = lat))+
+  geom_path(data = zn, aes(group = lbl, x = lon, y = lat), color = 'white')+
   scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
                        limits = c(-0.15,0.15), oob = scales::squish) +
-  coord_sf(expand = F)+
+  coord_sf(expand = F, datum = NA, ylim = c(-54,90))+
   theme(panel.background = element_rect(fill = 'Grey20'),
         legend.position='bottom',
         legend.key.width=unit(2.4, "cm"),
@@ -167,8 +167,12 @@ figW <- 14; figH <- 14; fmt <- 'png'
 fullfname <- paste0(fpath, fname, '.', fmt)
 if(fmt=='png'){png(fullfname, width = figW, height = figH, units = "in", res= 150)}
 if(fmt=='pdf'){pdf(fullfname, width = figW, height = figH)}
-print(g.map, vp = viewport(width = 1, height = 0.5, x = 0, y = 0, just=c(0,0)))
-print(g.eur, vp = viewport(width = 0.25, height = 0.25, x = 0, y = 0, just=c(0,0)))
+print(g.map, vp = viewport(width = 1, height = 0.5, x = 0, y = 0.25, just = c(0,0)))
+print(g.eur, vp = viewport(width = 0.25, height = 0.25, x = 0.50, y = 0.75, just = c(0,0)))
+print(g.rus, vp = viewport(width = 0.25, height = 0.25, x = 0.75, y = 0.75, just = c(0,0)))
+print(g.ind, vp = viewport(width = 0.25, height = 0.25, x = 0.50, y = 0.00, just = c(0,0)))
+print(g.aus, vp = viewport(width = 0.25, height = 0.25, x = 0.75, y = 0.00, just = c(0,0)))
+
 dev.off()
 
 
