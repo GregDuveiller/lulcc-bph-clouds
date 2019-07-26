@@ -152,8 +152,8 @@ g.map <- ggplot(df_FOR_delta %>%
                        limits = c(-0.15,0.15), oob = scales::squish) +
   coord_sf(expand = F, datum = NA, ylim = c(-54,90))+
   theme(panel.background = element_rect(fill = 'Grey20'),
-        legend.position='bottom',
-        legend.key.width=unit(2.4, "cm"),
+        legend.position = 'bottom',
+        legend.key.width = unit(2.4, "cm"),
         panel.grid = element_blank(),
         axis.title = element_blank()) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
@@ -168,6 +168,7 @@ fullfname <- paste0(fpath, fname, '.', fmt)
 if(fmt=='png'){png(fullfname, width = figW, height = figH, units = "in", res= 150)}
 if(fmt=='pdf'){pdf(fullfname, width = figW, height = figH)}
 print(g.map, vp = viewport(width = 1, height = 0.5, x = 0, y = 0.25, just = c(0,0)))
+print(g.nam, vp = viewport(width = 0.25, height = 0.25, x = 0.00, y = 0.75, just = c(0,0)))
 print(g.eur, vp = viewport(width = 0.25, height = 0.25, x = 0.50, y = 0.75, just = c(0,0)))
 print(g.rus, vp = viewport(width = 0.25, height = 0.25, x = 0.75, y = 0.75, just = c(0,0)))
 print(g.ind, vp = viewport(width = 0.25, height = 0.25, x = 0.50, y = 0.00, just = c(0,0)))
