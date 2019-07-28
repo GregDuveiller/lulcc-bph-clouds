@@ -4,15 +4,18 @@ library(dplyr)
 library(ncdf4)
 library(raster)
 library(ggplot2)
+library(here)
+library(tidyr)
+library(grid)
 
 
 
 # load S4T dataset
 nc <- nc_open(filename = '/ESS_Datasets/USERS/Filipponi/clouds/s4t_cloud_modis_aqua_global/dataResults/ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology_topography_masked_s4t_winsize7_s4t_subset_masked_aggregated_0.35.nc')
 rs_DFO_delta <- brick(x = '/ESS_Datasets/USERS/Filipponi/clouds/s4t_cloud_modis_aqua_global/dataResults/ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology_topography_masked_s4t_winsize7_s4t_subset_masked_aggregated_0.35.nc',
-                 varname = 'delta', lvar = 3, level = 1)
+                      varname = 'delta', lvar = 3, level = 1)
 rs_EFO_delta <- brick(x = '/ESS_Datasets/USERS/Filipponi/clouds/s4t_cloud_modis_aqua_global/dataResults/ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology_topography_masked_s4t_winsize7_s4t_subset_masked_aggregated_0.35.nc',
-                 varname = 'delta', lvar = 3, level = 2)
+                      varname = 'delta', lvar = 3, level = 2)
 rs_DFO_sigma <- brick(x = '/ESS_Datasets/USERS/Filipponi/clouds/s4t_cloud_modis_aqua_global/dataResults/ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology_topography_masked_s4t_winsize7_s4t_subset_masked_aggregated_0.35.nc',
                       varname = 'uncertainty', lvar = 3, level = 1)
 rs_EFO_sigma <- brick(x = '/ESS_Datasets/USERS/Filipponi/clouds/s4t_cloud_modis_aqua_global/dataResults/ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology_topography_masked_s4t_winsize7_s4t_subset_masked_aggregated_0.35.nc',
@@ -97,15 +100,13 @@ mk.zone <- function(lbl, xmn, xmx, ymn, ymx){
 zn.eur <- mk.zone('eur',-10,35,35,65)
 zn.nam <- mk.zone('nam',-100,-70,34,48)
 zn.ind <- mk.zone('ind',70,90,5,30)
-zn.aus <- mk.zone('aus',145,155,-45,-15)
+zn.aus <- mk.zone('aus',140,155,-45,-15)
 zn.rus <- mk.zone('rus',35,120,45,65)
+zn.ama <- mk.zone('ama',-75,-45,-15,0)
 
-zn <- bind_rows(zn.eur, zn.nam, zn.ind, zn.aus, zn.rus)
+zn <- bind_rows(zn.nam, zn.eur, zn.rus, zn.ama, zn.ind, zn.aus)
 
-
-
-
-mk.tmp.plot <- function(zn.dum){
+mk.tmp.plot <- function(zn.dum, mon = NULL){
   
   df.dum  <- df_FOR_delta %>%
     filter(lat > min(zn.dum$lat), lat < max(zn.dum$lat), 
@@ -113,43 +114,50 @@ mk.tmp.plot <- function(zn.dum){
     group_by(month) %>%
     summarize(mean_delta_cfc = mean(delta_cfc),
               stdE_delta_cfc = sd(delta_cfc)/sqrt(length(delta_cfc))) %>%
-    mutate(sign = factor(sign(mean_delta_cfc)))
+    mutate(sign = factor(sign(mean_delta_cfc), levels = c(-1,0,1) )) 
   
-
+  if(!is.null(mon)){ df.dum$sign[df.dum$month == mon] <- 0 }
+  
   g.tmp <- ggplot(df.dum) + 
-  geom_bar(aes(x = month, y = mean_delta_cfc, fill = sign, colour = sign), stat = 'identity') +
-  geom_errorbar(aes(x = month, colour = sign,
-                    ymin = mean_delta_cfc - stdE_delta_cfc,
-                    ymax = mean_delta_cfc + stdE_delta_cfc))+
-  geom_hline(yintercept = 0) +
-  scale_y_continuous('Change in CFC') + 
-  scale_x_discrete('') +
-  scale_fill_manual(values = c('-1' = col.pal[2],'1'= col.pal[8])) +
-  scale_colour_manual(values = c('-1'= col.pal[1],'1'= col.pal[9])) +
-  theme_minimal()+
-  theme(legend.position = 'none',
-        panel.grid = element_blank(),
-        axis.line.y = element_line(size = 0.5),
-        axis.text.x = element_blank()) + 
+    geom_bar(aes(x = month, y = mean_delta_cfc, fill = sign, colour = sign), stat = 'identity') +
+    geom_errorbar(aes(x = month, colour = sign,
+                      ymin = mean_delta_cfc - stdE_delta_cfc,
+                      ymax = mean_delta_cfc + stdE_delta_cfc))+
+    geom_hline(yintercept = 0) +
+    scale_y_continuous('Change in CFC') + 
+    scale_x_discrete('') +
+    scale_fill_manual(values = c('-1' = col.pal[2], '1' = col.pal[8], '0' = 'Grey30')) +
+    scale_colour_manual(values = c('-1'= col.pal[1], '1' = col.pal[9], '0' = 'Grey20')) +
+    theme_minimal()+
+    theme(legend.position = 'none',
+          panel.grid = element_blank(),
+          axis.line.y = element_line(size = 0.5),
+          axis.text.x = element_blank()) + 
     ggtitle(unique(zn.dum$lbl))
-
+  
 }
 
+zns <- list(zn.eur, zn.nam, zn.ind, zn.aus, zn.rus, zn.ama)
 
-g.eur <- mk.tmp.plot(zn.eur)
-g.nam <- mk.tmp.plot(zn.nam)
-g.ind <- mk.tmp.plot(zn.ind)
-g.aus <- mk.tmp.plot(zn.aus)
-g.rus <- mk.tmp.plot(zn.rus)
+
+for(mon in month.abb){
+#g.ts <- lapply(X = zns, FUN = mk.tmp.plot, mon = mon)
+
+g.eur <- mk.tmp.plot(zn.eur, mon = mon)
+g.nam <- mk.tmp.plot(zn.nam, mon = mon)
+g.ind <- mk.tmp.plot(zn.ind, mon = mon)
+g.aus <- mk.tmp.plot(zn.aus, mon = mon)
+g.rus <- mk.tmp.plot(zn.rus, mon = mon)
+g.ama <- mk.tmp.plot(zn.ama, mon = mon)
 
 
 g.map <- ggplot(df_FOR_delta %>% 
-         filter(month == 'Apr')) + 
+                  filter(month == mon)) + 
   geom_sf(data = world, fill = landColor, size = 0) +
   geom_raster(aes(x = lon, y = lat, fill = delta_cfc)) +
-  geom_path(data = zn, aes(group = lbl, x = lon, y = lat), color = 'white')+
+  geom_path(data = zn, aes(group = lbl, x = lon, y = lat), color = 'white') +
   scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = c(-0.15,0.15), oob = scales::squish) +
+                       limits = c(-0.12,0.12), oob = scales::squish) +
   coord_sf(expand = F, datum = NA, ylim = c(-54,90))+
   theme(panel.background = element_rect(fill = 'Grey20'),
         legend.position = 'bottom',
@@ -159,23 +167,55 @@ g.map <- ggplot(df_FOR_delta %>%
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 
-library(grid)
-
 fpath <- 'tempFigures/'
-fname <- 'Figure1_test'
+fname <- paste0('Figure1_test_',which(month.abb == mon))
+ncp <- 1/3
 figW <- 14; figH <- 14; fmt <- 'png'
 fullfname <- paste0(fpath, fname, '.', fmt)
-if(fmt=='png'){png(fullfname, width = figW, height = figH, units = "in", res= 150)}
-if(fmt=='pdf'){pdf(fullfname, width = figW, height = figH)}
+if(fmt == 'png'){png(fullfname, width = figW, height = figH, units = "in", res= 150)}
+if(fmt == 'pdf'){pdf(fullfname, width = figW, height = figH)}
 print(g.map, vp = viewport(width = 1, height = 0.5, x = 0, y = 0.25, just = c(0,0)))
-print(g.nam, vp = viewport(width = 0.25, height = 0.25, x = 0.00, y = 0.75, just = c(0,0)))
-print(g.eur, vp = viewport(width = 0.25, height = 0.25, x = 0.50, y = 0.75, just = c(0,0)))
-print(g.rus, vp = viewport(width = 0.25, height = 0.25, x = 0.75, y = 0.75, just = c(0,0)))
-print(g.ind, vp = viewport(width = 0.25, height = 0.25, x = 0.50, y = 0.00, just = c(0,0)))
-print(g.aus, vp = viewport(width = 0.25, height = 0.25, x = 0.75, y = 0.00, just = c(0,0)))
+print(g.nam, vp = viewport(width = ncp, height = 0.25, x = 0*ncp, y = 0.75, just = c(0,0)))
+print(g.eur, vp = viewport(width = ncp, height = 0.25, x = 1*ncp, y = 0.75, just = c(0,0)))
+print(g.rus, vp = viewport(width = ncp, height = 0.25, x = 2*ncp, y = 0.75, just = c(0,0)))
+print(g.ama, vp = viewport(width = ncp, height = 0.25, x = 0*ncp, y = 0.00, just = c(0,0)))
+print(g.ind, vp = viewport(width = ncp, height = 0.25, x = 1*ncp, y = 0.00, just = c(0,0)))
+print(g.aus, vp = viewport(width = ncp, height = 0.25, x = 2*ncp, y = 0.00, just = c(0,0)))
 
 dev.off()
+}
 
 
 
 
+
+# Figure of max and min in the year
+
+g.map.extr <- ggplot(df_FOR_delta %>% 
+                       group_by(lat, lon) %>%
+                       summarise(min_cfc = min(delta_cfc, na.rm = T),
+                                 max_cfc = max(delta_cfc, na.rm = T)) %>%
+                       gather(key = 'type', value = 'delta_cfc_xtr', c('min_cfc','max_cfc'))) + 
+  geom_sf(data = world, fill = landColor, size = 0) +
+  geom_raster(aes(x = lon, y = lat, fill = delta_cfc_xtr)) +
+  geom_path(data = zn, aes(group = lbl, x = lon, y = lat), color = 'white') +
+  facet_wrap(~type, nc = 1) +
+  scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = c(-0.12,0.12), oob = scales::squish) +
+  coord_sf(expand = F, datum = NA, ylim = c(-54,90))+
+  theme(panel.background = element_rect(fill = 'Grey20'),
+        legend.position = 'bottom',
+        legend.key.width = unit(2.4, "cm"),
+        panel.grid = element_blank(),
+        axis.title = element_blank()) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+fpath <- 'tempFigures/'
+fname <- 'Figure2_test'
+ncp <- 1/3
+figW <- 14; figH <- 14; fmt <- 'png'
+fullfname <- paste0(fpath, fname, '.', fmt)
+if(fmt == 'png'){png(fullfname, width = figW, height = figH, units = "in", res= 150)}
+if(fmt == 'pdf'){pdf(fullfname, width = figW, height = figH)}
+print(g.map.extr, vp = viewport(width = 1, height = 1, x = 0, y = 0, just = c(0,0)))
+dev.off()

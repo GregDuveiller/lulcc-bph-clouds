@@ -2,7 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
+.DS_Store
 \dataInput
 \dataProcessing
 \dataResults
 \tempFigures
+\temp
