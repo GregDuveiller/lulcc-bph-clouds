@@ -89,24 +89,26 @@ world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
 
 col.pal <-  RColorBrewer::brewer.pal(9,'RdBu')
 landColor <- 'grey60'
-
-
+seaColor <- 'grey20'
+latLims <- c(-56,86)
 
 mk.zone <- function(lbl, xmn, xmx, ymn, ymx){
   zn <- data.frame(lbl = lbl, 
                    lon = c(xmn, xmn, xmx, xmx, xmn), 
                    lat = c(ymn, ymx, ymx, ymn, ymn))}
 
-zn.eur <- mk.zone('eur',-10,35,35,65)
-zn.nam <- mk.zone('nam',-100,-70,34,48)
+zn.eur <- mk.zone('eur',-10,20,42,58)
+zn.nam <- mk.zone('nam',-120,-60,40,60)
+zn.crn <- mk.zone('crn',-95,-82,36,44)
 zn.ind <- mk.zone('ind',70,90,5,30)
-zn.aus <- mk.zone('aus',140,155,-45,-15)
-zn.rus <- mk.zone('rus',35,120,45,65)
-zn.ama <- mk.zone('ama',-75,-45,-15,0)
+zn.aus <- mk.zone('aus',140,155,-45,-18)
+zn.rus <- mk.zone('rus',20,110,45,65)
+zn.ama <- mk.zone('ama',-70,-45,-15,-5)
+zn.afr <- mk.zone('afr',10,42,-25,-5)
 
-zn <- bind_rows(zn.nam, zn.eur, zn.rus, zn.ama, zn.ind, zn.aus)
+zn <- bind_rows(zn.nam, zn.crn, zn.eur, zn.rus, zn.ama, zn.afr, zn.ind, zn.aus)
 
-mk.tmp.plot <- function(zn.dum, mon = NULL){
+mk.tmp.plot <- function(zn.dum, mon = NULL, ylims = NULL){
   
   df.dum  <- df_FOR_delta %>%
     filter(lat > min(zn.dum$lat), lat < max(zn.dum$lat), 
@@ -128,6 +130,7 @@ mk.tmp.plot <- function(zn.dum, mon = NULL){
     scale_x_discrete('') +
     scale_fill_manual(values = c('-1' = col.pal[2], '1' = col.pal[8], '0' = 'Grey30')) +
     scale_colour_manual(values = c('-1'= col.pal[1], '1' = col.pal[9], '0' = 'Grey20')) +
+    coord_cartesian(ylim = ylims) +
     theme_minimal()+
     theme(legend.position = 'none',
           panel.grid = element_blank(),
@@ -137,18 +140,20 @@ mk.tmp.plot <- function(zn.dum, mon = NULL){
   
 }
 
-zns <- list(zn.eur, zn.nam, zn.ind, zn.aus, zn.rus, zn.ama)
-
-
+zns <- list(zn.eur, zn.nam, zn.crn, zn.ind, zn.aus, zn.rus, zn.ama, zn.afr)
+ylims <- c(-0.07, 0.07)
+# monthly maps 
 for(mon in month.abb){
 #g.ts <- lapply(X = zns, FUN = mk.tmp.plot, mon = mon)
 
-g.eur <- mk.tmp.plot(zn.eur, mon = mon)
-g.nam <- mk.tmp.plot(zn.nam, mon = mon)
-g.ind <- mk.tmp.plot(zn.ind, mon = mon)
-g.aus <- mk.tmp.plot(zn.aus, mon = mon)
-g.rus <- mk.tmp.plot(zn.rus, mon = mon)
-g.ama <- mk.tmp.plot(zn.ama, mon = mon)
+g.eur <- mk.tmp.plot(zn.eur, mon = mon, ylims = ylims)
+g.nam <- mk.tmp.plot(zn.nam, mon = mon, ylims = ylims)
+g.ind <- mk.tmp.plot(zn.ind, mon = mon, ylims = ylims)
+g.aus <- mk.tmp.plot(zn.aus, mon = mon, ylims = ylims)
+g.rus <- mk.tmp.plot(zn.rus, mon = mon, ylims = c(-0.10, 0.04))
+g.ama <- mk.tmp.plot(zn.ama, mon = mon, ylims = ylims)
+g.afr <- mk.tmp.plot(zn.afr, mon = mon, ylims = ylims)
+g.crn <- mk.tmp.plot(zn.crn, mon = mon, ylims = ylims)
 
 
 g.map <- ggplot(df_FOR_delta %>% 
@@ -158,29 +163,31 @@ g.map <- ggplot(df_FOR_delta %>%
   geom_path(data = zn, aes(group = lbl, x = lon, y = lat), color = 'white') +
   scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
                        limits = c(-0.12,0.12), oob = scales::squish) +
-  coord_sf(expand = F, datum = NA, ylim = c(-54,90))+
-  theme(panel.background = element_rect(fill = 'Grey20'),
+  coord_sf(expand = F, ylim = latLims)+
+  theme(panel.background = element_rect(fill = seaColor),
         legend.position = 'bottom',
         legend.key.width = unit(2.4, "cm"),
-        panel.grid = element_blank(),
+        panel.grid = element_line(color = seaColor),
         axis.title = element_blank()) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 
 fpath <- 'tempFigures/'
 fname <- paste0('Figure1_test_',which(month.abb == mon))
-ncp <- 1/3
+ncp <- 1/4
 figW <- 14; figH <- 14; fmt <- 'png'
 fullfname <- paste0(fpath, fname, '.', fmt)
 if(fmt == 'png'){png(fullfname, width = figW, height = figH, units = "in", res= 150)}
 if(fmt == 'pdf'){pdf(fullfname, width = figW, height = figH)}
 print(g.map, vp = viewport(width = 1, height = 0.5, x = 0, y = 0.25, just = c(0,0)))
 print(g.nam, vp = viewport(width = ncp, height = 0.25, x = 0*ncp, y = 0.75, just = c(0,0)))
-print(g.eur, vp = viewport(width = ncp, height = 0.25, x = 1*ncp, y = 0.75, just = c(0,0)))
-print(g.rus, vp = viewport(width = ncp, height = 0.25, x = 2*ncp, y = 0.75, just = c(0,0)))
+print(g.crn, vp = viewport(width = ncp, height = 0.25, x = 1*ncp, y = 0.75, just = c(0,0)))
+print(g.eur, vp = viewport(width = ncp, height = 0.25, x = 2*ncp, y = 0.75, just = c(0,0)))
+print(g.rus, vp = viewport(width = ncp, height = 0.25, x = 3*ncp, y = 0.75, just = c(0,0)))
 print(g.ama, vp = viewport(width = ncp, height = 0.25, x = 0*ncp, y = 0.00, just = c(0,0)))
-print(g.ind, vp = viewport(width = ncp, height = 0.25, x = 1*ncp, y = 0.00, just = c(0,0)))
-print(g.aus, vp = viewport(width = ncp, height = 0.25, x = 2*ncp, y = 0.00, just = c(0,0)))
+print(g.afr, vp = viewport(width = ncp, height = 0.25, x = 1*ncp, y = 0.00, just = c(0,0)))
+print(g.ind, vp = viewport(width = ncp, height = 0.25, x = 2*ncp, y = 0.00, just = c(0,0)))
+print(g.aus, vp = viewport(width = ncp, height = 0.25, x = 3*ncp, y = 0.00, just = c(0,0)))
 
 dev.off()
 }
@@ -202,20 +209,107 @@ g.map.extr <- ggplot(df_FOR_delta %>%
   facet_wrap(~type, nc = 1) +
   scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
                        limits = c(-0.12,0.12), oob = scales::squish) +
-  coord_sf(expand = F, datum = NA, ylim = c(-54,90))+
-  theme(panel.background = element_rect(fill = 'Grey20'),
+  coord_sf(expand = F, ylim = latLims)+
+  theme(panel.background = element_rect(fill = seaColor),
         legend.position = 'bottom',
         legend.key.width = unit(2.4, "cm"),
-        panel.grid = element_blank(),
+        panel.grid = element_line(color = seaColor),
         axis.title = element_blank()) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 fpath <- 'tempFigures/'
 fname <- 'Figure2_test'
-ncp <- 1/3
 figW <- 14; figH <- 14; fmt <- 'png'
 fullfname <- paste0(fpath, fname, '.', fmt)
 if(fmt == 'png'){png(fullfname, width = figW, height = figH, units = "in", res= 150)}
 if(fmt == 'pdf'){pdf(fullfname, width = figW, height = figH)}
 print(g.map.extr, vp = viewport(width = 1, height = 1, x = 0, y = 0, just = c(0,0)))
+dev.off()
+
+
+# Figure with 4 seasons
+
+df.seas <- data.frame(month = month.abb, season = factor(c(rep('DJF',2),rep('MAM',3),rep('JJA',3),rep('SON',3),'DJF'), levels = c('DJF','MAM','JJA','SON')))
+
+g.map.seas <- ggplot(df_FOR_delta %>% 
+                       left_join(df.seas, by = 'month') %>%
+                       group_by(lat, lon, season) %>%
+                       summarise(delta_cfc_seas = mean(delta_cfc, na.rm = T))) +
+  geom_sf(data = world, fill = landColor, size = 0) +
+  geom_raster(aes(x = lon, y = lat, fill = delta_cfc_seas)) +
+  geom_path(data = zn, aes(group = lbl, x = lon, y = lat), color = 'white') +
+  facet_wrap(~season, nc = 2) +
+  scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = c(-0.08,0.08), oob = scales::squish) +
+  coord_sf(expand = F, ylim = latLims)+
+  theme(panel.background = element_rect(fill = seaColor),
+        legend.position = 'bottom',
+        legend.key.width = unit(2.4, "cm"),
+        panel.grid = element_line(color = seaColor),
+        axis.title = element_blank()) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+
+
+g.eur <- mk.tmp.plot(zn.eur, mon = NULL, ylims = ylims)
+g.nam <- mk.tmp.plot(zn.nam, mon = NULL, ylims = ylims)
+g.ind <- mk.tmp.plot(zn.ind, mon = NULL, ylims = ylims)
+g.aus <- mk.tmp.plot(zn.aus, mon = NULL, ylims = ylims)
+g.rus <- mk.tmp.plot(zn.rus, mon = NULL, ylims = c(-0.10, 0.04))
+g.ama <- mk.tmp.plot(zn.ama, mon = NULL, ylims = ylims)
+g.afr <- mk.tmp.plot(zn.afr, mon = NULL, ylims = ylims)
+g.crn <- mk.tmp.plot(zn.crn, mon = NULL, ylims = ylims)
+
+
+
+
+fpath <- 'tempFigures/'
+fname <- 'Figure3b_test'
+figW <- 14; figH <- 14; fmt <- 'png'
+fullfname <- paste0(fpath, fname, '.', fmt)
+if(fmt == 'png'){png(fullfname, width = figW, height = figH, units = "in", res= 150)}
+if(fmt == 'pdf'){pdf(fullfname, width = figW, height = figH)}
+print(g.map.seas, vp = viewport(width = 1, height = 0.5, x = 0, y = 0.25, just = c(0,0)))
+print(g.nam, vp = viewport(width = ncp, height = 0.25, x = 0*ncp, y = 0.75, just = c(0,0)))
+print(g.crn, vp = viewport(width = ncp, height = 0.25, x = 1*ncp, y = 0.75, just = c(0,0)))
+print(g.eur, vp = viewport(width = ncp, height = 0.25, x = 2*ncp, y = 0.75, just = c(0,0)))
+print(g.rus, vp = viewport(width = ncp, height = 0.25, x = 3*ncp, y = 0.75, just = c(0,0)))
+print(g.ama, vp = viewport(width = ncp, height = 0.25, x = 0*ncp, y = 0.00, just = c(0,0)))
+print(g.afr, vp = viewport(width = ncp, height = 0.25, x = 1*ncp, y = 0.00, just = c(0,0)))
+print(g.ind, vp = viewport(width = ncp, height = 0.25, x = 2*ncp, y = 0.00, just = c(0,0)))
+print(g.aus, vp = viewport(width = ncp, height = 0.25, x = 3*ncp, y = 0.00, just = c(0,0)))
+dev.off()
+
+
+
+
+# Figure with 4 seasons (alternative)
+
+df.seas <- data.frame(month = month.abb, season = factor(c(rep('DJF',2),rep('MAM',3),rep('JJA',3),rep('SON',3),'DJF'), levels = c('DJF','MAM','JJA','SON')))
+
+g.map.seas <- ggplot(df_FOR_delta %>% 
+                       left_join(df.seas, by = 'month') %>%
+                       group_by(lat, lon, season) %>%
+                       summarise(delta_cfc_seas = mean(delta_cfc, na.rm = T))) +
+  geom_sf(data = world, fill = landColor, size = 0) +
+  geom_raster(aes(x = lon, y = lat, fill = delta_cfc_seas)) +
+  facet_wrap(~season, nc = 1) +
+  scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = c(-0.08,0.08), oob = scales::squish) +
+  coord_sf(expand = F, ylim = latLims)+
+  theme(panel.background = element_rect(fill = seaColor),
+        legend.position = 'bottom',
+        legend.key.width = unit(2.4, "cm"),
+        panel.grid = element_line(color = seaColor),
+        axis.title = element_blank()) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+
+fpath <- 'tempFigures/'
+fname <- 'Figure3_test'
+figW <- 9; figH <- 14; fmt <- 'png'
+fullfname <- paste0(fpath, fname, '.', fmt)
+if(fmt == 'png'){png(fullfname, width = figW, height = figH, units = "in", res= 150)}
+if(fmt == 'pdf'){pdf(fullfname, width = figW, height = figH)}
+print(g.map.seas, vp = viewport(width = 1, height = 1, x = 0, y = 0, just = c(0,0)))
 dev.off()
