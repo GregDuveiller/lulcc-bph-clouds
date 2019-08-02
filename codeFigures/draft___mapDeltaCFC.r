@@ -50,14 +50,7 @@ plot(rs_FOR_delta[[5]], zlim = c(-0.1,0.1),
      col = RColorBrewer::brewer.pal(9,'RdBu'))
 
 
-zn.eur <- extent(-10,40,30,70)
-zn.nam <- extent(-100,-70,30,50)
-
-plot(zn.nam, add = T)
-
-df_dum <- as.data.frame(rs_FOR_delta, xy = T, long = T)
-
-df_FOR_delta <- df_dum %>% 
+df_FOR_delta <- as.data.frame(rs_FOR_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y, delta_cfc = value) %>%
   dplyr::mutate(month = factor(format(as.Date(layer, format = 'X%Y.%m.%d'), '%b'), 
                                levels = month.abb)) %>%
@@ -65,6 +58,26 @@ df_FOR_delta <- df_dum %>%
   dplyr::filter(!is.na(delta_cfc))
 
 
+# aggregate tto 1 degree for clearer view
+rs_dummy <- raster(nrows = 180, ncols = 360, xmn = -180, xmx = 180, ymn = -90, ymx = 90, 
+                   crs = crs(rs_FOR_delta), vals = NULL)
+
+rs_FOR_delta_1dd <- raster::resample(x = rs_FOR_delta, y = rs_dummy, method = 'bilinear')
+df_FOR_delta_1dd <- as.data.frame(rs_FOR_delta_1dd, xy = T, long = T) %>% 
+  dplyr::rename(lon = x, lat = y, delta_cfc = value) %>%
+  dplyr::mutate(month = factor(format(as.Date(layer, format = 'X%Y.%m.%d'), '%b'), 
+                               levels = month.abb)) %>%
+  dplyr::select(-layer) %>%
+  dplyr::filter(!is.na(delta_cfc))
+
+
+ggplot(df_FOR_delta_1dd %>% 
+         filter(month == 'Jul'), 
+       aes(x = lon, y = lat, fill = delta_cfc)) + 
+  geom_raster() +
+  scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = c(-0.15,0.15), oob = scales::squish) +
+  coord_cartesian(expand = F)
 
 ggplot(df_FOR_delta %>% 
          filter(month == 'Jul'), 
@@ -156,7 +169,7 @@ g.afr <- mk.tmp.plot(zn.afr, mon = mon, ylims = ylims)
 g.crn <- mk.tmp.plot(zn.crn, mon = mon, ylims = ylims)
 
 
-g.map <- ggplot(df_FOR_delta %>% 
+g.map <- ggplot(df_FOR_delta_1dd %>% 
                   filter(month == mon)) + 
   geom_sf(data = world, fill = landColor, size = 0) +
   geom_raster(aes(x = lon, y = lat, fill = delta_cfc)) +
@@ -173,7 +186,7 @@ g.map <- ggplot(df_FOR_delta %>%
 
 
 fpath <- 'tempFigures/'
-fname <- paste0('Figure1_test_',which(month.abb == mon))
+fname <- paste0('Figure1_test_1dd_',which(month.abb == mon))
 ncp <- 1/4
 figW <- 14; figH <- 14; fmt <- 'png'
 fullfname <- paste0(fpath, fname, '.', fmt)
@@ -231,7 +244,7 @@ dev.off()
 
 df.seas <- data.frame(month = month.abb, season = factor(c(rep('DJF',2),rep('MAM',3),rep('JJA',3),rep('SON',3),'DJF'), levels = c('DJF','MAM','JJA','SON')))
 
-g.map.seas <- ggplot(df_FOR_delta %>% 
+g.map.seas <- ggplot(df_FOR_delta_1dd %>% 
                        left_join(df.seas, by = 'month') %>%
                        group_by(lat, lon, season) %>%
                        summarise(delta_cfc_seas = mean(delta_cfc, na.rm = T))) +
@@ -264,7 +277,7 @@ g.crn <- mk.tmp.plot(zn.crn, mon = NULL, ylims = ylims)
 
 
 fpath <- 'tempFigures/'
-fname <- 'Figure3b_test'
+fname <- 'Figure3b_test_1dd'
 figW <- 14; figH <- 14; fmt <- 'png'
 fullfname <- paste0(fpath, fname, '.', fmt)
 if(fmt == 'png'){png(fullfname, width = figW, height = figH, units = "in", res= 150)}
@@ -313,3 +326,38 @@ if(fmt == 'png'){png(fullfname, width = figW, height = figH, units = "in", res= 
 if(fmt == 'pdf'){pdf(fullfname, width = figW, height = figH)}
 print(g.map.seas, vp = viewport(width = 1, height = 1, x = 0, y = 0, just = c(0,0)))
 dev.off()
+
+
+
+
+# lat-month
+
+
+g.lat.month <- ggplot(df_FOR_delta %>% 
+                       group_by(lat, month) %>%
+                       summarise(delta_cfc_latmonth = mean(delta_cfc, na.rm = T))) +
+  geom_raster(aes(x = month, y = lat, fill = delta_cfc_latmonth)) +
+  scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = c(-0.08,0.08), oob = scales::squish) +
+  theme(panel.background = element_rect(fill = seaColor),
+        legend.position = 'bottom',
+        legend.key.width = unit(2.4, "cm"),
+        panel.grid = element_line(color = seaColor),
+        axis.title = element_blank()) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+
+
+fpath <- 'tempFigures/'
+fname <- 'Figure4_test'
+figW <- 9; figH <- 6; fmt <- 'png'
+fullfname <- paste0(fpath, fname, '.', fmt)
+if(fmt == 'png'){png(fullfname, width = figW, height = figH, units = "in", res= 150)}
+if(fmt == 'pdf'){pdf(fullfname, width = figW, height = figH)}
+print(g.lat.month, vp = viewport(width = 1, height = 1, x = 0, y = 0, just = c(0,0)))
+dev.off()
+
+
+
+
+
