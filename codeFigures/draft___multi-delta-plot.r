@@ -58,6 +58,44 @@ df_SW_delta <- as.data.frame(rs_SW_delta, xy = T, long = T) %>%
   dplyr::filter(!is.na(delta_SW))
 
 
+rs_albedo_delta <- brick(x = paste0(dpath1, '/albedo_IGBPgen.nc'),
+                     varname = 'Delta_albedo', lvar = nc_lvar, level = nc_level)
+rs_albedo_sigma <- brick(x = paste0(dpath1, '/albedo_IGBPgen.nc'),
+                     varname = 'SD_Delta_albedo', lvar = nc_lvar, level = nc_level)
+
+df_albedo_delta <- as.data.frame(rs_albedo_delta, xy = T, long = T) %>% 
+  dplyr::rename(lon = x, lat = y) %>%
+  dplyr::mutate(month = factor(month.abb[Z], levels = month.abb),
+                delta_albedo = -value) %>% # Note change in sign to flip transition
+  dplyr::select(-Z, -value) %>%
+  dplyr::filter(!is.na(delta_albedo))
+
+
+
+rs_LSTday_delta <- brick(x = paste0(dpath1, '/LSTday_IGBPgen.nc'),
+                         varname = 'Delta_LSTday', lvar = nc_lvar, level = nc_level)
+rs_LSTday_sigma <- brick(x = paste0(dpath1, '/LSTday_IGBPgen.nc'),
+                         varname = 'SD_Delta_LSTday', lvar = nc_lvar, level = nc_level)
+
+df_LSTday_delta <- as.data.frame(rs_LSTday_delta, xy = T, long = T) %>% 
+  dplyr::rename(lon = x, lat = y) %>%
+  dplyr::mutate(month = factor(month.abb[Z], levels = month.abb),
+                delta_LSTday = -value) %>% # Note change in sign to flip transition
+  dplyr::select(-Z, -value) %>%
+  dplyr::filter(!is.na(delta_LSTday))
+
+
+rs_LSTnight_delta <- brick(x = paste0(dpath1, '/LSTnight_IGBPgen.nc'),
+                         varname = 'Delta_LSTnight', lvar = nc_lvar, level = nc_level)
+rs_LSTnight_sigma <- brick(x = paste0(dpath1, '/LSTnight_IGBPgen.nc'),
+                         varname = 'SD_Delta_LSTnight', lvar = nc_lvar, level = nc_level)
+
+df_LSTnight_delta <- as.data.frame(rs_LSTnight_delta, xy = T, long = T) %>% 
+  dplyr::rename(lon = x, lat = y) %>%
+  dplyr::mutate(month = factor(month.abb[Z], levels = month.abb),
+                delta_LSTnight = -value) %>% # Note change in sign to flip transition
+  dplyr::select(-Z, -value) %>%
+  dplyr::filter(!is.na(delta_LSTnight))
 
 
 
