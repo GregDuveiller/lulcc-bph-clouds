@@ -100,18 +100,89 @@ df_LSTnight_delta <- as.data.frame(rs_LSTnight_delta, xy = T, long = T) %>%
 
 
 # need to clean this up and load cfc dataframe from scratch
+load('dataFigures/df_FOR_delta_1dd.Rdata') # df_FOR_delta_1dd
 df_CFC_delta <- df_FOR_delta_1dd
-
 
 
 df_all <- df_CFC_delta %>%
   inner_join(df_LE_delta, by = c('lon', 'lat', 'month')) %>%
   inner_join(df_HG_delta, by = c('lon', 'lat', 'month')) %>%
-  inner_join(df_SW_delta, by = c('lon', 'lat', 'month'))
+  inner_join(df_SW_delta, by = c('lon', 'lat', 'month')) %>%
+  inner_join(df_LSTday_delta, by = c('lon', 'lat', 'month')) %>%
+  inner_join(df_LSTnight_delta, by = c('lon', 'lat', 'month')) %>%
+  inner_join(df_albedo_delta, by = c('lon', 'lat', 'month'))
 
+
+
+#### 1-D relationships with cloud cover ####
 
 col.cross <- 'grey40'
-sel.months <- c('Mar','Jul')
+
+ggplot(df_all) +
+       #geom_point(alpha = 0.5, colour = 'cornflowerblue') +
+  geom_boxplot(aes(x = cut(delta_HG, seq(-40,40,10)), y = delta_cfc)) +
+  geom_hline(yintercept = 0, colour = col.cross) +
+  geom_vline(xintercept = 0, colour = col.cross) +
+  #stat_smooth(method = 'lm') + 
+  facet_wrap(~month) +
+  coord_cartesian(ylim = c(-0.2, 0.2))
+
+ggplot(df_all) +
+  #geom_point(alpha = 0.5, colour = 'cornflowerblue') +
+  geom_boxplot(aes(x = cut(delta_LSTnight, seq(-4,4,1)), y = delta_cfc)) +
+  geom_hline(yintercept = 0, colour = col.cross) +
+  geom_vline(xintercept = 0, colour = col.cross) +
+  #stat_smooth(method = 'lm') + 
+  facet_wrap(~month) +
+  coord_cartesian(ylim = c(-0.2, 0.2))
+
+ggplot(df_all) +
+  #geom_point(alpha = 0.5, colour = 'cornflowerblue') +
+  geom_boxplot(aes(x = cut(delta_albedo, seq(-0.2,0.2,0.02)), y = delta_cfc)) +
+  geom_hline(yintercept = 0, colour = col.cross) +
+  geom_vline(xintercept = 0, colour = col.cross) +
+  #stat_smooth(method = 'lm') + 
+  facet_wrap(~month) +
+  coord_cartesian(ylim = c(-0.2, 0.2))
+
+
+
+df_try <- df_all %>%
+  tidyr::gather(key = 'variable', value = 'value', 
+                c('delta_LE', 'delta_HG'))
+                #c('delta_LE', 'delta_HG', 'delta_SW', 'delta_LSTday', 'delta_LSTnight', 'delta_albedo'))
+
+ggplot(df_try %>% 
+         filter(month %in% c('May','Jun','Jul','Aug','Sep','Oct')) #%>% 
+       #filter(lat > 35, lat < 65, lon > -10, lon < 40)
+) +
+  #geom_point(alpha = 0.5, colour = 'cornflowerblue') +
+  geom_boxplot(aes(x = cut(value, breaks = c(-100,-25,-20,-15,-10,-5,5,10,15,20,25,100)),
+                   y = delta_cfc, fill = variable), outlier.shape = NA) +
+  geom_hline(yintercept = 0, colour = col.cross) +
+  geom_vline(xintercept = 0, colour = col.cross) +
+  facet_wrap(~month, nc = 2) +
+  coord_cartesian(ylim = c(-0.2, 0.2))
+
+
+ggplot(df_try %>% 
+         filter(variable == 'delta_HG') %>%
+         filter(month %in% c('May','Jun','Jul','Aug','Sep','Oct')) #%>% 
+         #filter(lat > 35, lat < 65, lon > -10, lon < 40)
+       ) +
+  geom_quantile(aes(x = value, y = delta_cfc), quantiles = c(0.05,0.25,0.5,0.75,0.95)) +
+  geom_hline(yintercept = 0, colour = col.cross) +
+  geom_vline(xintercept = 0, colour = col.cross) +
+  #stat_smooth(method = 'lm') + 
+  facet_wrap(~month, nc = 2) +
+  coord_cartesian(ylim = c(-0.2, 0.2))
+
+
+
+#### 2-D spaces (to be expanded) ####
+
+col.cross <- 'grey40'
+sel.months <- c('Sep','Jul')
 lim.colors <- c(-0.12,0.12)
 pts.size <- 0.5
 
@@ -155,3 +226,6 @@ print(g2, vp = viewport(width = 0.3, height = 1, x = 0.3, y = 0, just = c(0,0)))
 print(g3, vp = viewport(width = 0.4, height = 1, x = 0.6, y = 0, just = c(0,0)))
 
 dev.off()
+
+
+####
