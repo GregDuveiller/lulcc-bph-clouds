@@ -11,8 +11,8 @@ for(region in CZ5_regions){
     mutate(month = factor(month.abb, levels = month.abb),
            region = factor(region, levels = CZ5_regions),
            PFT = factor(pft, levels = PFTs),
-           delta_cfc_CZ5 = Slope / 100,
-           delta_cfc_CZ5_STD_err = STD_err / 100) %>%
+           dCFC_CZ5 = Slope / 100,
+           dCFC_CZ5_STD_err = STD_err / 100) %>%
     dplyr::select(-Slope, -STD_err, -Pvalue)
   df_CZ5_RAM <- bind_rows(df_CZ5_RAM, dum)  
   }
@@ -28,9 +28,9 @@ for(region in CZ5_regions){
 
 # get my data
 
-load('dataFigures/df_FOR_delta_1dd.Rdata') # df_FOR_delta_1dd
-load('dataFigures/df_DFO_delta_1dd.Rdata') # df_DFO_delta_1dd
-load('dataFigures/df_EFO_delta_1dd.Rdata') # df_EFO_delta_1dd
+load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd.Rdata
+load('dataFigures/df_dCFC_MOD05_DFO_1dd.Rdata') # df_dCFC_MOD05_DFO_1dd.Rdata
+load('dataFigures/df_dCFC_MOD05_EFO_1dd.Rdata') # df_dCFC_MOD05_EFO_1dd.Rdata
 
 # get ClimZones
 cz5_map <- raster('/ESS_EarthObs/CLIMATE_DATA/koppen-Geiger/koppen-Geiger_360x180_5zones.nc', varname = 'climzone')
@@ -44,23 +44,23 @@ cz5_df <- as.data.frame(cz5_map, xy = T, long = T) %>%
 
 
 df_CZ5_S4T <- bind_rows(
-  df_DFO_delta_1dd %>% 
+  df_dCFC_MOD05_DFO_1dd.Rdata %>% 
     inner_join(cz5_df, by = c('lat', 'lon')) %>%
     group_by(month, region) %>%
-    summarize(delta_cfc_CZ5 = mean(delta_cfc, na.rm = T),
-              delta_cfc_CZ5_STD_err = sd(delta_cfc, na.rm = T)/sqrt(sum(!is.na(delta_cfc)))) %>%
+    summarize(dCFC_CZ5 = mean(dCFC, na.rm = T),
+              dCFC_CZ5_STD_err = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC)))) %>%
     mutate(PFT = factor('DFO', levels = PFTs)),
-  df_EFO_delta_1dd %>% 
+  df_dCFC_MOD05_EFO_1dd.Rdata %>% 
     inner_join(cz5_df, by = c('lat', 'lon')) %>%
     group_by(month, region) %>%
-    summarize(delta_cfc_CZ5 = mean(delta_cfc, na.rm = T),
-              delta_cfc_CZ5_STD_err = sd(delta_cfc, na.rm = T)/sqrt(sum(!is.na(delta_cfc)))) %>%
+    summarize(dCFC_CZ5 = mean(dCFC, na.rm = T),
+              dCFC_CZ5_STD_err = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC)))) %>%
     mutate(PFT = factor('EFO', levels = PFTs)),
-  df_FOR_delta_1dd %>% 
+  df_dCFC_MOD05_FOR_1dd.Rdata %>% 
     inner_join(cz5_df, by = c('lat', 'lon')) %>%
     group_by(month, region) %>%
-    summarize(delta_cfc_CZ5 = mean(delta_cfc, na.rm = T),
-              delta_cfc_CZ5_STD_err = sd(delta_cfc, na.rm = T)/sqrt(sum(!is.na(delta_cfc)))) %>%
+    summarize(dCFC_CZ5 = mean(dCFC, na.rm = T),
+              dCFC_CZ5_STD_err = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC)))) %>%
     mutate(PFT = factor('TOT', levels = PFTs))) 
 
 
@@ -73,7 +73,7 @@ df_CZ5 <- bind_rows(
 
 # some plot
 g_bars <- ggplot(df_CZ5) +
-  geom_bar(aes(x = month, y = delta_cfc_CZ5, fill = method), stat = 'identity', position = 'dodge') +
+  geom_bar(aes(x = month, y = dCFC_CZ5, fill = method), stat = 'identity', position = 'dodge') +
   geom_hline(yintercept = 0, colour = 'grey40', size = 0.5) +
   facet_grid(region~PFT) + 
   scale_fill_discrete('Method used:') +
@@ -86,8 +86,8 @@ g_bars <- ggplot(df_CZ5) +
 ggsave('S4TvsRAM_bars.png', path = 'tempFigures/', plot = g_bars, width = 7, height = 8)
 
 g_scatter <- ggplot(df_CZ5 %>%
-         dplyr::select(-delta_cfc_CZ5_STD_err) %>%
-         tidyr::spread(key = 'method', value = 'delta_cfc_CZ5')) +
+         dplyr::select(-dCFC_CZ5_STD_err) %>%
+         tidyr::spread(key = 'method', value = 'dCFC_CZ5')) +
   geom_point(aes(x = S4T, y = RAM, shape = PFT, colour = month), size = 2) +
   geom_abline(colour = 'grey40', size = 0.5) + 
   coord_equal(ylim = c(-0.1,0.05), xlim = c(-0.1,0.05)) + 

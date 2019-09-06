@@ -100,8 +100,8 @@ df_LSTnight_delta <- as.data.frame(rs_LSTnight_delta, xy = T, long = T) %>%
 
 
 # need to clean this up and load cfc dataframe from scratch
-load('dataFigures/df_FOR_delta_1dd.Rdata') # df_FOR_delta_1dd
-df_CFC_delta <- df_FOR_delta_1dd
+load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd
+df_CFC_delta <- df_dCFC_MOD05_FOR_1dd
 
 
 df_all <- df_CFC_delta %>%

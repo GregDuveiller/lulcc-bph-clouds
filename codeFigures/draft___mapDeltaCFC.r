@@ -9,86 +9,6 @@ library(tidyr)
 library(grid)
 
 
-
-# load S4T dataset
-nc <- nc_open(filename = '/ESS_Datasets/USERS/Filipponi/clouds/s4t_cloud_modis_aqua_global/dataResults/ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology_topography_masked_s4t_winsize7_s4t_subset_masked_aggregated_0.35.nc')
-rs_DFO_delta <- brick(x = '/ESS_Datasets/USERS/Filipponi/clouds/s4t_cloud_modis_aqua_global/dataResults/ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology_topography_masked_s4t_winsize7_s4t_subset_masked_aggregated_0.35.nc',
-                      varname = 'delta', lvar = 3, level = 1)
-rs_EFO_delta <- brick(x = '/ESS_Datasets/USERS/Filipponi/clouds/s4t_cloud_modis_aqua_global/dataResults/ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology_topography_masked_s4t_winsize7_s4t_subset_masked_aggregated_0.35.nc',
-                      varname = 'delta', lvar = 3, level = 2)
-rs_DFO_sigma <- brick(x = '/ESS_Datasets/USERS/Filipponi/clouds/s4t_cloud_modis_aqua_global/dataResults/ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology_topography_masked_s4t_winsize7_s4t_subset_masked_aggregated_0.35.nc',
-                      varname = 'uncertainty', lvar = 3, level = 1)
-rs_EFO_sigma <- brick(x = '/ESS_Datasets/USERS/Filipponi/clouds/s4t_cloud_modis_aqua_global/dataResults/ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology_topography_masked_s4t_winsize7_s4t_subset_masked_aggregated_0.35.nc',
-                      varname = 'uncertainty', lvar = 3, level = 2)
-
-# Combine both forest types in post-processing
-rs_FOR_delta <- mosaic(x = rs_DFO_delta, y = rs_EFO_delta, fun = mean) 
-# ==> could use weights based on actual proportions
-names(rs_FOR_delta) <- names(rs_DFO_delta)
-
-# Propagate uncertainty
-rs_FOR_sigma <- mosaic(x = rs_DFO_sigma, y = rs_EFO_sigma, fun = mean) 
-# ==> Should check if uncertainty is correctly propagated
-names(rs_FOR_sigma) <- names(rs_DFO_sigma)
-
-
-datInSigma <- abs(rs_FOR_delta) - rs_FOR_sigma 
-hist(as.vector(datInSigma), breaks = c(-25,-10,-5,seq(-1,1,0.02),5), xlim = c(-1,1))
-
-
-dat2exclude <- abs(rs_FOR_delta) < rs_FOR_sigma 
-rs_FOR_delta[dat2exclude] <- NA
-
-qtls <- quantile(as.vector(rs_FOR_delta),probs = c(0.005,.995), na.rm = T)
-rs_FOR_delta[rs_FOR_delta < qtls[1]] <- NA
-rs_FOR_delta[rs_FOR_delta > qtls[2]] <- NA
-
-hist(as.vector(rs_FOR_delta), breaks = c(seq(-1,1,0.01)), xlim = c(-0.5,0.5))
-
-
-plot(rs_FOR_delta[[5]], zlim = c(-0.1,0.1), 
-     col = RColorBrewer::brewer.pal(9,'RdBu'))
-
-
-df_FOR_delta <- as.data.frame(rs_FOR_delta, xy = T, long = T) %>% 
-  dplyr::rename(lon = x, lat = y, delta_cfc = value) %>%
-  dplyr::mutate(month = factor(format(as.Date(layer, format = 'X%Y.%m.%d'), '%b'), 
-                               levels = month.abb)) %>%
-  dplyr::select(-layer) %>%
-  dplyr::filter(!is.na(delta_cfc))
-
-
-# aggregate tto 1 degree for clearer view
-rs_dummy <- raster(nrows = 180, ncols = 360, xmn = -180, xmx = 180, ymn = -90, ymx = 90, 
-                   crs = crs(rs_FOR_delta), vals = NULL)
-
-rs_FOR_delta_1dd <- raster::resample(x = rs_FOR_delta, y = rs_dummy, method = 'bilinear')
-df_FOR_delta_1dd <- as.data.frame(rs_FOR_delta_1dd, xy = T, long = T) %>% 
-  dplyr::rename(lon = x, lat = y, delta_cfc = value) %>%
-  dplyr::mutate(month = factor(format(as.Date(layer, format = 'X%Y.%m.%d'), '%b'), 
-                               levels = month.abb)) %>%
-  dplyr::select(-layer) %>%
-  dplyr::filter(!is.na(delta_cfc))
-
-
-ggplot(df_FOR_delta_1dd %>% 
-         filter(month == 'Jul'), 
-       aes(x = lon, y = lat, fill = delta_cfc)) + 
-  geom_raster() +
-  scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = c(-0.15,0.15), oob = scales::squish) +
-  coord_cartesian(expand = F)
-
-ggplot(df_FOR_delta %>% 
-         filter(month == 'Jul'), 
-       aes(x = lon, y = lat, fill = delta_cfc)) + 
-  geom_raster() +
-  scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = c(-0.15,0.15), oob = scales::squish) +
-  coord_cartesian(expand = F)
-
-
-
 require(sf)
 vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
 world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
@@ -97,6 +17,9 @@ world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
 #   st_transform(laes_prj)
 # xLims <- c(2.5e6,6e6)
 # yLims <- c(1.5e6,4.5e6)
+
+# Load data...
+load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd.Rdata
 
 
 
@@ -123,21 +46,21 @@ zn <- bind_rows(zn.nam, zn.crn, zn.eur, zn.rus, zn.ama, zn.afr, zn.ind, zn.aus)
 
 mk.tmp.plot <- function(zn.dum, mon = NULL, ylims = NULL){
   
-  df.dum  <- df_FOR_delta %>%
+  df.dum  <- df_dCFC_MOD05_FOR %>%
     filter(lat > min(zn.dum$lat), lat < max(zn.dum$lat), 
            lon > min(zn.dum$lon), lon < max(zn.dum$lon)) %>%
     group_by(month) %>%
-    summarize(mean_delta_cfc = mean(delta_cfc),
-              stdE_delta_cfc = sd(delta_cfc)/sqrt(length(delta_cfc))) %>%
-    mutate(sign = factor(sign(mean_delta_cfc), levels = c(-1,0,1) )) 
+    summarize(mean_dCFC = mean(dCFC),
+              stdE_dCFC = sd(dCFC)/sqrt(length(dCFC))) %>%
+    mutate(sign = factor(sign(mean_dCFC), levels = c(-1,0,1) )) 
   
   if(!is.null(mon)){ df.dum$sign[df.dum$month == mon] <- 0 }
   
   g.tmp <- ggplot(df.dum) + 
-    geom_bar(aes(x = month, y = mean_delta_cfc, fill = sign, colour = sign), stat = 'identity') +
+    geom_bar(aes(x = month, y = mean_dCFC, fill = sign, colour = sign), stat = 'identity') +
     geom_errorbar(aes(x = month, colour = sign,
-                      ymin = mean_delta_cfc - stdE_delta_cfc,
-                      ymax = mean_delta_cfc + stdE_delta_cfc))+
+                      ymin = mean_dCFC - stdE_dCFC,
+                      ymax = mean_dCFC + stdE_dCFC))+
     geom_hline(yintercept = 0) +
     scale_y_continuous('Change in CFC') + 
     scale_x_discrete('') +
@@ -169,10 +92,10 @@ g.afr <- mk.tmp.plot(zn.afr, mon = mon, ylims = ylims)
 g.crn <- mk.tmp.plot(zn.crn, mon = mon, ylims = ylims)
 
 
-g.map <- ggplot(df_FOR_delta_1dd %>% 
+g.map <- ggplot(df_dCFC_MOD05_FOR_1dd %>% 
                   filter(month == mon)) + 
   geom_sf(data = world, fill = landColor, size = 0) +
-  geom_raster(aes(x = lon, y = lat, fill = delta_cfc)) +
+  geom_raster(aes(x = lon, y = lat, fill = dCFC)) +
   geom_path(data = zn, aes(group = lbl, x = lon, y = lat), color = 'white') +
   scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
                        limits = c(-0.12,0.12), oob = scales::squish) +
@@ -211,13 +134,13 @@ dev.off()
 
 # Figure of max and min in the year
 
-g.map.extr <- ggplot(df_FOR_delta %>% 
+g.map.extr <- ggplot(df_dCFC_MOD05_FOR %>% 
                        group_by(lat, lon) %>%
-                       summarise(min_cfc = min(delta_cfc, na.rm = T),
-                                 max_cfc = max(delta_cfc, na.rm = T)) %>%
-                       gather(key = 'type', value = 'delta_cfc_xtr', c('min_cfc','max_cfc'))) + 
+                       summarise(min_cfc = min(dCFC, na.rm = T),
+                                 max_cfc = max(dCFC, na.rm = T)) %>%
+                       gather(key = 'type', value = 'dCFC_xtr', c('min_cfc','max_cfc'))) + 
   geom_sf(data = world, fill = landColor, size = 0) +
-  geom_raster(aes(x = lon, y = lat, fill = delta_cfc_xtr)) +
+  geom_raster(aes(x = lon, y = lat, fill = dCFC_xtr)) +
   geom_path(data = zn, aes(group = lbl, x = lon, y = lat), color = 'white') +
   facet_wrap(~type, nc = 1) +
   scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
@@ -244,12 +167,12 @@ dev.off()
 
 df.seas <- data.frame(month = month.abb, season = factor(c(rep('DJF',2),rep('MAM',3),rep('JJA',3),rep('SON',3),'DJF'), levels = c('DJF','MAM','JJA','SON')))
 
-g.map.seas <- ggplot(df_FOR_delta_1dd %>% 
+g.map.seas <- ggplot(df_dCFC_MOD05_FOR_1dd %>% 
                        left_join(df.seas, by = 'month') %>%
                        group_by(lat, lon, season) %>%
-                       summarise(delta_cfc_seas = mean(delta_cfc, na.rm = T))) +
+                       summarise(dCFC_seas = mean(dCFC, na.rm = T))) +
   geom_sf(data = world, fill = landColor, size = 0) +
-  geom_raster(aes(x = lon, y = lat, fill = delta_cfc_seas)) +
+  geom_raster(aes(x = lon, y = lat, fill = dCFC_seas)) +
   geom_path(data = zn, aes(group = lbl, x = lon, y = lat), color = 'white') +
   facet_wrap(~season, nc = 2) +
   scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
@@ -300,12 +223,12 @@ dev.off()
 
 df.seas <- data.frame(month = month.abb, season = factor(c(rep('DJF',2),rep('MAM',3),rep('JJA',3),rep('SON',3),'DJF'), levels = c('DJF','MAM','JJA','SON')))
 
-g.map.seas <- ggplot(df_FOR_delta %>% 
+g.map.seas <- ggplot(df_dCFC_MOD05_FOR %>% 
                        left_join(df.seas, by = 'month') %>%
                        group_by(lat, lon, season) %>%
-                       summarise(delta_cfc_seas = mean(delta_cfc, na.rm = T))) +
+                       summarise(dCFC_seas = mean(dCFC, na.rm = T))) +
   geom_sf(data = world, fill = landColor, size = 0) +
-  geom_raster(aes(x = lon, y = lat, fill = delta_cfc_seas)) +
+  geom_raster(aes(x = lon, y = lat, fill = dCFC_seas)) +
   facet_wrap(~season, nc = 1) +
   scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
                        limits = c(-0.08,0.08), oob = scales::squish) +
@@ -333,10 +256,10 @@ dev.off()
 # lat-month
 
 
-g.lat.month <- ggplot(df_FOR_delta %>% 
+g.lat.month <- ggplot(df_dCFC_MOD05_FOR %>% 
                        group_by(lat, month) %>%
-                       summarise(delta_cfc_latmonth = mean(delta_cfc, na.rm = T))) +
-  geom_raster(aes(x = month, y = lat, fill = delta_cfc_latmonth)) +
+                       summarise(dCFC_latmonth = mean(dCFC, na.rm = T))) +
+  geom_raster(aes(x = month, y = lat, fill = dCFC_latmonth)) +
   scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
                        limits = c(-0.08,0.08), oob = scales::squish) +
   theme(panel.background = element_rect(fill = seaColor),

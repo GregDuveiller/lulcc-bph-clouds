@@ -4,73 +4,89 @@ require(ggplot2)
 
 load('dataResults/Results_from_Andrej/FOR_Greg.RData') # paired
 
+
+
 dist_sel <- 40
 fofr_sel <- 0.2
 
 df <- paired %>% 
-  dplyr::filter(lon >= -10, lon <= 20, lat >= 42, lat <= 58, nyrs >= 8) %>%
-  dplyr::filter(dist > dist_sel, hl > fofr_sel) %>%
-  dplyr::group_by(hour, month) %>%
-  dplyr::summarize(delta_cfc = mean(diff/100, na.rm = T),
-                   delta_cfc_ttest_pval = t.test(diff/100)$p.value,
-                   delta_cfc_stddev = sd(diff/100, na.rm = T),
-                   delta_cfc_stderr = sd(diff/100, na.rm = T)/sqrt(sum(!is.na(diff)))) %>%
+  rename(forest.frc.chg = hl) %>%
+  mutate(dCFC = diff/100) %>%
+  filter(lon >= -10, lon <= 20, lat >= 42, lat <= 58, nyrs >= 8) %>%
+  filter(dist > dist_sel, forest.frc.chg > fofr_sel) %>%
+  group_by(hour, month) %>%
+  summarize(dCFC_mu = mean(dCFC, na.rm = T),
+            dCFC_ttest_pval = t.test(dCFC)$p.value,
+            dCFC_stddev = sd(dCFC, na.rm = T),
+            dCFC_stderr = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC)))) %>%
   dplyr::mutate(month = factor(month.abb[month], levels = month.abb))
 
 lim.colors <- c(-0.1, 0.1)
 
-
 #ggplot(dum, aes(x = hl, y = diff)) + geom_point() + xlim(0,1) + coord_cartesian(xlim = c(0,1)) + stat_smooth(method = 'lm', formula = y ~ x - 1, fullrange = TRUE)
 
 ggplot(df) +
-  geom_tile(aes(x = factor(month), y = factor(hour), fill = delta_cfc)) +
+  geom_tile(aes(x = factor(month), y = factor(hour), fill = dCFC_mu)) +
   geom_point(aes(x = factor(month), y = factor(hour), 
-                 alpha = factor(delta_cfc_ttest_pval < 0.05))) +
+                 alpha = factor(dCFC_ttest_pval < 0.05))) +
   scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                        limits = lim.colors, oob = scales::squish) +
+                       limits = lim.colors, oob = scales::squish) +
   scale_alpha_manual(values = c('FALSE' = 0, 'TRUE' = 1), guide = 'none') +
   coord_polar()
 
 
 ggplot(df) +
-  geom_tile(aes(y = factor(month), x = factor(hour), fill = delta_cfc)) +
+  geom_tile(aes(y = factor(month), x = factor(hour), fill = dCFC_mu)) +
   geom_point(aes(y = factor(month), x = factor(hour), 
-                 alpha = factor(sign(abs(delta_cfc) - 2*delta_cfc_stderr)))) +
+                 alpha = factor(sign(abs(dCFC) - 2*dCFC_stderr)))) +
   scale_alpha_manual(values = c('-1' == 0, '1' == 1), guide = 'none') +
   scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = lim.colors/5, oob = scales::squish)+
+                       limits = lim.colors, oob = scales::squish)+
   coord_polar()
 
 
 ggplot(df) +
-  geom_tile(aes(y = factor(month), x = factor(hour), fill = delta_cfc)) +
+  geom_tile(aes(y = factor(month), x = factor(hour), fill = dCFC_mu)) +
   geom_point(aes(y = factor(month), x = factor(hour), 
-                 alpha = factor(delta_cfc_ttest_pval < 0.05))) +
+                 alpha = factor(dCFC_ttest_pval < 0.05))) +
   scale_alpha_manual(values = c('FALSE' = 0, 'TRUE' = 1), guide = 'none') +
   scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
                        limits = lim.colors/5, oob = scales::squish)+
   coord_polar()
 
 
-### extrapolating to 100 %
+# try extrapolating to 100 ----
+
+# (here we do it by fitting a slope thru 0, where 0 is no change, but should
+# this not be zero forest?)
 
 df <- paired %>% 
-  dplyr::filter(lon >= -10, lon <= 20, lat >= 42, lat <= 58, nyrs >= 8) %>%
-  dplyr::filter(dist > dist_sel, hl > fofr_sel) %>%
-  dplyr::group_by(hour, month) %>%
-  dplyr::summarize(delta_cfc = mean(diff/100, na.rm = T),
-                   delta_cfc_ttest_pval = t.test(diff/100)$p.value,
-                   delta_cfc_stddev = sd(diff/100, na.rm = T),
-                   delta_cfc_stderr = sd(diff/100, na.rm = T)/sqrt(sum(!is.na(diff)))) %>%
+  rename(forest.frc.chg = hl) %>%
+  mutate(dCFC = diff/100) %>%
+  filter(lon >= -10, lon <= 20, lat >= 42, lat <= 58, nyrs >= 8) %>%
+  filter(dist > dist_sel, forest.frc.chg > fofr_sel) %>%
+  group_by(hour, month) %>%
+  summarize(dCFC_mu_100 = lm(dCFC ~ forest.frc.chg - 1)$coefficients[1],
+            dCFC_mu = mean(dCFC, na.rm = T),
+            fofr_mu = mean(forest.frc.chg, na.rm = T)) %>%
   dplyr::mutate(month = factor(month.abb[month], levels = month.abb))
 
+ggplot(df) +
+  geom_tile(aes(y = factor(month), x = factor(hour), fill = dCFC_mu_100)) +
+  scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = lim.colors, oob = scales::squish)+
+  coord_polar()
 
 
 
 
 
 
-# try map #
+
+
+
+
+# try map ----
 
 require(sf)
 vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
@@ -95,12 +111,12 @@ df <- paired %>%
   dplyr::filter(dist > dist_sel, hl > fofr_sel) %>%
   dplyr::filter(hour == time_sel) %>%
   mutate(month = factor(month.abb[month], levels = month.abb))
-  
+
 g_map_months <- ggplot(df) +
   geom_sf(data = world, fill = landColor, size = 0) +
   geom_point(aes(x = lon, y = lat, color = diff/100), size = 0.5) + 
   scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = lim.colors, oob = scales::squish) + 
+                        limits = lim.colors, oob = scales::squish) + 
   facet_wrap(~month, nc = 3) + 
   coord_sf(xlim = c(-10, 40), ylim = c(36, 64)) +
   theme(legend.position = 'bottom',
