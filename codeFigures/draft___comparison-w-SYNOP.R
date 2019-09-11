@@ -38,7 +38,7 @@ ggplot(df) +
 ggplot(df) +
   geom_tile(aes(y = factor(month), x = factor(hour), fill = dCFC_mu)) +
   geom_point(aes(y = factor(month), x = factor(hour), 
-                 alpha = factor(sign(abs(dCFC) - 2*dCFC_stderr)))) +
+                 alpha = factor(sign(abs(dCFC_mu) - 2*dCFC_stderr)))) +
   scale_alpha_manual(values = c('-1' == 0, '1' == 1), guide = 'none') +
   scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
                        limits = lim.colors, oob = scales::squish)+
@@ -56,6 +56,67 @@ ggplot(df) +
 
 
 # try extrapolating to 100 ----
+
+
+dist_sel <- 30
+fofr_sel <- 0
+
+
+df.dum <- paired %>% 
+  rename(forest.frc.chg = hl) %>%
+  mutate(dCFC = diff/100) %>%
+  filter(lon >= -10, lon <= 20, lat >= 42, lat <= 58, nyrs >= 11) %>%
+  filter(dist > dist_sel, forest.frc.chg > fofr_sel) 
+
+
+ggplot(df.dum %>% 
+         filter(hour == 10, month == 2) %>%
+         distinct(area.h,area.l,dCFC, .keep_all = T)) +
+  geom_point(aes(x = area.h, y = area.l, colour = dCFC), size = 1)  +
+  geom_abline() +
+  scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                        limits = lim.colors, oob = scales::squish) + 
+  coord_equal(xlim = c(0, 1), ylim = c(0, 1))
+
+
+
+
+df.sub <- df.dum %>% 
+  filter(hour == 20, month == 3) %>%
+  distinct(area.h,area.l,dCFC, .keep_all = T)
+
+n.grid = 101
+df.mesh <- data.frame(area.h = rep(seq(0,1, length.out = n.grid),times = n.grid), 
+                      area.l = rep(seq(0,1, length.out = n.grid), each = n.grid))
+
+fit <- lm(dCFC ~ area.h + area.l - 1, data = df.sub)
+df.pred <- df.mesh %>%
+  mutate(dCFC = predict(fit, newdata = df.mesh))
+
+## TO DO>>>
+# according to Ale, try not to have 'sorted' data of from more forest to less 
+# forest and instead have them randomly fill the space... 
+# 
+# then, the fit should be equivalnet to the linear 1-D fit thru zero of all 
+# points collapsed on the [0,1] to [1,0] line.
+# 
+# I probably need an new clear script to sort this out in a clean way ... 
+  
+  
+ggplot(df.sub) +
+  # geom_contour(aes(x = area.h, y = area.l, z = dCFC), bins = 100)+
+  # geom_density_2d(aes(x = area.h, y = area.l, colour = stat(level))) + 
+#   stat_density_2d(aes(x = area.h, y = area.l, fill = stat(level)), geom = "polygon") + 
+  geom_raster(data = df.pred, aes(x = area.h, y = area.l, fill = dCFC)) +
+  geom_point(aes(x = area.h, y = area.l, fill = dCFC), shape = 21,  size = 2) +
+  geom_abline() +
+  scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                        limits = lim.colors, oob = scales::squish) + 
+  coord_equal(xlim = c(0, 1), ylim = c(0, 1))  
+
+
+
+
 
 # (here we do it by fitting a slope thru 0, where 0 is no change, but should
 # this not be zero forest?)

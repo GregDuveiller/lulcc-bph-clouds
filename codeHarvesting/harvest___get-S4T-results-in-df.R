@@ -12,7 +12,7 @@ dir.create('dataFigures', recursive = T, showWarnings = F)
 
 # dummy raster to aggregate the output data in
 rs_dummy <- raster(nrows = 180, ncols = 360, xmn = -180, xmx = 180, ymn = -90, ymx = 90, 
-                   crs = crs(rs_FOR_delta), vals = NULL)
+                   crs = CRS('+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0'), vals = NULL)
 
 # filtering thresholds
 thr.mnqtl <- 0.005

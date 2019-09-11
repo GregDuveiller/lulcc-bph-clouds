@@ -26,3 +26,11 @@ ggplot(df) +
                        limits = lim.colors/5, oob = scales::squish)+
   coord_polar()
 
+ggplot(df) +
+  geom_tile(aes(y = factor(month), x = factor(hour), fill = dCFC.mu)) +
+  geom_point(aes(y = factor(month), x = factor(hour), 
+                 alpha = factor(dCFC.ttest_pval < 0.05))) +
+  scale_alpha_manual(values = c('FALSE' = 0, 'TRUE' = 1), guide = 'none') +
+  scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = lim.colors/5, oob = scales::squish)+
+  coord_polar()
