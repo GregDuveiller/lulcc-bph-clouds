@@ -1,7 +1,7 @@
 require(tidyr)
 require(dplyr)
 require(ggplot2)
-
+require(purrr)
 
 load('dataResults/Results_from_Andrej/FOR_Greg.RData') # paired
 
@@ -86,7 +86,8 @@ plot.SYNOP.pairs <- function(df, sorting.var, display.var = 6,
     mutate(r.squared = map(df.fit, summary) %>% map_dbl("r.squared"),
            sorting.var =  factor(names(df.fit), levels = levels(df.sub$sorting.var), ordered = T),
            val.label = paste0(round(fit, digits = 3), '%+-%',
-                              round(2 * se.fit, digits = 3), ' %->% phantom(1)')) 
+                              round(2 * se.fit, digits = 3), ' %->% phantom(1)'),
+           val.signif = abs(fit) > 2 * se.fit) 
   
   
   big.title <- 'Effect of change in forest cover on cloud cover based on SYNOP'
@@ -99,10 +100,15 @@ plot.SYNOP.pairs <- function(df, sorting.var, display.var = 6,
   g <- ggplot(df.sub, aes(x = for.cvr.pt1, y = for.cvr.pt2)) +
     geom_raster(data = df.pred.mesh, aes(fill = dCFC)) +
     geom_point(aes(fill = dCFC), shape = 21,  size = 2) +
-    geom_text(data = df.pred.val, x = 0.75, y = 0,
-              aes(label = val.label), parse = TRUE) +
-    geom_abline() +
+    geom_text(data = df.pred.val %>% filter(val.signif == F), x = 1, y = 0,
+              aes(label = val.label), colour = "grey50", parse = TRUE, hjust = 1) +
+    geom_text(data = df.pred.val %>% filter(val.signif == T), x = 1, y = 0,
+              aes(label = val.label), colour = "black", parse = TRUE, hjust = 1) +
+    geom_point(data = df.pred.val, x = 1, y = 0, shape = 3, size = 3, 
+               aes(colour = val.signif)) +
+    geom_abline(colour = "grey30") +
     facet_wrap(~sorting.var, nc = 4) +
+    scale_colour_manual(values = c("grey50", "black"), guide = 'none') +
     scale_fill_gradientn('Change in cloud fraction cover',
                          colours = RColorBrewer::brewer.pal(9,'RdBu'),
                          limits = lim.colors, oob = scales::squish) + 
