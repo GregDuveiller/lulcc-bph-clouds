@@ -1,19 +1,37 @@
+require(raster)
+require(dplyr)
+require(tidyr)
+require(ggplot2)
 
 
-# get RAM's data
+
+# get RAM's data ----
+
+
+# per ClimZone 5 region ... 
+data.path <- 'dataResults/Results_from_RAM/method1_simplefit/ClimZone5/'
+data.tag <- '_'
+
+data.path <- 'dataResults/Results_from_RAM/method2_simplefit-25pct/ClimZone5/'
+data.tag <- '_MinOf25percentChange_'
+
+data.path <- 'dataResults/Results_from_RAM/method3_fit-on-quantiles/ClimZone5/'
+data.tag <- '_binedby4percentChange_'
+
 
 CZ5_regions <- c('Tropical', 'Arid', 'Temperate', 'Boreal')
 PFTs <- c('TOT','EFO','DFO')
 df_CZ5_RAM <- data.frame()
 for(region in CZ5_regions){
   for(pft in PFTs){
-  dum <- read.csv(file = paste0('dataResults/Results_from_RAM/CLIMzone5/',region,'_',pft,'.csv')) %>%
+  dum <- read.csv(file = paste0(data.path, region, data.tag,pft, '.csv')) %>%
     mutate(month = factor(month.abb, levels = month.abb),
            region = factor(region, levels = CZ5_regions),
            PFT = factor(pft, levels = PFTs),
            dCFC_CZ5 = Slope / 100,
            dCFC_CZ5_STD_err = STD_err / 100) %>%
-    dplyr::select(-Slope, -STD_err, -Pvalue)
+    dplyr::select(-Slope, -STD_err)
+    #dplyr::select(-Slope, -STD_err, -Pvalue)
   df_CZ5_RAM <- bind_rows(df_CZ5_RAM, dum)  
   }
 }
@@ -28,9 +46,9 @@ for(region in CZ5_regions){
 
 # get my data
 
-load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd.Rdata
-load('dataFigures/df_dCFC_MOD05_DFO_1dd.Rdata') # df_dCFC_MOD05_DFO_1dd.Rdata
-load('dataFigures/df_dCFC_MOD05_EFO_1dd.Rdata') # df_dCFC_MOD05_EFO_1dd.Rdata
+load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd
+load('dataFigures/df_dCFC_MOD05_DFO_1dd.Rdata') # df_dCFC_MOD05_DFO_1dd
+load('dataFigures/df_dCFC_MOD05_EFO_1dd.Rdata') # df_dCFC_MOD05_EFO_1dd
 
 # get ClimZones
 cz5_map <- raster('/ESS_EarthObs/CLIMATE_DATA/koppen-Geiger/koppen-Geiger_360x180_5zones.nc', varname = 'climzone')
@@ -44,19 +62,19 @@ cz5_df <- as.data.frame(cz5_map, xy = T, long = T) %>%
 
 
 df_CZ5_S4T <- bind_rows(
-  df_dCFC_MOD05_DFO_1dd.Rdata %>% 
+  df_dCFC_MOD05_DFO_1dd %>% 
     inner_join(cz5_df, by = c('lat', 'lon')) %>%
     group_by(month, region) %>%
     summarize(dCFC_CZ5 = mean(dCFC, na.rm = T),
               dCFC_CZ5_STD_err = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC)))) %>%
     mutate(PFT = factor('DFO', levels = PFTs)),
-  df_dCFC_MOD05_EFO_1dd.Rdata %>% 
+  df_dCFC_MOD05_EFO_1dd %>% 
     inner_join(cz5_df, by = c('lat', 'lon')) %>%
     group_by(month, region) %>%
     summarize(dCFC_CZ5 = mean(dCFC, na.rm = T),
               dCFC_CZ5_STD_err = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC)))) %>%
     mutate(PFT = factor('EFO', levels = PFTs)),
-  df_dCFC_MOD05_FOR_1dd.Rdata %>% 
+  df_dCFC_MOD05_FOR_1dd %>% 
     inner_join(cz5_df, by = c('lat', 'lon')) %>%
     group_by(month, region) %>%
     summarize(dCFC_CZ5 = mean(dCFC, na.rm = T),
@@ -83,7 +101,8 @@ g_bars <- ggplot(df_CZ5) +
         axis.text.x = element_text(angle = 90)) + 
   ggtitle('Cloud fraction cover difference following afforestation\n as estimated using different methods')
 
-ggsave('S4TvsRAM_bars.png', path = 'tempFigures/', plot = g_bars, width = 7, height = 8)
+ggsave(paste0('S4TvsRAM_bars',data.tag,'.png'),
+       path = 'tempFigures/', plot = g_bars, width = 7, height = 8)
 
 g_scatter <- ggplot(df_CZ5 %>%
          dplyr::select(-dCFC_CZ5_STD_err) %>%
@@ -96,4 +115,5 @@ g_scatter <- ggplot(df_CZ5 %>%
   ggtitle('Cloud fraction cover difference following afforestation\nas estimated using different methods')
 
 
-ggsave('S4TvsRAM_scatter.png', path = 'tempFigures/', plot = g_scatter, width = 6, height = 6)
+ggsave(paste0('S4TvsRAM_scatter',data.tag,'.png'),
+       path = 'tempFigures/', plot = g_scatter, width = 6, height = 6)

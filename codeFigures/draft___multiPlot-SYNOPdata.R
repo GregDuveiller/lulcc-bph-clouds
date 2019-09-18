@@ -5,7 +5,6 @@ require(purrr)
 
 load('dataResults/Results_from_Andrej/FOR_Greg.RData') # paired
 
-
 # some cleaning up..
 df1 <- paired %>% 
   distinct(month, hour, area.h, area.l, diff, .keep_all = T) %>% # this shouldn't be needed
@@ -14,6 +13,7 @@ df1 <- paired %>%
          for.cvr.pt1 = area.h,
          for.cvr.pt2 = area.l) 
 
+# shuffle directions of the effect... 
 n.rows <- dim(df1)[1]
 ID.rows <- 1:n.rows %in% sample.int(n = n.rows, size = n.rows/2, replace = F) 
 
@@ -33,6 +33,21 @@ df <- df1 %>% select(-area.h, -area.l) %>%
                               `13`="13:00", `14`="14:00", `15`="15:00", `16`="16:00",
                               `17`="17:00", `18`="18:00", `19`="19:00", `20`="20:00",
                               `21`="21:00", `22`="22:00", `23`="23:00"))
+
+# filter per region
+regio <- 'eur'
+mk.zone <- function(lbl, xmn, xmx, ymn, ymx){
+  zn <- data.frame(lbl = lbl, 
+                   lon = c(xmn, xmn, xmx, xmx, xmn), 
+                   lat = c(ymn, ymx, ymx, ymn, ymn))}
+zn <- mk.zone(regio,-10,20,42,58)
+
+df <- df %>%
+  filter(lon < zn.lon, lon > zn)
+
+# set path for these dedicated figures
+fpath <- 'tempFigures/SYNOP' 
+dir.create(path = fpath, showWarnings = F, recursive = T)
 
 
 # define function to plot...
@@ -123,7 +138,7 @@ plot.SYNOP.pairs <- function(df, sorting.var, display.var = 6,
   ggsave(filename = paste0('SYNOP-pairs-by-', sorting.var, '-for-', ref.value,
                            '_', thr.dist.min,'km_',thr.dist.max, 'km_', 
                            thr.nyrs.min,'yrs_',thr.dfor.min,'dif', '.png'),
-         plot = g, path = 'tempFigures/', width = 9, height = 9)
+         plot = g, path = fpath, width = 9, height = 9)
   
 }
 
