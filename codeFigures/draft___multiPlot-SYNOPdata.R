@@ -4,21 +4,24 @@ require(ggplot2)
 require(purrr)
 
 load('dataResults/Results_from_Andrej/FOR_Greg.RData') # paired
+load('dataResults/Results_from_Andrej/forGregNew.RData') # paired.new
 
 # some cleaning up..
-df1 <- paired %>% 
-  distinct(month, hour, area.h, area.l, diff, .keep_all = T) %>% # this shouldn't be needed
-  rename(dfor = hl) %>%
+df1 <- paired.new %>% 
+  distinct(month, hour, area.h, area.l, diff, dist, N, .keep_all = T) %>% # this shouldn't be needed
   mutate(dCFC = diff/100,
+         dfor = hl,
          for.cvr.pt1 = area.h,
          for.cvr.pt2 = area.l) 
 
 # shuffle directions of the effect... 
+set.seed(1982)
 n.rows <- dim(df1)[1]
 ID.rows <- 1:n.rows %in% sample.int(n = n.rows, size = n.rows/2, replace = F) 
 
 df1[ID.rows,]$for.cvr.pt1 <- df1[ID.rows,]$area.l
 df1[ID.rows,]$for.cvr.pt2 <- df1[ID.rows,]$area.h
+df1[ID.rows,]$dfor <- -df1[ID.rows,]$hl
 df1[ID.rows,]$dCFC <- -df1[ID.rows,]$dCFC
 
 df <- df1 %>% select(-area.h, -area.l) %>%
@@ -35,15 +38,18 @@ df <- df1 %>% select(-area.h, -area.l) %>%
                               `21`="21:00", `22`="22:00", `23`="23:00"))
 
 # filter per region
-regio <- 'eur'
+regio <- 'EUR'
 mk.zone <- function(lbl, xmn, xmx, ymn, ymx){
   zn <- data.frame(lbl = lbl, 
                    lon = c(xmn, xmn, xmx, xmx, xmn), 
                    lat = c(ymn, ymx, ymx, ymn, ymn))}
 zn <- mk.zone(regio,-10,20,42,58)
 
-df <- df %>%
-  filter(lon < zn.lon, lon > zn)
+df <- df %>% 
+  filter(lat > min(zn$lat), lat < max(zn$lat), 
+         lon > min(zn$lon), lon < max(zn$lon))
+
+
 
 # set path for these dedicated figures
 fpath <- 'tempFigures/SYNOP' 
@@ -75,29 +81,41 @@ plot.SYNOP.pairs <- function(df, sorting.var, display.var = 6,
     filter(dist <= thr.dist.max, 
            dist >= thr.dist.min,
            nyrs >= thr.nyrs.min,
-           dfor >= thr.dfor.min) %>%
+           abs(dfor) >= thr.dfor.min) %>%
     mutate(hour = factor(hour, levels = hour2show, ordered = T)) %>%
     mutate(sorting.var = !!sorting.var.quo)
   
   
   n.grid = 101
-  df.mesh <- data.frame(for.cvr.pt1 = rep(seq(0,1, length.out = n.grid), times = n.grid), 
-                        for.cvr.pt2 = rep(seq(0,1, length.out = n.grid), each = n.grid))
+  df.mesh <- data.frame(for.cvr.pt1 = rep(seq(0,1, length.out = n.grid), 
+                                          times = n.grid), 
+                        for.cvr.pt2 = rep(seq(0,1, length.out = n.grid), 
+                                          each = n.grid)) %>%
+    mutate(dfor = for.cvr.pt1 - for.cvr.pt2)
   
-  
+  # fit 2-d surface... (rough way)
   df.fit <- df.sub %>%
     split(.$sorting.var) %>%
     map(~ lm(dCFC ~ for.cvr.pt1 + for.cvr.pt2 - 1, data = .)) 
+  # the lm above should be improved by either using a more elastics 2-D surface,
+  # including a constraint to the 1:1 line (y - x = 0), or by simplifying using 
+  # only a 1-D fit perpendicular to the 1:1 line
+  
+  # fit 1-d line ... (simple way)
+  df.fit <- df.sub %>%
+    split(.$sorting.var) %>%
+    map(~ lm(dCFC ~ dfor - 1, data = .)) 
+  
   
   df.pred.mesh <- df.fit %>%
     map_dfr(~ predict(object = ., newdata = df.mesh)) %>%
     bind_cols(df.mesh) %>%
-    gather(key = sorting.var, value = dCFC, -for.cvr.pt1, -for.cvr.pt2) %>%
+    gather(key = sorting.var, value = dCFC, -for.cvr.pt1, -for.cvr.pt2, -dfor) %>%
     mutate(sorting.var = factor(sorting.var, levels = levels(df.sub$sorting.var), ordered = T))
   
   df.pred.val <- df.fit %>%
     map_dfr(~ predict(object = ., se.fit = T, 
-                      newdata = data.frame(for.cvr.pt1 = 1, for.cvr.pt2 = 0))) %>%
+                      newdata = data.frame(for.cvr.pt1 = 1, for.cvr.pt2 = 0, dfor = 1))) %>%
     mutate(r.squared = map(df.fit, summary) %>% map_dbl("r.squared"),
            sorting.var =  factor(names(df.fit), levels = levels(df.sub$sorting.var), ordered = T),
            val.label = paste0(round(fit, digits = 3), '%+-%',
@@ -106,9 +124,11 @@ plot.SYNOP.pairs <- function(df, sorting.var, display.var = 6,
   
   
   big.title <- 'Effect of change in forest cover on cloud cover based on SYNOP'
-  sub.title <-  paste0(ref.value, ' | MinDist: ', thr.dist.min,'km | ','MaxDist: ', 
-                       thr.dist.max,'km | ', 'MinYears: ', thr.nyrs.min, 'yrs | ', 
-                       'MinDfor: ', 100 * thr.dfor.min, '%')
+  sub.title <-  paste0(regio, ' | ', ref.value, 
+                       ' | MinDist: ', thr.dist.min, 'km',
+                       ' | MaxDist: ', thr.dist.max, 'km', 
+                       ' | MinYears: ', thr.nyrs.min, 'yrs',
+                       ' | MinDfor: ', 100 * thr.dfor.min, '%')
   
   lim.colors <- c(-0.08, 0.08)
   
@@ -135,7 +155,7 @@ plot.SYNOP.pairs <- function(df, sorting.var, display.var = 6,
           legend.key.width = unit(2.4, "cm")) +
     guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
   
-  ggsave(filename = paste0('SYNOP-pairs-by-', sorting.var, '-for-', ref.value,
+  ggsave(filename = paste0('SYNOP-pairs-in-',regio,'-by-', sorting.var, '-for-', ref.value,
                            '_', thr.dist.min,'km_',thr.dist.max, 'km_', 
                            thr.nyrs.min,'yrs_',thr.dfor.min,'dif', '.png'),
          plot = g, path = fpath, width = 9, height = 9)
