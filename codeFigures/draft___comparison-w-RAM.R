@@ -9,14 +9,10 @@ require(ggplot2)
 
 
 # per ClimZone 5 region ... 
-data.path <- 'dataResults/Results_from_RAM/method1_simplefit/ClimZone5/'
-data.tag <- '_'
+data.tag <- '_absolute_'
+#data.tag <- '_binedby4percentChange_'
 
-data.path <- 'dataResults/Results_from_RAM/method2_simplefit-25pct/ClimZone5/'
-data.tag <- '_MinOf25percentChange_'
-
-data.path <- 'dataResults/Results_from_RAM/method3_fit-on-quantiles/ClimZone5/'
-data.tag <- '_binedby4percentChange_'
+data.path <- paste0('dataResults/Results_from_RAM/', data.tag, '/')
 
 
 CZ5_regions <- c('Tropical', 'Arid', 'Temperate', 'Boreal')
@@ -24,7 +20,7 @@ PFTs <- c('TOT','EFO','DFO')
 df_CZ5_RAM <- data.frame()
 for(region in CZ5_regions){
   for(pft in PFTs){
-  dum <- read.csv(file = paste0(data.path, region, data.tag,pft, '.csv')) %>%
+  dum <- read.csv(file = paste0(data.path, region, data.tag, pft, '.csv')) %>%
     mutate(month = factor(month.abb, levels = month.abb),
            region = factor(region, levels = CZ5_regions),
            PFT = factor(pft, levels = PFTs),
@@ -91,7 +87,12 @@ df_CZ5 <- bind_rows(
 
 # some plot
 g_bars <- ggplot(df_CZ5) +
-  geom_bar(aes(x = month, y = dCFC_CZ5, fill = method), stat = 'identity', position = 'dodge') +
+  geom_bar(aes(x = month, y = dCFC_CZ5, fill = method), 
+           stat = 'identity', position = 'dodge') +
+  geom_errorbar(aes(x = month, color = method,
+                    ymin = dCFC_CZ5 - dCFC_CZ5_STD_err, 
+                    ymax = dCFC_CZ5 + dCFC_CZ5_STD_err),
+                position = 'dodge') +
   geom_hline(yintercept = 0, colour = 'grey40', size = 0.5) +
   facet_grid(region~PFT) + 
   scale_fill_discrete('Method used:') +
@@ -105,9 +106,18 @@ ggsave(paste0('S4TvsRAM_bars',data.tag,'.png'),
        path = 'tempFigures/', plot = g_bars, width = 7, height = 8)
 
 g_scatter <- ggplot(df_CZ5 %>%
-         dplyr::select(-dCFC_CZ5_STD_err) %>%
-         tidyr::spread(key = 'method', value = 'dCFC_CZ5')) +
-  geom_point(aes(x = S4T, y = RAM, shape = PFT, colour = month), size = 2) +
+                      dplyr::select(-Number_of_bins) %>%
+                      tidyr::pivot_wider(names_from = 'method',
+                                         values_from = c('dCFC_CZ5','dCFC_CZ5_STD_err'))) +
+  geom_errorbar(aes(x = dCFC_CZ5_S4T, 
+                    ymin = dCFC_CZ5_RAM - dCFC_CZ5_STD_err_RAM,
+                    ymax = dCFC_CZ5_RAM + dCFC_CZ5_STD_err_RAM,
+                    colour = month)) +
+  geom_errorbarh(aes(y = dCFC_CZ5_RAM, 
+                    xmin = dCFC_CZ5_S4T - dCFC_CZ5_STD_err_S4T,
+                    xmax = dCFC_CZ5_S4T + dCFC_CZ5_STD_err_S4T,
+                    colour = month)) +
+  geom_point(aes(x = dCFC_CZ5_S4T, y = dCFC_CZ5_RAM, shape = PFT, colour = month), size = 2) +
   geom_abline(colour = 'grey40', size = 0.5) + 
   coord_equal(ylim = c(-0.1,0.05), xlim = c(-0.1,0.05)) + 
   scale_color_viridis_d('Month:', option = 'D') +
