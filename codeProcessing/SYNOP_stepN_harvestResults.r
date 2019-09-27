@@ -55,6 +55,7 @@ zn.afr <- mk.zone('afr',10,42,-25,-5)
 
 
 
+zn.nor <- mk.zone('nor',-180,180,30,90)
 
 
 
@@ -119,7 +120,7 @@ get.SYNOP.values <- function(df, zn = NULL, min.num.samples = 5,
   }
   
   ## The fitting ----
-  df.fit <- df.sub %>%
+  df.fit <- df.select %>%
     split(.$cases) %>%
     map(~ lm(dCFC ~ dfor - 1, data = .)) 
   
@@ -145,17 +146,72 @@ get.SYNOP.values <- function(df, zn = NULL, min.num.samples = 5,
   
   ## exporting with relevant info ----
   df.pred.val <- df.pred.val %>% 
+    left_join(df.count, by = 'cases') %>%
     rename(dCFC = fit) %>%
     mutate(month = factor(substring(cases, 1, 3), 
                           levels = levels(df.sub$month), ordered = T),
            hour = factor(substring(cases, 5, 9), 
                          levels = levels(df.sub$hour), ordered = T))
   
+  
+  
   df.output <- left_join(df.output.dum, df.pred.val, 
                          by = c("month", "hour"))
   
+  # this could be done more elegantly I suppose
+  df.output$val.signif[is.na(df.output$val.signif)] <- FALSE
+  
   return(df.output)
 }
+
+
+
+df.all <- data.frame(NULL)
+for(i.thr.dist.max in seq(60,100,20)){
+  for(i.thr.dist.min in seq(20,40,10)){
+out.df <- get.SYNOP.values(df, zn = zn.nor, 
+                           thr.dist.max = i.thr.dist.max,
+                           thr.dist.min = i.thr.dist.min)
+df.all <- rbind(df.all, out.df)
+}}
+
+
+
+require(ggplot2)
+ggplot(df.all, aes(x = hour, y = month)) +
+  geom_tile(aes(fill = dCFC)) +
+  geom_point(aes(alpha = val.signif)) +
+  scale_alpha_manual(values = c(0,1), guide = F) +
+  scale_fill_gradientn('Change in cloud fraction cover',
+                       colors = RColorBrewer::brewer.pal(9, 'RdBu'),
+                       limits = c(-0.08,0.08), oob = scales::squish) +
+  coord_polar() +
+  facet_grid(thr.dist.max~thr.dist.min) +
+  theme(legend.position = 'bottom',
+        legend.key.width = unit(2.4, "cm"),
+        panel.background = element_rect(fill = 'white'),
+        axis.title = element_blank(),
+        axis.text.y = element_text()) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+
+ggplot(df.all, aes(x = hour, y = month)) +
+  geom_tile(aes(fill = n)) +
+  geom_point(aes(alpha = val.signif)) +
+  scale_alpha_manual(values = c(0,1), guide = F) +
+  scale_fill_viridis_c('Number of available SYNOP pairs') +
+  coord_polar() +
+  facet_grid(thr.dist.max~thr.dist.min) +
+  theme(legend.position = 'bottom',
+        legend.key.width = unit(2.4, "cm"),
+        panel.background = element_rect(fill = 'white'),
+        axis.title = element_blank(),
+        axis.text.y = element_text()) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+
+
+
 
 
 
@@ -166,7 +222,8 @@ out.df <- get.SYNOP.values(df, zn = zn.nam)
 df.all <- rbind(df.all, out.df)
 out.df <- get.SYNOP.values(df, zn = zn.rus)
 df.all <- rbind(df.all, out.df)
-
+out.df <- get.SYNOP.values(df, zn = zn.aus)
+df.all <- rbind(df.all, out.df)
 
 
 
@@ -207,3 +264,21 @@ ggplot(df.all, aes(x = hour, y = month)) +
         axis.title = element_blank(),
         axis.text.y = element_text()) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+
+
+
+ggplot(df.all, aes(x = hour, y = month)) +
+  geom_tile(aes(fill = n)) +
+  geom_point(aes(alpha = val.signif)) +
+  scale_alpha_manual(values = c(0,1), guide = F) +
+  scale_fill_viridis_c('Number of available SYNOP pairs') +
+  coord_polar() +
+  facet_wrap(~regio) +
+  theme(legend.position = 'bottom',
+        legend.key.width = unit(2.4, "cm"),
+        panel.background = element_rect(fill = 'white'),
+        axis.title = element_blank(),
+        axis.text.y = element_text()) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
