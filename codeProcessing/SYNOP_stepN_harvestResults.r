@@ -166,7 +166,10 @@ out.df <- get.SYNOP.values(df, zn = zn.nam)
 df.all <- rbind(df.all, out.df)
 out.df <- get.SYNOP.values(df, zn = zn.rus)
 df.all <- rbind(df.all, out.df)
-
+out.df <- get.SYNOP.values(df, zn = zn.ama)
+df.all <- rbind(df.all, out.df)
+out.df <- get.SYNOP.values(df, zn = zn.ind)
+df.all <- rbind(df.all, out.df)
 
 
 
