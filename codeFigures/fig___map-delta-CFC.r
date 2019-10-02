@@ -186,11 +186,11 @@ if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, 
 if(fig.fmt == 'pdf'){pdf(fig.fullfname, width = fig.width, height = fig.height)}
 
 hm <- 1.0; wm <- 0.5
-hs <- 0.5; ws <- 0.5
-w <- 1/6; h <- (1 - hs)/3; s <- 0.5
+hs <- 0.45; ws <- 1 - wm
+w <- ws/3; h <- (1 - hs - 0.02)/3; s <- wm
 
 print(g.map.seasonal, vp = viewport(width = wm, height = hm, x = 0, y = 0, just = c(0,0)))
-print(g.lat.month,    vp = viewport(width = ws, height = hs, x = ws, y = 1 - hs, just = c(0,0)))
+print(g.lat.month,    vp = viewport(width = ws, height = hs, x = wm, y = 1 - hs, just = c(0,0)))
 
 print(g.ama, vp = viewport(width = w, height = h, y = 0 * h, x = s + 0 * w, just = c(0,0)))
 print(g.crn, vp = viewport(width = w, height = h, y = 1 * h, x = s + 0 * w, just = c(0,0)))

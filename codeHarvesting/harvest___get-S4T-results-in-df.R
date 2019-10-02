@@ -8,6 +8,7 @@ library(lubridate)
 library(here)
 
 
+
 dir.create('dataFigures', recursive = T, showWarnings = F)
 
 # dummy raster to aggregate the output data in
