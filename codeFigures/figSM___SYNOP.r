@@ -13,8 +13,9 @@ landColor <- 'grey60'
 seaColor <- 'grey20'
 
 zlims <- c(-0.07, 0.07)
-pointSize <- 1.5
-
+zlims.num <- c(0, 800)
+  
+  
 xLims <- c(2.5e6,6e6)
 yLims <- c(1.5e6,4.5e6)
 
@@ -31,16 +32,13 @@ i.thr.nyrs.min <- 5   # 5 7 9
 
 load('dataFigures/df_SYNOP_agr_4polarplots_eur.RData') # df_SYNOP_agr
 
+# rename for convenience
 df_SYNOP_agr <- df_SYNOP_agr %>%
   rename(MinDist = thr.dist.min,
          MaxDist = thr.dist.max,
          MinYears = thr.nyrs.min,
          MinDfor = thr.dfor.min)
 
-# sub.title <-  paste0(' MinDist: ', i.thr.dist.min, 'km',
-#                      ' | MaxDist: ', i.thr.dist.max, 'km', 
-#                      ' | MinYears: ', i.thr.nyrs.min, 'yrs',
-#                      ' | MinDfor: ', 100 * i.thr.dfor.min, '%')
 
 # SYNOP wheel dCFC for MinDist~MaxDist -----
 
@@ -97,7 +95,8 @@ g.synop.wheels.distvar <- ggplot(df_SYNOP_agr %>%
   geom_tile(aes(fill = n)) +
   geom_point(aes(alpha = val.signif)) +
   scale_alpha_manual(values = c(0,1), guide = F) +
-  scale_fill_viridis_c('Available SYNOP measures') +
+  scale_fill_viridis_c('Available SYNOP measures', limits = zlims.num,
+                       oob = scales::squish) +
   coord_polar() +
   facet_grid(MinDist~MaxDist, labeller = label_both) +
   ggtitle(label = big.title, subtitle = sub.title) + 
@@ -172,7 +171,8 @@ g.synop.wheels.yrdfor <- ggplot(df_SYNOP_agr %>%
   geom_tile(aes(fill = n)) +
   geom_point(aes(alpha = val.signif)) +
   scale_alpha_manual(values = c(0,1), guide = F) +
-  scale_fill_viridis_c('Available SYNOP measures') +
+  scale_fill_viridis_c('Available SYNOP measures', limits = zlims.num,
+                       oob = scales::squish) +
   coord_polar() +
   facet_grid(MinDfor~MinYears, labeller = label_both) +
   ggtitle(label = big.title, subtitle = sub.title) + 
