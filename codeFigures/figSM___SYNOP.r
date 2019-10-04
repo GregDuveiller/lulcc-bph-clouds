@@ -73,7 +73,7 @@ g.synop.wheels.distvar <- ggplot(df_SYNOP_agr %>%
 
 
 # printing the plot 
-fig.name <- 'figSM___synop-delta-CFC-distvar'
+fig.name <- 'figSM___synop-distvar-delta-CFC'
 fig.width <- 10; fig.height <- 11;  # fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
 
@@ -111,7 +111,7 @@ g.synop.wheels.distvar <- ggplot(df_SYNOP_agr %>%
 
 
 # printing the plot 
-fig.name <- 'figSM___synop-delta-NUM-distvar'
+fig.name <- 'figSM___synop-distvar-NUM'
 fig.width <- 10; fig.height <- 11;  # fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
 
@@ -150,7 +150,7 @@ g.synop.wheels.yrdfor <- ggplot(df_SYNOP_agr %>%
 
 
 # printing the plot 
-fig.name <- 'figSM___synop-delta-CFC-yrdfor'
+fig.name <- 'figSM___synop-yrdfor-delta-CFC'
 fig.width <- 10; fig.height <- 11;  # fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
 
@@ -185,7 +185,7 @@ g.synop.wheels.yrdfor <- ggplot(df_SYNOP_agr %>%
 
 
 # printing the plot 
-fig.name <- 'figSM___synop-delta-NUM-yrdfor'
+fig.name <- 'figSM___synop-yrdfor-NUM'
 fig.width <- 10; fig.height <- 11;  # fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
 
