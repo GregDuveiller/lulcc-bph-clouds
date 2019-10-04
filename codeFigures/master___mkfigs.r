@@ -14,6 +14,9 @@ library(here)
 fig.path <- 'textFigures/'
 dir.create(fig.path, recursive = T, showWarnings = F)
 
+fig.fmt <- 'png'
+#fig.fmt <- 'pdf'
+
 ## Set some common graphical parameters ---- 
 
 # TO BE SEEN IF NEEDED >>>
