@@ -17,14 +17,10 @@ require(sf)
 require(here)
 
 vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
-
+vpath <- '/Users/greg/Work/AncillaryDatasets/WorldVector/'
 
 world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
-# laes_prj <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
-# europe_laea <- sf::st_intersection(world, st_set_crs(st_as_sf(as(raster::extent(-10, 55, 26, 72), "SpatialPolygons")), st_crs(world)))%>%
-#   st_transform(laes_prj)
-# xLims <- c(2.5e6,6e6)
-# yLims <- c(1.5e6,4.5e6)
+
 
 # Load data...
 load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd.Rdata

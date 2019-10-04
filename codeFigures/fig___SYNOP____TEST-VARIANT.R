@@ -8,7 +8,7 @@ require(grid)
 
 # set projection stuff -----
 vpath <- '/Users/greg/Work/AncillaryDatasets/WorldVector/'
-vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
+#vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
 
 world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
 laes_prj <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
@@ -33,8 +33,7 @@ yLims <- c(1.5e6,4.5e6)
 i.thr.dist.max <- 60  # 60 80 100
 i.thr.dist.min <- 30  # 20 30 40
 i.thr.dfor.min <- 0   # 0.0 0.1 0.2
-i.thr.nyrs.min <- 5   # 5 7 9
-
+i.thr.nyrs.min <- 7   # 5 7 9
 
 # Get the SYNOP data ready -----
 
@@ -139,7 +138,7 @@ df.MODIS <- pts_MODIS_laea %>%
 
 df.combo <- df.SYNOP %>%
   #transmute(month = factor(month, levels = month.abb), SYNOP.dCFC.mu = dCFC) %>%
-  rename(SYNOP.dCFC.mu = dCFC, SYNOP.dCFC.se = se.fit) %>%
+  dplyr::rename(SYNOP.dCFC.mu = dCFC, SYNOP.dCFC.se = se.fit) %>%
   dplyr::select(SYNOP.dCFC.mu, SYNOP.dCFC.se, val.signif, month) %>%
   left_join(df.MODIS, by = 'month')
 
@@ -213,6 +212,10 @@ g.confr.boxs <- ggplot(df.combo2) +
 
 # printing the final plot -----
 fig.name <- 'fig___synop-delta-CFC'
+fig.name <- paste0(fig.name, '_', i.thr.dist.min,'km_', i.thr.dist.max, 'km_', 
+                   i.thr.nyrs.min,'yrs_', i.thr.dfor.min,'dif')
+fig.path <- "xtraFigures/"
+dir.create(fig.path, showWarnings = F)
 fig.width <- 12; fig.height <- 9;  # fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
 if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}
