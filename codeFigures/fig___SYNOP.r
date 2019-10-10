@@ -7,8 +7,8 @@ require(grid)
 
 
 # set projection stuff -----
-vpath <- '/Users/greg/Work/AncillaryDatasets/WorldVector/'
 vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
+#vpath <- '/Users/greg/Work/AncillaryDatasets/WorldVector/'
 
 world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
 laes_prj <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
@@ -120,7 +120,7 @@ df.SYNOP <- df_SYNOP_agr %>%
 
 
 # load MODIS data
-load("~/Work/Workspace/lulcc-bph_clouds/dataFigures/df_dCFC_MOD02_FOR.Rdata") # df_dCFC_MOD02_FOR
+load("dataFigures/df_dCFC_MOD02_FOR.Rdata") # df_dCFC_MOD02_FOR
 
 pts_MODIS_laea <- df_dCFC_MOD02_FOR %>%
   filter(lon > -10, lon < 50,
@@ -131,7 +131,8 @@ pts_MODIS_laea <- df_dCFC_MOD02_FOR %>%
 
 df.MODIS <- pts_MODIS_laea %>%
   st_intersection(y = pts_buffer) %>%   # This is the limiting step... 
-  group_by(month) %>%
+  as.data.frame() %>%
+  dplyr::group_by(month) %>%
   summarise(MODIS.dCFC.mu = mean(dCFC, na.rm = T),
             MODIS.dCFC.sd = sd(dCFC, na.rm = T),
             MODIS.dCFC.se = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC))))
