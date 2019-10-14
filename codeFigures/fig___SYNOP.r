@@ -30,10 +30,10 @@ yLims <- c(1.5e6,4.5e6)
 
 # set the parameters to select the target points -----
 
-i.thr.dist.max <- 60  # 60 80 100
+i.thr.dist.max <- 100  # 60 80 100
 i.thr.dist.min <- 30  # 20 30 40
 i.thr.dfor.min <- 0   # 0.0 0.1 0.2
-i.thr.nyrs.min <- 5   # 5 7 9
+i.thr.nyrs.min <- 7   # 5 7 9
 
 
 # Get the SYNOP data ready -----

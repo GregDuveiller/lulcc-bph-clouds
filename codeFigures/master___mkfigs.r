@@ -26,3 +26,6 @@ fig.fmt <- 'png'
 source('codeFigures/fig___map-delta-CFC.r')
 
 
+## SYNOP confrontation over Europe
+source('codeFigures/fig___SYNOP.r')
+
