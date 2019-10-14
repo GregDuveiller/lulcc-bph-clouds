@@ -34,6 +34,8 @@ rs_EFO_sigma <- brick(x = S4T_file2harvest, varname = 'uncertainty', lvar = 3, l
 rs_DFO_numfr <- brick(x = S4T_file2harvest, varname = 'fraction', lvar = 3, level = 1)
 rs_EFO_numfr <- brick(x = S4T_file2harvest, varname = 'fraction', lvar = 3, level = 2)
 
+# make a dummy for later use
+rs_dum05 <- raster(rs_DFO_delta)
 
 # MOD05 for deciduous forests (DFO) ----
 
@@ -82,7 +84,7 @@ qtls <- quantile(as.vector(rs_EFO_delta),probs = c(thr.mnqtl,thr.mxqtl), na.rm =
 rs_EFO_delta[rs_EFO_delta < qtls[1]] <- NA
 rs_EFO_delta[rs_EFO_delta > qtls[2]] <- NA
 
-# aggregate tp 1dd
+# aggregate to 1dd
 rs_EFO_delta_1dd <- raster::resample(x = rs_EFO_delta, y = rs_dummy, method = 'bilinear')
 
 # filter and export df at high resolution
@@ -224,8 +226,12 @@ rs_FOR_delta <- mosaic(x = rs_DFO_delta, y = rs_EFO_delta, fun = mean)
 # ==> could use weights based on actual proportions
 names(rs_FOR_delta) <- names(rs_DFO_delta)
 
-# aggregate
+# aggregate to 1 dd
 rs_FOR_delta_1dd <- raster::resample(x = rs_FOR_delta, y = rs_dummy, method = 'bilinear')
+# aggregate to MOD05 resolution
+rs_FOR_delta_agr <- raster::resample(x = rs_FOR_delta, y = rs_dum05, method = 'bilinear')
+
+
 
 # export df at finer resolution
 df_dCFC_MOD02_FOR <- as.data.frame(rs_FOR_delta, xy = T, long = T) %>% 
@@ -235,6 +241,16 @@ df_dCFC_MOD02_FOR <- as.data.frame(rs_FOR_delta, xy = T, long = T) %>%
   dplyr::select(-layer) %>%
   dplyr::filter(!is.na(dCFC))
 save('df_dCFC_MOD02_FOR', file = 'dataFigures/df_dCFC_MOD02_FOR.Rdata')
+
+# export df at intermeadiate resolution
+df_dCFC_MOD02_FOR_agr <- as.data.frame(rs_FOR_delta_agr, xy = T, long = T) %>% 
+  dplyr::rename(lon = x, lat = y, dCFC = value) %>%
+  dplyr::mutate(month = factor(format(as.Date(layer, format = 'X%Y.%m.%d'), '%b'), 
+                               levels = month.abb)) %>%
+  dplyr::select(-layer) %>%
+  dplyr::filter(!is.na(dCFC))
+save('df_dCFC_MOD02_FOR_agr', file = 'dataFigures/df_dCFC_MOD02_FOR_agr.Rdata')
+
 
 # export df at lower resolution
 df_dCFC_MOD02_FOR_1dd <- as.data.frame(rs_FOR_delta_1dd, xy = T, long = T) %>% 

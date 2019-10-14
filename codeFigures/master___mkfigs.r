@@ -28,4 +28,9 @@ source('codeFigures/fig___map-delta-CFC.r')
 
 ## SYNOP confrontation over Europe
 source('codeFigures/fig___SYNOP.r')
+source('codeFigures/figSM___SYNOP.r')
+
+
+## Maps of scale effect over Europe
+source('codeFigures/figSM___map-scaling-Europe.r')
 
