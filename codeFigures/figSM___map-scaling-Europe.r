@@ -29,19 +29,19 @@ load('dataFigures/df_dCFC_MOD02_FOR_agr.Rdata') # df_dCFC_MOD02_FOR_agr
 df_all <- bind_rows(
   df_dCFC_MOD05_FOR %>% 
     mutate(pix.size = '0.05 dd', grd.size = '35 km', win.size = '7 pix',
-           lbl.long = 'a) Original\n(PixSize:0.05dd GrdSize:35km WinSize:7pix)',
+           lbl.long = 'a) Original\n[PixSize:0.05dd GrdSize:35km WinSize:7pix]',
            lbl.short = 'a'),
   df_dCFC_MOD02_FOR %>% 
     mutate(pix.size = '0.02 dd', grd.size = '14 km', win.size = '7 pix',
-           lbl.long = 'b) Refined\n(PixSize:0.02dd GrdSize:14km WinSize:7pix)',
+           lbl.long = 'b) Refined\n[PixSize:0.02dd GrdSize:14km WinSize:7pix]',
            lbl.short = 'b'),
   df_dCFC_MODo2_FOR %>% 
     mutate(pix.size = '0.02 dd', grd.size = '35 km', win.size = '17 pix',
-           lbl.long = 'c) Refined over larger window\n(PixSize:0.02dd GrdSize:35km WinSize:17pix)',
+           lbl.long = 'c) Refined over larger window\n[PixSize:0.02dd GrdSize:35km WinSize:17pix]',
            lbl.short = 'c'),
   df_dCFC_MOD02_FOR_agr %>% 
     mutate(pix.size = '0.02 dd', grd.size = '35 km', win.size = '7 pix',
-           lbl.long = 'd) Refined reagregated\n(PixSize:0.02dd GrdSize:35km WinSize:7pix)',
+           lbl.long = 'd) Refined reagregated\n[PixSize:0.02dd GrdSize:35km WinSize:7pix]',
            lbl.short = 'd'))
 
 
@@ -66,7 +66,8 @@ g.map <- ggplot(df_sub) +
                        limits = clr.Lims, oob = scales::squish) +
   facet_wrap(~lbl.long, nc = 2) +
   coord_sf(expand = F, ylim = yLims, xlim = xLims) +
-  ggtitle(paste('Evaluation of the scale effect for',iMonth)) +
+  ggtitle(paste('Evaluation of the scale effect for', 
+                month.name[which(month.abb == iMonth)])) +
   theme(panel.background = element_rect(fill = seaColor),
         legend.position = 'bottom',
         legend.key.width = unit(2.4, "cm"),
@@ -102,6 +103,7 @@ g.time <- ggplot(df_sum) +
                                    'd'='Pixel size 0.02dd, 7 pixel window')) + 
   scale_y_continuous('Change in cloud fraction cover') +
   scale_x_discrete('') + 
+  ggtitle('Evaluation of the scale effect across time') + 
   theme(legend.position = c(0.95,0.05),
         legend.justification = c(1,0),
         legend.title = element_blank())
@@ -120,6 +122,9 @@ df_sumplus <- df_sum %>%
   pivot_wider(id_cols = c('month', 'stat', 'cases'),
               names_from = 'stat', values_from = c('dCFC', 'ref.case'))
 
+labeller_explicit <- labeller(
+  cases = c(win.size.effect = 'Effect of window size\n[Pixel size 0.02dd, 17 pixel window]',
+            pix.size.effect = 'Effect of resolution\n[Pixel size 0.02dd, 7 pixel window]'))
 
 g.scat <- ggplot(df_sumplus) +
   geom_abline(colour = 'grey30') +
@@ -129,12 +134,13 @@ g.scat <- ggplot(df_sumplus) +
                      xmax = ref.case_pctl75, colour = month)) +
   geom_point(aes(x = ref.case_median, y = dCFC_median, 
                  colour = month), fill = 'white', shape = 21, size = 2) +
-  facet_wrap(~cases, nc = 2) + 
-  scale_x_continuous('Reference (Pixel size 0.05dd, 7 pixel window)') + 
+  facet_wrap(~cases, nc = 2, labeller = labeller_explicit) + 
+  scale_x_continuous('Original [Pixel size 0.05dd, 7 pixel window]') + 
   scale_y_continuous('Change in cloud fraction cover') +
   scale_colour_discrete('') +
   coord_equal(ylim = c(-0.08, 0.04), xlim = c(-0.08, 0.04)) +
-  theme(legend.position = 'bottom') +
+  theme(legend.position = 'bottom',
+        strip.text = element_text(rel(1.2))) +
   guides(colour = guide_legend(nrow = 2, byrow = TRUE))
 
 
