@@ -10,7 +10,7 @@ require(ggplot2)
 
 # per ClimZone 5 region ... 
 data.tag <- '_absolute_'
-data.tag <- '_binedby4percentChange_'
+###data.tag <- '_binedby4percentChange_'
 
 data.path <- paste0('dataResults/Results_from_RAM/', data.tag, '/')
 
