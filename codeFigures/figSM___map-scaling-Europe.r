@@ -87,31 +87,68 @@ df_sum <- df_all %>%
             pctl25 = quantile(dCFC, probs = 0.25, na.rm = T),
             pctl75 = quantile(dCFC, probs = 0.75, na.rm = T)) 
 
-g.scale <- ggplot(df_sum) + 
+g.time <- ggplot(df_sum) + 
+  geom_hline(yintercept = 0, colour = 'grey30') +
+  geom_errorbar(aes(x = month, 
+                    ymin = pctl25, ymax = pctl75, 
+                    colour = lbl.short), 
+                position = position_dodge(width = 0.5)) +
   geom_point(aes(x = month, y = median, colour = lbl.short), 
-             position = position_dodge(width = 0.9)) + 
-  geom_errorbar(aes(x = month, ymin = pctl25, ymax = pctl75, 
-                    colour = lbl.short), position = position_dodge(width = 0.9)) +
+             fill = 'white', shape = 21, size = 2,
+             position = position_dodge(width = 0.5)) + 
+  scale_colour_discrete(labels = c('a'='Pixel size 0.05dd, 7 pixel window',
+                                   'c'='Pixel size 0.02dd, 17 pixel window',
+                                   'd'='Pixel size 0.02dd, 7 pixel window')) + 
   scale_y_continuous('Change in cloud fraction cover') +
-  theme(legend.position = 'bottom')
+  scale_x_discrete('') + 
+  theme(legend.position = c(0.95,0.05),
+        legend.justification = c(1,0),
+        legend.title = element_blank())
 
-
-df_sum2 <- df_sum %>%
-  pivot_wider(id_cols = c('lbl.short', 'month'), 
+df_sumplus <- df_sum %>%
+  pivot_longer(cols = c('median', 'pctl25', 'pctl75'),
+               names_to = 'stat', values_to = 'value') %>%
+  pivot_wider(id_cols = c('lbl.short', 'month', 'stat'), 
               names_from = lbl.short, 
-              values_from = c('median', 'pctl25', 'pctl75')) %>%
-  rename(win.size.effect = median_c,
-         pix.size.effect = median_d) %>%
+              values_from = 'value') %>%
+  rename(ref.case = a,
+         win.size.effect = c,
+         pix.size.effect = d) %>%
   pivot_longer(cols = c('win.size.effect', 'pix.size.effect'),
-               names_to = "cases", values_to = "dCFC") %>%
-  rename(ref_case = median_a)
+               names_to = "cases", values_to = 'dCFC') %>%
+  pivot_wider(id_cols = c('month', 'stat', 'cases'),
+              names_from = 'stat', values_from = c('dCFC', 'ref.case'))
 
-g.scat <- ggplot(df_sum2) +
-  geom_point(aes(x = ref_case, y = dCFC, 
-                 fill = month), shape = 21, size = 2) +
+
+g.scat <- ggplot(df_sumplus) +
   geom_abline(colour = 'grey30') +
+  geom_errorbar(aes(x = ref.case_median, ymin = dCFC_pctl25, ymax = dCFC_pctl75, 
+                    colour = month)) +
+  geom_errorbarh(aes(y = dCFC_median, xmin = ref.case_pctl25, 
+                     xmax = ref.case_pctl75, colour = month)) +
+  geom_point(aes(x = ref.case_median, y = dCFC_median, 
+                 colour = month), fill = 'white', shape = 21, size = 2) +
   facet_wrap(~cases, nc = 2) + 
-  theme(legend.position = 'bottom')
+  scale_x_continuous('Reference (Pixel size 0.05dd, 7 pixel window)') + 
+  scale_y_continuous('Change in cloud fraction cover') +
+  scale_colour_discrete('') +
+  coord_equal(ylim = c(-0.08, 0.04), xlim = c(-0.08, 0.04)) +
+  theme(legend.position = 'bottom') +
+  guides(colour = guide_legend(nrow = 2, byrow = TRUE))
+
+
+
+# printing the final plot -----
+fig.name <- 'figSM___scale-effect'
+fig.width <- 6; fig.height <- 9;  # fig.fmt <- 'png'
+fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
+if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}
+if(fig.fmt == 'pdf'){pdf(fig.fullfname, width = fig.width, height = fig.height)}
+
+print(g.time, vp = viewport(width = 1, height = 0.5, x = 0.0, y = 0.5, just = c(0,0)))
+print(g.scat, vp = viewport(width = 1, height = 0.5, x = 0.0, y = 0.0, just = c(0,0)))
+dev.off()
+
 
 
 
