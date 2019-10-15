@@ -29,19 +29,19 @@ load('dataFigures/df_dCFC_MOD02_FOR_agr.Rdata') # df_dCFC_MOD02_FOR_agr
 df_all <- bind_rows(
   df_dCFC_MOD05_FOR %>% 
     mutate(pix.size = '0.05 dd', grd.size = '35 km', win.size = '7 pix',
-           lbl.long = 'a) PixSize:0.05dd GrdSize:35km WinSize:7pix',
+           lbl.long = 'a) Original\n(PixSize:0.05dd GrdSize:35km WinSize:7pix)',
            lbl.short = 'a'),
   df_dCFC_MOD02_FOR %>% 
     mutate(pix.size = '0.02 dd', grd.size = '14 km', win.size = '7 pix',
-           lbl.long = 'b) PixSize:0.02dd GrdSize:14km WinSize:7pix',
+           lbl.long = 'b) Refined\n(PixSize:0.02dd GrdSize:14km WinSize:7pix)',
            lbl.short = 'b'),
   df_dCFC_MODo2_FOR %>% 
     mutate(pix.size = '0.02 dd', grd.size = '35 km', win.size = '17 pix',
-           lbl.long = 'c) PixSize:0.02dd GrdSize:35km WinSize:17pix',
+           lbl.long = 'c) Refined over larger window\n(PixSize:0.02dd GrdSize:35km WinSize:17pix)',
            lbl.short = 'c'),
   df_dCFC_MOD02_FOR_agr %>% 
     mutate(pix.size = '0.02 dd', grd.size = '35 km', win.size = '7 pix',
-           lbl.long = 'd) PixSize:0.02dd GrdSize:35km WinSize:7pix',
+           lbl.long = 'd) Refined reagregated\n(PixSize:0.02dd GrdSize:35km WinSize:7pix)',
            lbl.short = 'd'))
 
 
@@ -53,7 +53,7 @@ clr.Lims <- c(-0.08,0.08)
 landColor <- 'grey60'
 seaColor <- 'grey20'
 
-iMonth <- 'Aug'
+iMonth <- 'Jul'
 
 df_sub <- df_all %>%
   filter(month == iMonth)
@@ -65,7 +65,8 @@ g.map <- ggplot(df_sub) +
                        colours = RColorBrewer::brewer.pal(9,'RdBu'),
                        limits = clr.Lims, oob = scales::squish) +
   facet_wrap(~lbl.long, nc = 2) +
-  coord_sf(expand = F, ylim = yLims, xlim = xLims)+
+  coord_sf(expand = F, ylim = yLims, xlim = xLims) +
+  ggtitle(paste('Evaluation of the scale effect for',iMonth)) +
   theme(panel.background = element_rect(fill = seaColor),
         legend.position = 'bottom',
         legend.key.width = unit(2.4, "cm"),
