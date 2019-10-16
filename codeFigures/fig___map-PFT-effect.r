@@ -26,41 +26,68 @@ load('dataFigures/df_dCFC_MOD02_EFO.Rdata')     # df_dCFC_MOD02_EFO
 
 
 df_all <- bind_rows(
-  df_dCFC_MOD02_DFO %>% mutate(PFT = 'DFO'),
-  df_dCFC_MOD02_EFO %>% mutate(PFT = 'EFO'))
-  
+  df_dCFC_MOD02_DFO %>% mutate(PFT = 'Deciduous'),
+  df_dCFC_MOD02_EFO %>% mutate(PFT = 'Evergreen'))
 
-  
-  xLims <- c(-10,45)
-  yLims <- c(35,65)
-  
-  clr.Lims <- c(-0.08,0.08)
-  
-  landColor <- 'grey60'
-  seaColor <- 'grey20'
-  
-  iMonths <- c('Mar','May','Jul')
-  
-  df_sub <- df_all %>%
-    filter(month %in% iMonths)
-  
-  g.map <- ggplot(df_sub) + 
-    geom_sf(data = world, fill = landColor, size = 0) +
-    geom_raster(aes(x = lon, y = lat, fill = dCFC)) +
-    scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation', 
-                         colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                         limits = clr.Lims, oob = scales::squish) +
-    facet_grid(PFT~month) +
-    coord_sf(expand = F, ylim = yLims, xlim = xLims) +
-    ggtitle('Effect of different forest types') +
-    theme(panel.background = element_rect(fill = seaColor),
-          legend.position = 'bottom',
-          legend.key.width = unit(2.4, "cm"),
-          panel.grid = element_line(color = seaColor),
-          axis.title = element_blank()) +
-    guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
-  
-  
-  ggsave(filename = paste0('fig___PFT-effect-Europe', '.', fig.fmt),
-         width = 9, height = 7, path = fig.path)
-  
+
+
+xLims <- c(-10,45)
+yLims <- c(35,65)
+
+clr.Lims <- c(-0.08,0.08)
+zLims <- c(-0.12, 0.12)
+
+landColor <- 'grey60'
+seaColor <- 'grey20'
+
+iMonths <- c('Mar','Apr','May')
+
+df_sub <- df_all %>%
+  filter(month %in% iMonths)
+
+g.maps <- ggplot(df_sub) + 
+  geom_sf(data = world, fill = landColor, size = 0) +
+  geom_raster(aes(x = lon, y = lat, fill = dCFC)) +
+  scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
+                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = clr.Lims, oob = scales::squish) +
+  facet_grid(PFT~month) +
+  coord_sf(expand = F, ylim = yLims, xlim = xLims) +
+#  ggtitle('Effect of different forest types') +
+  theme(panel.background = element_rect(fill = seaColor),
+        legend.position = 'top',
+        legend.key.width = unit(2.4, "cm"),
+        panel.grid = element_line(color = seaColor),
+        axis.title = element_blank()) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+
+# ggsave(filename = paste0('fig___PFT-effect-Europe', '.', fig.fmt),
+#        width = 9, height = 7, path = fig.path)
+
+g.boxp <- ggplot(df_all) + 
+  geom_hline(yintercept = 0, colour = 'grey30') +
+  # geom_ribbon(data = data.frame(month = factor(iMonths, levels = month.abb, ordered = T),
+  #                               ymin = min(zLims), ymax = max(zLims)),
+  #             aes(x = month, ymin = ymin, ymax = ymax), colour = 'grey60') +
+  geom_boxplot(aes(x = month, y = dCFC, fill = PFT), 
+               colour = 'grey30', outlier.shape = 20, outlier.alpha = 0.2) +
+  scale_y_continuous('Change in cloud cover fraction') +
+  scale_x_discrete('') +
+  scale_fill_discrete('Target forest type:') +
+  coord_cartesian(ylim = zLims) +
+  theme(legend.position = 'bottom')
+
+
+# printing the final plot -----
+fig.name <- 'fig___PFT-effect-Europe'
+fig.width <- 9; fig.height <- 10;  # fig.fmt <- 'png'
+fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
+if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}
+if(fig.fmt == 'pdf'){pdf(fig.fullfname, width = fig.width, height = fig.height)}
+
+ysh <- 0.65
+print(g.maps, vp = viewport(width = 1, height = ysh, x = 0.0, y = 1-ysh, just = c(0,0)))
+print(g.boxp, vp = viewport(width = 1, height = 1-ysh, x = 0.0, y = 0.0, just = c(0,0)))
+dev.off()
+
