@@ -30,7 +30,14 @@ source('codeFigures/fig___map-delta-CFC.r')
 source('codeFigures/fig___SYNOP.r')
 source('codeFigures/figSM___SYNOP.r')
 
-
 ## Maps of scale effect over Europe
 source('codeFigures/figSM___map-scaling-Europe.r')
 
+## Confronting methodologies
+source('codeFigures/fig___RAM-vs-S4T.r')
+
+## Exploring effects of different PFTs across Europe
+source('codeFigures/fig___map-PFT-effect.r')
+
+## Delta-3 plots
+source('codeFigures/fig___multi-delta-plots.r')

@@ -67,7 +67,7 @@ g.map <- ggplot(df_sub) +
   facet_wrap(~lbl.long, nc = 2) +
   coord_sf(expand = F, ylim = yLims, xlim = xLims) +
   ggtitle(paste('Evaluation of the scale effect for', 
-                month.name[which(month.abb == iMonth)])) +
+                month.name[which(month.abb == iMonth)], 'over Europe')) +
   theme(panel.background = element_rect(fill = seaColor),
         legend.position = 'bottom',
         legend.key.width = unit(2.4, "cm"),
@@ -103,7 +103,7 @@ g.time <- ggplot(df_sum) +
                                    'd'='Pixel size 0.02dd, 7 pixel window')) + 
   scale_y_continuous('Change in cloud fraction cover') +
   scale_x_discrete('') + 
-  ggtitle('Evaluation of the scale effect across time') + 
+  ggtitle('Evaluation of the scale effect over Europe across time') + 
   theme(legend.position = c(0.95,0.05),
         legend.justification = c(1,0),
         legend.title = element_blank())
@@ -137,7 +137,7 @@ g.scat <- ggplot(df_sumplus) +
   facet_wrap(~cases, nc = 2, labeller = labeller_explicit) + 
   scale_x_continuous('Original [Pixel size 0.05dd, 7 pixel window]') + 
   scale_y_continuous('Change in cloud fraction cover') +
-  scale_colour_discrete('') +
+  scale_colour_viridis_d('') +
   coord_equal(ylim = c(-0.08, 0.04), xlim = c(-0.08, 0.04)) +
   theme(legend.position = 'bottom',
         strip.text = element_text(rel(1.2))) +

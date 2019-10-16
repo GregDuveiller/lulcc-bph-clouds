@@ -8,7 +8,7 @@ require(grid)
 
 # set projection stuff -----
 vpath <- '/Users/greg/Work/AncillaryDatasets/WorldVector/'
-#vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
+vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
 
 world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
 laes_prj <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
@@ -30,7 +30,7 @@ yLims <- c(1.5e6,4.5e6)
 
 # set the parameters to select the target points -----
 
-i.thr.dist.max <- 60  # 60 80 100
+i.thr.dist.max <- 100  # 60 80 100
 i.thr.dist.min <- 30  # 20 30 40
 i.thr.dfor.min <- 0   # 0.0 0.1 0.2
 i.thr.nyrs.min <- 7   # 5 7 9
@@ -119,7 +119,7 @@ df.SYNOP <- df_SYNOP_agr %>%
 
 
 # load MODIS data
-load("~/Work/Workspace/lulcc-bph_clouds/dataFigures/df_dCFC_MOD02_FOR.Rdata") # df_dCFC_MOD02_FOR
+load("dataFigures/df_dCFC_MOD02_FOR.Rdata") # df_dCFC_MOD02_FOR
 
 pts_MODIS_laea <- df_dCFC_MOD02_FOR %>%
   filter(lon > -10, lon < 50,
