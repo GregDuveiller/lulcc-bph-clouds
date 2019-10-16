@@ -99,11 +99,38 @@ df_LSTnight_delta <- as.data.frame(rs_LSTnight_delta, xy = T, long = T) %>%
 
 
 
-# need to clean this up and load cfc dataframe from scratch
-load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd
-df_CFC_delta <- df_dCFC_MOD05_FOR_1dd
+# get ClimZones
+cz5_map <- raster('/ESS_EarthObs/CLIMATE_DATA/koppen-Geiger/koppen-Geiger_360x180_5zones.nc', varname = 'climzone')
+cz5_df <- as.data.frame(cz5_map, xy = T, long = T) %>% 
+  dplyr::mutate(lon = round(x, digits = 8), lat = round(y, digits = 8)) %>%
+  dplyr::filter(!is.na(value), value < 5) %>%
+  dplyr::mutate(region = dplyr::recode_factor(value, `1` = "Tropical", `2` = "Arid", `3` = "Temperate", `4` = "Boreal")) %>%
+  dplyr::select(-x, -y, -layer, -value)
 
 
+# # For all forest together
+# load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd
+# df_CFC_delta <- df_dCFC_MOD05_FOR_1dd %>% 
+#   left_join(cz5_df, by = c("lon", "lat"))
+
+# Separating between DFO and EFO
+# (but just on the CFC side, not on the other deltas... to be done?)
+load('dataFigures/df_dCFC_MOD05_DFO_1dd.Rdata') # df_dCFC_MOD05_DFO_1dd
+load('dataFigures/df_dCFC_MOD05_EFO_1dd.Rdata') # df_dCFC_MOD05_EFO_1dd
+
+df_CFC_delta_bothPFT <- bind_rows(
+  df_dCFC_MOD05_DFO_1dd %>% mutate(PFT = 'Deciduous'),
+  df_dCFC_MOD05_EFO_1dd %>% mutate(PFT = 'Evergreen'))
+
+df_CFC_delta <- df_CFC_delta_bothPFT %>% 
+  left_join(cz5_df, by = c("lon", "lat")) %>%
+  filter(!is.na(region))
+
+
+
+
+
+# combine all
 df_all <- df_CFC_delta %>%
   inner_join(df_LE_delta, by = c('lon', 'lat', 'month')) %>%
   inner_join(df_HG_delta, by = c('lon', 'lat', 'month')) %>%
@@ -111,6 +138,5 @@ df_all <- df_CFC_delta %>%
   inner_join(df_LSTday_delta, by = c('lon', 'lat', 'month')) %>%
   inner_join(df_LSTnight_delta, by = c('lon', 'lat', 'month')) %>%
   inner_join(df_albedo_delta, by = c('lon', 'lat', 'month'))
-
 
 save('df_all', file = 'dataFigures/df_multiDeltaDF.Rda')
