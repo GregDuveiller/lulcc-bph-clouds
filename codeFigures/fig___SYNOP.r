@@ -67,7 +67,8 @@ g.synop.map <- ggplot(pts_df_sub) +
   labs(tag = 'a') + 
   ggtitle('Location of suitable SYNOP station pairs') + 
   theme(panel.background = element_rect(fill = seaColor),
-        legend.position = c(0.5,0.12),
+        legend.position = 'bottom',
+        #legend.position = c(0.5,0.12),
         legend.text = element_text(size = rel(0.8)),
         legend.key.width = unit(1.8, "cm"),
         legend.key.height = unit(0.4, "cm"),
@@ -93,9 +94,11 @@ g.synop.wheel <- ggplot(df_SYNOP_agr %>%
                 thr.dfor.min == i.thr.dfor.min), 
        aes(x = hour, y = month)) +
     geom_tile(aes(fill = dCFC)) +
-    geom_point(aes(alpha = val.signif)) +
-    scale_alpha_manual(values = c(0,1), guide = F) +
-    scale_fill_gradientn('Change in cloud fraction cover',
+    geom_tile(aes(alpha = val.signif), fill = 'grey80') +
+    # geom_point(aes(alpha = val.signif)) +
+    scale_alpha_manual(values = c(1,0), guide = F) +
+  # scale_alpha_manual(values = c(0,1), guide = F) +
+  scale_fill_gradientn('Change in cloud fraction cover',
                          colors = RColorBrewer::brewer.pal(9, 'RdBu'),
                          limits = zlims, oob = scales::squish) +
   coord_polar() +
@@ -122,38 +125,64 @@ df.SYNOP <- df_SYNOP_agr %>%
 # load MODIS data
 load("dataFigures/df_dCFC_MOD02_FOR.Rdata") # df_dCFC_MOD02_FOR
 
-pts_MODIS_laea <- df_dCFC_MOD02_FOR %>%
+pts_MOD02_laea <- df_dCFC_MOD02_FOR %>%
   filter(lon > -10, lon < 50,
          lat > 30, lat < 65) %>%
   st_as_sf(coords = c("lon","lat")) %>%
   st_set_crs(st_crs(world)) %>%
   st_transform(laes_prj) 
 
-df.MODIS <- pts_MODIS_laea %>%
+df.MOD02 <- pts_MODIS_laea %>%
   st_intersection(y = pts_buffer) %>%   # This is the limiting step... 
   as.data.frame() %>%
   dplyr::group_by(month) %>%
-  summarise(MODIS.dCFC.mu = mean(dCFC, na.rm = T),
-            MODIS.dCFC.sd = sd(dCFC, na.rm = T),
-            MODIS.dCFC.se = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC))))
+  summarise(MOD02.dCFC.mu = mean(dCFC, na.rm = T),
+            MOD02.dCFC.sd = sd(dCFC, na.rm = T),
+            MOD02.dCFC.se = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC))))
+
+
+
+load("dataFigures/df_dCFC_MOD05_FOR.Rdata") # df_dCFC_MOD05_FOR
+
+pts_MOD05_laea <- df_dCFC_MOD05_FOR %>%
+  filter(lon > -10, lon < 50,
+         lat > 30, lat < 65) %>%
+  st_as_sf(coords = c("lon","lat")) %>%
+  st_set_crs(st_crs(world)) %>%
+  st_transform(laes_prj) 
+
+df.MOD05 <- pts_MOD05_laea %>%
+  st_intersection(y = pts_buffer) %>%   # This is the limiting step... 
+  as.data.frame() %>%
+  dplyr::group_by(month) %>%
+  summarise(MOD05.dCFC.mu = mean(dCFC, na.rm = T),
+            MOD05.dCFC.sd = sd(dCFC, na.rm = T),
+            MOD05.dCFC.se = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC))))
+
+
+
+
 
 
 df.combo <- df.SYNOP %>%
   #transmute(month = factor(month, levels = month.abb), SYNOP.dCFC.mu = dCFC) %>%
   rename(SYNOP.dCFC.mu = dCFC, SYNOP.dCFC.se = se.fit) %>%
   dplyr::select(SYNOP.dCFC.mu, SYNOP.dCFC.se, val.signif, month) %>%
-  left_join(df.MODIS, by = 'month')
+  left_join(df.MOD02, by = 'month') %>%
+  left_join(df.MOD05, by = 'month')
+
+
 
 df.combo2 <- left_join(
   df.combo %>% 
-    dplyr::select(month, MODIS.dCFC.mu, SYNOP.dCFC.mu) %>%
-    pivot_longer(cols = c('MODIS.dCFC.mu','SYNOP.dCFC.mu'), 
+    dplyr::select(month, MOD02.dCFC.mu, MOD05.dCFC.mu, SYNOP.dCFC.mu) %>%
+    pivot_longer(cols = c('MOD02.dCFC.mu', 'MOD05.dCFC.mu', 'SYNOP.dCFC.mu'), 
                  names_to = 'source', 
                  names_pattern = "(.*).dCFC.mu",
                  values_to = 'dCFC.mu'),
   df.combo %>% 
-    dplyr::select(month, MODIS.dCFC.se, SYNOP.dCFC.se) %>%
-    pivot_longer(cols = c('MODIS.dCFC.se','SYNOP.dCFC.se'), 
+    dplyr::select(month, MOD02.dCFC.se, MOD05.dCFC.se, SYNOP.dCFC.se) %>%
+    pivot_longer(cols = c('MOD02.dCFC.se', 'MOD05.dCFC.se', 'SYNOP.dCFC.se'), 
                  names_to = 'source',
                  names_pattern = "(.*).dCFC.se",
                  values_to = 'dCFC.se'),
@@ -163,29 +192,35 @@ df.combo2 <- left_join(
 
 # possible plot 1: based on barplot 
 g.confr.bars <- ggplot(df.combo2) +
-  geom_bar(aes(x = month, y = dCFC.mu, fill = source),
-           stat = 'identity', position = "dodge") + 
   geom_errorbar(aes(ymin = dCFC.mu - dCFC.se, x = month, 
-                    ymax = dCFC.mu + dCFC.se, color = source),
-           stat = 'identity', position = "dodge") +
+                    ymax = dCFC.mu + dCFC.se, group = source),
+           stat = 'identity', position = "dodge", color = 'grey30') +
+  geom_bar(aes(x = month, y = dCFC.mu, fill = source), colour = 'grey30',
+           stat = 'identity', position = "dodge") + 
   scale_y_continuous('Change in cloud fraction cover') +
+  scale_fill_manual(values = c('MOD02'='chartreuse4', 'MOD05'='olivedrab2', 
+                               'SYNOP'='cornflowerblue')) +
+  # scale_colour_manual(values = c('MOD02'='darkgreen', 'MOD05'='olivedrab', 
+  #                              'SYNOP'='cornflowerblue')) +
   geom_hline(aes(yintercept = 0), colour = 'grey30') +
   labs(tag = 'c') + 
-  theme(legend.position = c(0.9,0.9),
+  theme(legend.position = c(0.9,0.85),
+        legend.title = element_blank(),
+        legend.spacing.x = unit(1.0, 'mm'),
         axis.title = element_text(size = rel(1.1)), 
         axis.title.x = element_blank()) +
-  ggtitle('Comparison with MODIS')
+  ggtitle('Comparison with estimations from MODIS')
 
 
 # possible plot 2: based on scatterplot
 g.confr.scat <- ggplot(df.combo) +
-  geom_point(aes(x = MODIS.dCFC.mu, y = SYNOP.dCFC.mu, colour = month)) + 
-  geom_linerange(aes(x = MODIS.dCFC.mu, colour = month,
+  geom_point(aes(x = MOD05.dCFC.mu, y = SYNOP.dCFC.mu, colour = month)) + 
+  geom_linerange(aes(x = MOD05.dCFC.mu, colour = month,
                      ymin = SYNOP.dCFC.mu - 2*SYNOP.dCFC.se, 
                      ymax = SYNOP.dCFC.mu + 2*SYNOP.dCFC.se)) + 
   geom_errorbarh(aes(y = SYNOP.dCFC.mu, colour = month,
-                     xmin = MODIS.dCFC.mu - 2*MODIS.dCFC.se, 
-                     xmax = MODIS.dCFC.mu + 2*MODIS.dCFC.se)) + 
+                     xmin = MOD05.dCFC.mu - 2*MOD05.dCFC.se, 
+                     xmax = MOD05.dCFC.mu + 2*MOD05.dCFC.se)) + 
   geom_abline()  +
   scale_y_continuous('Delta CFC from SYNOP') +
   scale_x_continuous('Delta CFC from MODIS') + 
@@ -219,8 +254,8 @@ fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
 if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}
 if(fig.fmt == 'pdf'){pdf(fig.fullfname, width = fig.width, height = fig.height)}
 
-print(g.synop.map,   vp = viewport(width = 0.4, height = 0.5, x = 0.0, y = 0.5, just = c(0,0)))
+print(g.synop.map,   vp = viewport(width = 0.4, height = 0.6, x = 0.0, y = 0.4, just = c(0,0)))
 print(g.synop.wheel, vp = viewport(width = 0.6, height = 1.0, x = 0.4, y = 0.0, just = c(0,0)))
-print(g.confr.bars,  vp = viewport(width = 0.4, height = 0.5, x = 0.0, y = 0.0, just = c(0,0)))
+print(g.confr.bars,  vp = viewport(width = 0.4, height = 0.4, x = 0.0, y = 0.0, just = c(0,0)))
 dev.off()
 

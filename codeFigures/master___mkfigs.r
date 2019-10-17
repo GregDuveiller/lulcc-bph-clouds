@@ -34,7 +34,7 @@ source('codeFigures/figSM___SYNOP.r')
 source('codeFigures/figSM___map-scaling-Europe.r')
 
 ## Confronting methodologies
-source('codeFigures/fig___RAM-vs-S4T.r')
+source('codeFigures/figSM___RAM-vs-S4T.r')
 
 ## Exploring effects of different PFTs across Europe
 source('codeFigures/fig___map-PFT-effect.r')
