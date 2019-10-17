@@ -45,6 +45,19 @@ df_HG_delta <- as.data.frame(rs_HG_delta, xy = T, long = T) %>%
   dplyr::filter(!is.na(delta_HG))
 
 
+rs_Rn_delta <- brick(x = paste0(dpath1, '/Rn_IGBPgen.nc'),
+                     varname = 'Delta_Rn', lvar = nc_lvar, level = nc_level)
+rs_Rn_sigma <- brick(x = paste0(dpath1, '/Rn_IGBPgen.nc'),
+                     varname = 'SD_Delta_Rn', lvar = nc_lvar, level = nc_level)
+
+df_Rn_delta <- as.data.frame(rs_Rn_delta, xy = T, long = T) %>% 
+  dplyr::rename(lon = x, lat = y) %>%
+  dplyr::mutate(month = factor(month.abb[Z], levels = month.abb),
+                delta_Rn = -value) %>% # Note change in sign to flip transition
+  dplyr::select(-Z, -value) %>%
+  dplyr::filter(!is.na(delta_Rn))
+
+
 rs_SW_delta <- brick(x = paste0(dpath1, '/SWreflected_IGBPgen.nc'),
                      varname = 'Delta_SWreflected', lvar = nc_lvar, level = nc_level)
 rs_SW_sigma <- brick(x = paste0(dpath1, '/SWreflected_IGBPgen.nc'),
@@ -134,6 +147,7 @@ df_CFC_delta <- df_CFC_delta_bothPFT %>%
 df_all <- df_CFC_delta %>%
   inner_join(df_LE_delta, by = c('lon', 'lat', 'month')) %>%
   inner_join(df_HG_delta, by = c('lon', 'lat', 'month')) %>%
+  inner_join(df_Rn_delta, by = c('lon', 'lat', 'month')) %>%
   inner_join(df_SW_delta, by = c('lon', 'lat', 'month')) %>%
   inner_join(df_LSTday_delta, by = c('lon', 'lat', 'month')) %>%
   inner_join(df_LSTnight_delta, by = c('lon', 'lat', 'month')) %>%

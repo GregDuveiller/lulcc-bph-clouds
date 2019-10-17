@@ -27,7 +27,7 @@ ggplot(df_all) +
 
 # alb vs SW
 ggplot(df_all) +
-  geom_point(aes(x = delta_SW, y = delta_albedo, color = dCFC), size = pts.size) +
+  geom_point(aes(x = delta_Rn, y = delta_albedo, color = dCFC), size = pts.size) +
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
   scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
