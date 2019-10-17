@@ -40,10 +40,15 @@ zLims <- c(-0.12, 0.12)
 landColor <- 'grey60'
 seaColor <- 'grey20'
 
-iMonths <- c('Mar','Apr','May')
+# iMonths <- c('Mar','Apr','May')
+# iMonths <- c('Jun','Jul','Aug')
+iMonths <- c('Apr','Aug','Dec')
 
 df_sub <- df_all %>%
-  filter(month %in% iMonths)
+  filter(month %in% iMonths) 
+
+# vctr.month.names <- month.name
+# names(vctr.month.names) <- month.abb
 
 g.maps <- ggplot(df_sub) + 
   geom_sf(data = world, fill = landColor, size = 0) +
@@ -65,17 +70,32 @@ g.maps <- ggplot(df_sub) +
 # ggsave(filename = paste0('fig___PFT-effect-Europe', '.', fig.fmt),
 #        width = 9, height = 7, path = fig.path)
 
-g.boxp <- ggplot(df_all) + 
+
+df_summary <- df_all %>%
+  group_by(month, PFT) %>%
+  summarise(median = median(dCFC, na.rm = T),
+            pctl25 = quantile(dCFC, probs = 0.25, na.rm = T),
+            pctl75 = quantile(dCFC, probs = 0.75, na.rm = T))
+
+
+g.boxp <- ggplot(df_summary) + 
   geom_hline(yintercept = 0, colour = 'grey30') +
   # geom_ribbon(data = data.frame(month = factor(iMonths, levels = month.abb, ordered = T),
   #                               ymin = min(zLims), ymax = max(zLims)),
   #             aes(x = month, ymin = ymin, ymax = ymax), colour = 'grey60') +
-  geom_boxplot(aes(x = month, y = dCFC, fill = PFT), 
-               colour = 'grey30', outlier.shape = 20, outlier.alpha = 0.2) +
+  geom_errorbar(aes(x = month, 
+                    ymin = pctl25, ymax = pctl75, 
+                    colour = PFT), 
+                position = position_dodge(width = 0.5)) +
+  geom_point(aes(x = month, y = median, colour = PFT), 
+             fill = 'white', shape = 21, size = 2,
+             position = position_dodge(width = 0.5)) +
   scale_y_continuous('Change in cloud cover fraction') +
   scale_x_discrete('') +
-  scale_fill_discrete('Target forest type:') +
-  coord_cartesian(ylim = zLims) +
+  scale_colour_manual('Target forest type:', 
+                      values = c('Deciduous' = 'chartreuse3',
+                                 'Evergreen' = 'forestgreen')) +
+  coord_cartesian(ylim = clr.Lims) +
   theme(legend.position = 'bottom')
 
 
