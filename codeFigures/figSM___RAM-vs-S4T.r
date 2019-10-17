@@ -68,7 +68,7 @@ g_scat <- ggplot(df_CZ5 %>%
 
 
 # printing the final plot -----
-fig.name <- 'fig___RAM-vs-S4T'
+fig.name <- 'figSM___RAM-vs-S4T'
 fig.width <- 12; fig.height <- 9;  # fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
 if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}

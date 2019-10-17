@@ -11,6 +11,7 @@ require(ggplot2)
 # per ClimZone 5 region ... 
 data.tag <- '_absolute_'
 ###data.tag <- '_binedby4percentChange_'
+###data.tag <- '_binedby2percentChange_'
 
 data.path <- paste0('dataResults/Results_from_RAM/', data.tag, '/')
 
@@ -41,7 +42,6 @@ for(region in CZ5_regions){
 
 
 # get my data
-
 load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd
 load('dataFigures/df_dCFC_MOD05_DFO_1dd.Rdata') # df_dCFC_MOD05_DFO_1dd
 load('dataFigures/df_dCFC_MOD05_EFO_1dd.Rdata') # df_dCFC_MOD05_EFO_1dd
@@ -55,23 +55,45 @@ cz5_df <- as.data.frame(cz5_map, xy = T, long = T) %>%
   dplyr::select(-x, -y, -layer, -value)
 
 
+# function to shift by 6 months if needed
+regio.shift <- function(df){
+dum <-  as_tibble(df) %>% 
+  inner_join(cz5_df, by = c('lat', 'lon')) 
+
+dum_S <- dum %>% filter(lat < 0) %>%
+  mutate(new.month = recode(month, Jan = "Jul", Feb = "Aug", Mar = "Sep", 
+                            Apr = "Oct", May = "Nov", Jun = "Dec")) %>%
+  dplyr::select(-month) %>%
+  dplyr::rename(month = new.month)
+
+dum_N <- dum %>% filter(lat >= 0)
+
+dum <- bind_rows(dum_N, dum_S) %>% 
+  mutate(month = factor(month, levels = month.abb))
+
+return(dum)}
 
 
+
+# combine all
 df_CZ5_S4T <- bind_rows(
   df_dCFC_MOD05_DFO_1dd %>% 
-    inner_join(cz5_df, by = c('lat', 'lon')) %>%
+    #inner_join(cz5_df, by = c('lat', 'lon')) %>%
+    regio.shift() %>%
     group_by(month, region) %>%
     summarize(dCFC_CZ5 = mean(dCFC, na.rm = T),
               dCFC_CZ5_STD_err = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC)))) %>%
     mutate(PFT = factor('DFO', levels = PFTs)),
   df_dCFC_MOD05_EFO_1dd %>% 
-    inner_join(cz5_df, by = c('lat', 'lon')) %>%
+    #inner_join(cz5_df, by = c('lat', 'lon')) %>%
+    regio.shift() %>%
     group_by(month, region) %>%
     summarize(dCFC_CZ5 = mean(dCFC, na.rm = T),
               dCFC_CZ5_STD_err = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC)))) %>%
     mutate(PFT = factor('EFO', levels = PFTs)),
   df_dCFC_MOD05_FOR_1dd %>% 
-    inner_join(cz5_df, by = c('lat', 'lon')) %>%
+    #inner_join(cz5_df, by = c('lat', 'lon')) %>%
+    regio.shift() %>%
     group_by(month, region) %>%
     summarize(dCFC_CZ5 = mean(dCFC, na.rm = T),
               dCFC_CZ5_STD_err = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC)))) %>%
