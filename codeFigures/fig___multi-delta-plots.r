@@ -5,14 +5,61 @@ load('dataFigures/df_multiDeltaDF.Rda') # df_all
 clr.Lims <- c(-0.08, 0.08)
 pts.size <- 0.4
 
-# HG vs LE in axis...
+# HG vs LE 
 ggplot(df_all) +
   geom_point(aes(x = delta_LE, y = delta_HG, color = dCFC), size = pts.size) +
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
   scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                        limits = clr.Lims, oob = scales::squish) + 
+                        limits = clr.Lims*1.5, oob = scales::squish) + 
   facet_wrap(~region, nc = 2)
+
+
+# LSTday vs LSTnight
+ggplot(df_all) +
+  geom_point(aes(x = delta_LSTday, y = delta_LSTnight, color = dCFC), size = pts.size) +
+  geom_hline(yintercept = 0, color = col.cross) + 
+  geom_vline(xintercept = 0, color = col.cross) + 
+  scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                        limits = clr.Lims*1.5, oob = scales::squish) + 
+  facet_wrap(~region, nc = 2)
+
+
+# alb vs SW
+ggplot(df_all) +
+  geom_point(aes(x = delta_SW, y = delta_albedo, color = dCFC), size = pts.size) +
+  geom_hline(yintercept = 0, color = col.cross) + 
+  geom_vline(xintercept = 0, color = col.cross) + 
+  scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                        limits = clr.Lims*1.5, oob = scales::squish) + 
+  facet_wrap(~region, nc = 2)
+
+
+
+
+
+# HG vs LE ... 'without snow'...
+ggplot(df_all %>% 
+         filter(delta_albedo >= -0.1)) +
+  geom_point(aes(x = delta_LE, y = delta_HG, color = dCFC), size = pts.size) +
+  geom_hline(yintercept = 0, color = col.cross) + 
+  geom_vline(xintercept = 0, color = col.cross) + 
+  scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                        limits = clr.Lims*1.5, oob = scales::squish) + 
+  facet_wrap(~region, nc = 2)
+#facet_grid(month~region)
+
+# Rn vs T ... 'on snow'
+ggplot(df_all %>% 
+         filter(delta_albedo < -0.1)) +
+  geom_point(aes(x = delta_LE + delta_HG, y = delta_LSTday, color = dCFC), size = pts.size) +
+  geom_hline(yintercept = 0, color = col.cross) + 
+  geom_vline(xintercept = 0, color = col.cross) + 
+  scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                        limits = clr.Lims*2, oob = scales::squish) + 
+  facet_wrap(~region, nc = 2)
+
+
 
 
 # HG vs LE in modified axis...
