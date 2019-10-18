@@ -7,8 +7,7 @@ require(grid)
 
 
 # set projection stuff -----
-vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
-#vpath <- '/Users/greg/Work/AncillaryDatasets/WorldVector/'
+
 
 world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
 laes_prj <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
@@ -132,7 +131,7 @@ pts_MOD02_laea <- df_dCFC_MOD02_FOR %>%
   st_set_crs(st_crs(world)) %>%
   st_transform(laes_prj) 
 
-df.MOD02 <- pts_MODIS_laea %>%
+df.MOD02 <- pts_MOD02_laea %>%
   st_intersection(y = pts_buffer) %>%   # This is the limiting step... 
   as.data.frame() %>%
   dplyr::group_by(month) %>%

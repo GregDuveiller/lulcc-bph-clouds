@@ -16,8 +16,7 @@ require(sf)
 
 require(here)
 
-vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
-vpath <- '/Users/greg/Work/AncillaryDatasets/WorldVector/'
+
 
 world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
 

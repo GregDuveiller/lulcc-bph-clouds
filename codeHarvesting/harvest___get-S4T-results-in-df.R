@@ -126,7 +126,9 @@ EFO.frcw <- resample(EFO.frct/FOR.frct, rs_EFO_delta)
 
 # Combine both forest types in post-processing (already filtered)
 rs_FOR_delta <- mosaic(x = rs_DFO_delta * DFO.frcw, 
-                       y = rs_EFO_delta * EFO.frcw, fun = mean)
+                       y = rs_EFO_delta * EFO.frcw, fun = sum)
+msk <- is.na(rs_DFO_delta) & is.na(rs_EFO_delta)
+rs_FOR_delta <- mask(rs_FOR_delta, msk, maskvalue = T, updatevalue = NA)
 
 # reset names
 names(rs_FOR_delta) <- names(rs_DFO_delta)
@@ -245,7 +247,9 @@ EFO.frcw <- resample(EFO.frct/FOR.frct, rs_EFO_delta)
 
 # Combine both forest types in post-processing (using frcw from MOD05)
 rs_FOR_delta <- mosaic(x = rs_DFO_delta * DFO.frcw, 
-                       y = rs_EFO_delta * EFO.frcw, fun = mean)
+                       y = rs_EFO_delta * EFO.frcw, fun = sum)
+msk <- is.na(rs_DFO_delta) & is.na(rs_EFO_delta)
+rs_FOR_delta <- mask(rs_FOR_delta, msk, maskvalue = T, updatevalue = NA)
 
 # reset names
 names(rs_FOR_delta) <- names(rs_DFO_delta)
@@ -371,7 +375,9 @@ EFO.frcw <- resample(EFO.frct/FOR.frct, rs_EFO_delta)
 
 # Combine both forest types in post-processing (using frcw from MOD05)
 rs_FOR_delta <- mosaic(x = rs_DFO_delta * DFO.frcw, 
-                       y = rs_EFO_delta * EFO.frcw, fun = mean)
+                       y = rs_EFO_delta * EFO.frcw, fun = sum)
+msk <- is.na(rs_DFO_delta) & is.na(rs_EFO_delta)
+rs_FOR_delta <- mask(rs_FOR_delta, msk, maskvalue = T, updatevalue = NA)
 
 # reset names
 names(rs_FOR_delta) <- names(rs_DFO_delta)
@@ -493,7 +499,9 @@ EFO.frcw <- resample(EFO.frct/FOR.frct, rs_EFO_delta)
 
 # Combine both forest types in post-processing
 rs_FOR_delta <- mosaic(x = rs_DFO_delta * DFO.frcw, 
-                       y = rs_EFO_delta * EFO.frcw, fun = mean)
+                       y = rs_EFO_delta * EFO.frcw, fun = sum)
+msk <- is.na(rs_DFO_delta) & is.na(rs_EFO_delta)
+rs_FOR_delta <- mask(rs_FOR_delta, msk, maskvalue = T, updatevalue = NA)
 
 # reset names
 names(rs_FOR_delta) <- names(rs_DFO_delta)

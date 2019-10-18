@@ -22,6 +22,10 @@ fig.fmt <- 'png'
 # TO BE SEEN IF NEEDED >>>
 
 
+vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
+vpath <- '/Users/greg/Work/AncillaryDatasets/WorldVector/'
+
+
 ## Global picture: map of 4 seasons
 source('codeFigures/fig___map-delta-CFC.r')
 
