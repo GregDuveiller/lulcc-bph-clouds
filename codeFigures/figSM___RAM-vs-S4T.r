@@ -5,7 +5,7 @@ require(grid)
 
 load('dataFigures/df_RAM-vs-S4T_CZ5.RData') # df_CZ5
 
-iPFT <- 'TOT'
+iPFT <- 'DFO'
 
 
 # some plot

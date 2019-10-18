@@ -47,7 +47,7 @@ load('dataFigures/df_dCFC_MOD05_DFO_1dd.Rdata') # df_dCFC_MOD05_DFO_1dd
 load('dataFigures/df_dCFC_MOD05_EFO_1dd.Rdata') # df_dCFC_MOD05_EFO_1dd
 
 # get ClimZones
-cz5_map <- raster('/ESS_EarthObs/CLIMATE_DATA/koppen-Geiger/koppen-Geiger_360x180_5zones.nc', varname = 'climzone')
+cz5_map <- raster('dataInput/koppen-Geiger_360x180_5zones.nc', varname = 'climzone')
 cz5_df <- as.data.frame(cz5_map, xy = T, long = T) %>% 
   dplyr::mutate(lon = round(x, digits = 8), lat = round(y, digits = 8)) %>%
   dplyr::filter(!is.na(value), value < 5) %>%
