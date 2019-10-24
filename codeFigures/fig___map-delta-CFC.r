@@ -1,7 +1,6 @@
 # Maps of global CFC
 
 # Still to do...
-# - add degree symbol in seasonal lat plot
 # - adjust font sizes if needed
 
 

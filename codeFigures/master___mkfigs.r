@@ -23,7 +23,7 @@ fig.fmt <- 'png'
 
 
 vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
-vpath <- '/Users/greg/Work/AncillaryDatasets/WorldVector/'
+#vpath <- '/Users/greg/Work/AncillaryDatasets/WorldVector/'
 
 
 ## Global picture: map of 4 seasons
