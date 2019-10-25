@@ -37,12 +37,27 @@ ggplot(df_all) +
 n = 5
 
 ggplot(df_all %>%
-         filter(delta_albedo >= -0.1)) +
+         filter(PFT == 'Deciduous')) +
   stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 5,
                   fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
-  facet_grid(PFT ~ season) +
+  facet_grid(region ~ season) +
+  scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
+                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = clr.Lims, oob = scales::squish) +
+  theme(legend.position = 'top',
+        legend.key.width = unit(2.4, "cm")) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+ggplot(df_all %>%
+         filter(PFT == 'Deciduous')) +
+  stat_summary_2d(aes(x = delta_albedo, y = delta_Rn, z = dCFC), 
+                  binwidth = c(0.02,5),
+                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
+  geom_hline(yintercept = 0, color = col.cross) + 
+  geom_vline(xintercept = 0, color = col.cross) + 
+  facet_grid(region ~ season) +
   scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
                         colours = RColorBrewer::brewer.pal(9,'RdBu'),
                         limits = clr.Lims, oob = scales::squish) +
@@ -51,14 +66,13 @@ ggplot(df_all %>%
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 
-ggplot(df_all %>%
-         filter(delta_albedo < -0.1)) +
-  stat_summary_2d(aes(x = delta_Rn, y = delta_LSTday, z = dCFC), 
-                  binwidth = c(5, 0.5),
+g_DFO_plot <- ggplot(df_all %>%
+         filter(delta_albedo >= -0.1,
+                PFT == 'Deciduous')) +
+  stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 5,
                   fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
-  facet_grid(PFT ~ season) +
   scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
                        colours = RColorBrewer::brewer.pal(9,'RdBu'),
                        limits = clr.Lims, oob = scales::squish) +
@@ -66,6 +80,91 @@ ggplot(df_all %>%
         legend.key.width = unit(2.4, "cm")) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
+g_DFO_plot +
+  facet_grid(region ~ season)
+  
+
+g_EFO_plot <- ggplot(df_all %>%
+                       filter(delta_LSTday <= 0,
+                              PFT == 'Evergreen')) +
+  stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 5,
+                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
+  geom_hline(yintercept = 0, color = col.cross) + 
+  geom_vline(xintercept = 0, color = col.cross) + 
+  scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
+                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = clr.Lims, oob = scales::squish) +
+  theme(legend.position = 'top',
+        legend.key.width = unit(2.4, "cm")) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+g_EFO_plot +
+  facet_grid(region ~ season)
+
+
+
+
+
+ggplot(df_all %>%
+         filter(month %in% c('Feb','Mar','Apr'), PFT == 'Evergreen')) +
+  geom_point(aes(x = delta_LSTday, y = dCFC, color = delta_HG), size = pts.size) +
+  geom_hline(yintercept = 0, color = col.cross) + 
+  geom_vline(xintercept = 0, color = col.cross) + 
+  scale_color_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
+                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = clr.Lims, oob = scales::squish) +
+  theme(legend.position = 'top',
+        legend.key.width = unit(2.4, "cm")) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+
+
+
+g_TOT_plot <- ggplot(df_all %>%
+                       filter(delta_albedo >= -0.1)) +
+  stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 5,
+                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
+  geom_hline(yintercept = 0, color = col.cross) + 
+  geom_vline(xintercept = 0, color = col.cross) + 
+  scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation', 
+                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = clr.Lims, oob = scales::squish) +
+  theme(legend.position = 'top',
+        legend.key.width = unit(2.4, "cm")) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+
+n = 5
+ggplot(df_all %>%
+         filter(delta_albedo < -0.1)) +
+  stat_summary_2d(aes(x = delta_Rn, y = delta_LSTday, z = dCFC), 
+                  binwidth = c(5, 0.5),
+                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
+  geom_hline(yintercept = 0, color = col.cross) + 
+  geom_vline(xintercept = 0, color = col.cross) + 
+  scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
+                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = clr.Lims * 1.5, oob = scales::squish) +
+  theme(legend.position = 'top',
+        legend.key.width = unit(2.4, "cm")) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+
+
+ggplot(df_all %>%
+         filter(delta_albedo < -0.1,
+                PFT == 'Evergreen')) +
+  stat_summary_2d(aes(x = delta_albedo, y = delta_Rn, z = dCFC), 
+                  binwidth = c(0.02, 4),
+                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
+  geom_hline(yintercept = 0, color = col.cross) + 
+  geom_vline(xintercept = 0, color = col.cross) + 
+  scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
+                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = clr.Lims * 1.5, oob = scales::squish) +
+  theme(legend.position = 'top',
+        legend.key.width = unit(2.4, "cm")) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 
 

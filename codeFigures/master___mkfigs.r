@@ -22,8 +22,14 @@ fig.fmt <- 'png'
 # TO BE SEEN IF NEEDED >>>
 
 
-vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
-#vpath <- '/Users/greg/Work/AncillaryDatasets/WorldVector/'
+# in Work UNIX
+if(Sys.info()['sysname'] == 'Linux') {
+  vpath <- '/ESS_Datasets/USERS/Duveiller/AncillaryDatasets/WorldVector/'
+}
+# in Home OSX:
+if(Sys.info()['sysname'] == 'Darwin'){
+  vpath <- '/Users/greg/Work/AncillaryDatasets/WorldVector/'
+}
 
 
 ## Global picture: map of 4 seasons

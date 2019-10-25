@@ -141,7 +141,8 @@ df_CFC_delta <- df_CFC_delta_bothPFT %>%
 
 
 
-
+### THE INNER JOINS MAY BE EXCLUDING TOO MUCH DATA!!!
+# In the CRN region (corn belt) we see a step drop in the non-winter months...
 
 # combine all
 df_all <- df_CFC_delta %>%
