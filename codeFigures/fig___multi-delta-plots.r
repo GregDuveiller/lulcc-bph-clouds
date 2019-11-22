@@ -21,120 +21,118 @@ df_all <- df_all %>% left_join(df.seasonal, by = "month")
 
 
 col.cross <- 'grey30'
-clr.Lims <- c(-0.08, 0.08)
+clr.Lims <- c(-0.05, 0.05)
 pts.size <- 0.4
 
-# HG vs LE 
-ggplot(df_all) +
-  geom_point(aes(x = delta_LE, y = delta_HG, color = dCFC), size = pts.size) +
+
+
+# ggplot(df_all %>%
+#          filter(delta_albedo >= -0.1)) +
+#   geom_point(aes(x = delta_LE, y = delta_HG, colour = dCFC), size = pts.size) +
+#   geom_hline(yintercept = 0, color = col.cross) + 
+#   geom_vline(xintercept = 0, color = col.cross) + 
+#   scale_colour_gradientn('Change in cloud cover fraction following afforestation', 
+#                          colours = RColorBrewer::brewer.pal(9,'RdBu'),
+#                          limits = clr.Lims, oob = scales::squish) +
+#   theme(legend.position = 'top',
+#         legend.key.width = unit(2.4, "cm")) +
+#   guides(colour = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+
+LE.Lims <- c(-20,60)
+HG.Lims <- c(-40,40)
+Rn.Lims <- c(-30,50)
+
+n = 15
+
+g_LEvsHG <- ggplot(df_all %>%
+         #filter(season == 'June to August (JJA)')) +
+         filter(delta_albedo >= -0.1)) +
+  stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 2,
+                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
-  scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                        limits = clr.Lims*1.5, oob = scales::squish) + 
-  facet_wrap(~region, nc = 2)
+  scale_fill_gradientn('Change in cloud cover fraction following afforestation', 
+                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = clr.Lims, oob = scales::squish) +
+  coord_cartesian(xlim = LE.Lims, ylim = HG.Lims) + 
+  theme(legend.position = 'top',
+        legend.key.width = unit(2.4, "cm")) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 
-n = 5
+
+
+
+g_LEvsRn <- ggplot(df_all %>%
+         filter(delta_albedo >= -0.1)) +
+  stat_summary_2d(aes(x = delta_LE, y = delta_Rn, z = dCFC), 
+                  binwidth = 2,
+                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
+  geom_hline(yintercept = 0, color = col.cross) + 
+  geom_vline(xintercept = 0, color = col.cross) + 
+  scale_fill_gradientn('Change in cloud cover fraction following afforestation', 
+                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = clr.Lims, oob = scales::squish) +
+  coord_cartesian(xlim = LE.Lims, ylim = Rn.Lims) + 
+  theme(legend.position = 'top',
+        legend.key.width = unit(2.4, "cm")) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+
+g_HGvsRn <- ggplot(df_all %>%
+         filter(delta_albedo >= -0.1)) +
+  stat_summary_2d(aes(x = delta_HG, y = delta_Rn, z = dCFC), 
+                  binwidth = 2, drop = T,
+                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
+  geom_hline(yintercept = 0, color = col.cross) + 
+  geom_vline(xintercept = 0, color = col.cross) + 
+  scale_fill_gradientn('Change in cloud cover fraction following afforestation', 
+                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = clr.Lims, oob = scales::squish) +
+  coord_cartesian(xlim = HG.Lims, ylim = Rn.Lims) + 
+  theme(legend.position = 'top',
+        legend.key.width = unit(2.4, "cm")) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+
+
+
+
+
+ggsave(filename = paste0('fig___multiple-delta-plot', '.', fig.fmt), 
+       plot = g.xdelta, width = 9, height = 6, path = fig.path)
+
+# printing the final plot -----
+fig.name <- 'fig___multiple-delta-plot'
+fig.width <- 12; fig.height <- 6;  # fig.fmt <- 'png'
+fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
+if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}
+if(fig.fmt == 'pdf'){pdf(fig.fullfname, width = fig.width, height = fig.height)}
+
+print(g_LEvsHG, vp = viewport(width = 0.33, height = 1.0, x = 0.00, y = 0.0, just = c(0,0)))
+print(g_LEvsRn, vp = viewport(width = 0.33, height = 1.0, x = 0.33, y = 0.0, just = c(0,0)))
+print(g_HGvsRn, vp = viewport(width = 0.33, height = 1.0, x = 0.66, y = 0.0, just = c(0,0)))
+dev.off()
+
+
+
+
+my_breaks <- c(0,1,10,100,1000,10000,100000)
 
 ggplot(df_all %>%
-         filter(PFT == 'Deciduous')) +
-  stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 5,
-                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
+         filter(delta_albedo >= -0.1)) +
+  stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 2,
+                  fun = function(z){length(z)}) +
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
-  facet_grid(region ~ season) +
-  scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = clr.Lims, oob = scales::squish) +
-  theme(legend.position = 'top',
-        legend.key.width = unit(2.4, "cm")) +
-  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
-
-ggplot(df_all %>%
-         filter(PFT == 'Deciduous')) +
-  stat_summary_2d(aes(x = delta_albedo, y = delta_Rn, z = dCFC), 
-                  binwidth = c(0.02,5),
-                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  facet_grid(region ~ season) +
-  scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
-                        colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                        limits = clr.Lims, oob = scales::squish) +
-  theme(legend.position = 'top',
-        legend.key.width = unit(2.4, "cm")) +
-  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
-
-
-g_DFO_plot <- ggplot(df_all %>%
-         filter(delta_albedo >= -0.1,
-                PFT == 'Deciduous')) +
-  stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 5,
-                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = clr.Lims, oob = scales::squish) +
-  theme(legend.position = 'top',
-        legend.key.width = unit(2.4, "cm")) +
-  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
-
-g_DFO_plot +
-  facet_grid(region ~ season)
-  
-
-g_EFO_plot <- ggplot(df_all %>%
-                       filter(delta_LSTday <= 0,
-                              PFT == 'Evergreen')) +
-  stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 5,
-                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = clr.Lims, oob = scales::squish) +
-  theme(legend.position = 'top',
-        legend.key.width = unit(2.4, "cm")) +
-  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
-
-g_EFO_plot +
-  facet_grid(region ~ season)
-
-
-
-
-
-ggplot(df_all %>%
-         filter(month %in% c('Feb','Mar','Apr'), PFT == 'Evergreen')) +
-  geom_point(aes(x = delta_LSTday, y = dCFC, color = delta_HG), size = pts.size) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  scale_color_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = clr.Lims, oob = scales::squish) +
+  scale_fill_viridis_c('Number of samples', trans = "log",
+                       breaks = my_breaks, labels = my_breaks) +
   theme(legend.position = 'top',
         legend.key.width = unit(2.4, "cm")) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 
 
-
-g_TOT_plot <- ggplot(df_all %>%
-                       filter(delta_albedo >= -0.1)) +
-  stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 5,
-                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = clr.Lims, oob = scales::squish) +
-  theme(legend.position = 'top',
-        legend.key.width = unit(2.4, "cm")) +
-  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
-
-
-n = 5
 ggplot(df_all %>%
          filter(delta_albedo < -0.1)) +
   stat_summary_2d(aes(x = delta_Rn, y = delta_LSTday, z = dCFC), 
@@ -149,19 +147,18 @@ ggplot(df_all %>%
         legend.key.width = unit(2.4, "cm")) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
-
+n = 0
 
 ggplot(df_all %>%
-         filter(delta_albedo < -0.1,
-                PFT == 'Evergreen')) +
+         filter(delta_albedo < -0.1)) +
   stat_summary_2d(aes(x = delta_albedo, y = delta_Rn, z = dCFC), 
-                  binwidth = c(0.02, 4),
+                  binwidth = c(0.01, 2),
                   fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
   scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
                        colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = clr.Lims * 1.5, oob = scales::squish) +
+                       limits = clr.Lims*2, oob = scales::squish) +
   theme(legend.position = 'top',
         legend.key.width = unit(2.4, "cm")) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
@@ -170,80 +167,17 @@ ggplot(df_all %>%
 
 
 
-# LSTday vs LSTnight
-ggplot(df_all) +
-  geom_point(aes(x = delta_LSTday, y = delta_LSTnight, color = dCFC), size = pts.size) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                        limits = clr.Lims*1.5, oob = scales::squish) + 
-  facet_wrap(~region, nc = 2)
-
-
-# alb vs SW
-ggplot(df_all) +
-  geom_point(aes(x = delta_Rn, y = delta_albedo, color = dCFC), size = pts.size) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                        limits = clr.Lims*1.5, oob = scales::squish) + 
-  facet_wrap(~region, nc = 2)
-
-
-
-
-
-# HG vs LE ... 'without snow'...
-ggplot(df_all %>% 
-         filter(delta_albedo >= -0.1)) +
-  geom_point(aes(x = delta_LE, y = delta_HG, color = dCFC), size = pts.size) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                        limits = clr.Lims*1.5, oob = scales::squish) + 
-  facet_wrap(~region, nc = 2)
-#facet_grid(month~region)
-
-# Rn vs T ... 'on snow'
-ggplot(df_all %>% 
+ggplot(df_all %>%
          filter(delta_albedo < -0.1)) +
-  geom_point(aes(x = delta_LE + delta_HG, y = delta_LSTday, color = dCFC), size = pts.size) +
+  stat_summary_2d(aes(x = delta_albedo, y = delta_Rn, z = dCFC), 
+                  binwidth = c(0.01, 2),
+                  fun = function(z){length(z)}) +
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
-  scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                        limits = clr.Lims*2, oob = scales::squish) + 
-  facet_wrap(~region, nc = 2)
-
-
-
-
-# HG vs LE in modified axis...
-ggplot(df_all %>% 
-         filter(delta_albedo >= -0.1)) +
-  geom_point(aes(x = delta_LE - delta_HG, y = delta_HG + delta_LE, color = dCFC), size = pts.size) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  scale_color_gradientn(colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                        limits = clr.Lims, oob = scales::squish) + 
-  facet_wrap(~region, nc = 2)
-
-
-
-
-# HG vs LE in modified axis and extra var...
-g.xdelta <- ggplot(df_all ) +
-  geom_point(aes(x = delta_LE - delta_HG, y = delta_LSTday, color = dCFC), 
-             size = pts.size) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  facet_grid(PFT~region) + 
-  scale_color_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = clr.Lims, oob = scales::squish) +
+  scale_fill_viridis_c('Number of samples', trans = "log",
+                       breaks = my_breaks, labels = my_breaks) +
   theme(legend.position = 'top',
         legend.key.width = unit(2.4, "cm")) +
-  guides(color = guide_colourbar(title.position = "top", title.hjust = 0.5))
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 
-ggsave(filename = paste0('fig___multiple-delta-plot', '.', fig.fmt), 
-       plot = g.xdelta, width = 9, height = 6, path = fig.path)
