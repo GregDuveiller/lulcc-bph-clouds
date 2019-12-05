@@ -25,44 +25,15 @@ clr.Lims <- c(-0.05, 0.05)
 pts.size <- 0.4
 
 
+LE.Lims <- c(-20,55)
+HG.Lims <- c(-40,35)
+Rn.Lims <- c(-25,50)
 
-# ggplot(df_all %>%
-#          filter(delta_albedo >= -0.1)) +
-#   geom_point(aes(x = delta_LE, y = delta_HG, colour = dCFC), size = pts.size) +
-#   geom_hline(yintercept = 0, color = col.cross) + 
-#   geom_vline(xintercept = 0, color = col.cross) + 
-#   scale_colour_gradientn('Change in cloud cover fraction following afforestation', 
-#                          colours = RColorBrewer::brewer.pal(9,'RdBu'),
-#                          limits = clr.Lims, oob = scales::squish) +
-#   theme(legend.position = 'top',
-#         legend.key.width = unit(2.4, "cm")) +
-#   guides(colour = guide_colourbar(title.position = "top", title.hjust = 0.5))
-
-
-LE.Lims <- c(-20,60)
-HG.Lims <- c(-40,40)
-Rn.Lims <- c(-30,50)
-
+LE.axis.title <- bquote('Change in latent heat ('~Delta~LE~') [' ~ Wm^-2 ~ ']')
+HG.axis.title <- bquote('Change in sensible and ground heat ('~Delta~(H+G)~') [' ~ Wm^-2 ~ ']') 
+Rn.axis.title <- bquote('Change in net radiation ('~Delta~R[n]~') [' ~ Wm^-2 ~ ']')
+  
 n = 15
-
-g_LEvsHG <- ggplot(df_all %>%
-         #filter(season == 'June to August (JJA)')) +
-         filter(delta_albedo >= -0.1)) +
-  stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 2,
-                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  scale_fill_gradientn('Change in cloud cover fraction following afforestation', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = clr.Lims, oob = scales::squish) +
-  coord_cartesian(xlim = LE.Lims, ylim = HG.Lims) + 
-  theme(legend.position = 'top',
-        legend.key.width = unit(2.4, "cm")) +
-  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
-
-
-
-
 
 g_LEvsRn <- ggplot(df_all %>%
          filter(delta_albedo >= -0.1)) +
@@ -75,7 +46,9 @@ g_LEvsRn <- ggplot(df_all %>%
                        colours = RColorBrewer::brewer.pal(9,'RdBu'),
                        limits = clr.Lims, oob = scales::squish) +
   coord_cartesian(xlim = LE.Lims, ylim = Rn.Lims) + 
-  theme(legend.position = 'top',
+  xlab(LE.axis.title) + 
+  ylab(Rn.axis.title) +
+  theme(legend.position = 'none',
         legend.key.width = unit(2.4, "cm")) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
@@ -91,33 +64,53 @@ g_HGvsRn <- ggplot(df_all %>%
                        colours = RColorBrewer::brewer.pal(9,'RdBu'),
                        limits = clr.Lims, oob = scales::squish) +
   coord_cartesian(xlim = HG.Lims, ylim = Rn.Lims) + 
-  theme(legend.position = 'top',
+  xlab(HG.axis.title) + 
+  ylab(Rn.axis.title) +
+  theme(legend.position = 'none',
         legend.key.width = unit(2.4, "cm")) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 
 
+g_LEvsHG <- ggplot(df_all %>%
+                     #filter(season == 'June to August (JJA)')) +
+                     filter(delta_albedo >= -0.1)) +
+  stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 2,
+                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
+  geom_hline(yintercept = 0, color = col.cross) + 
+  geom_vline(xintercept = 0, color = col.cross) + 
+  scale_fill_gradientn('Change in cloud cover fraction', 
+                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = clr.Lims, oob = scales::squish) +
+  coord_cartesian(xlim = LE.Lims, ylim = HG.Lims) + 
+  labs(title = 'Effect of afforestation on cloud cover',
+       subtitle = 'Selection for bins with n > 15 and delta_albedo > -0.1') +
+  xlab(LE.axis.title) + 
+  ylab(HG.axis.title) +
+  theme(legend.position = 'top',
+        legend.key.width = unit(2, "cm")) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
-# 
-# ggsave(filename = paste0('fig___multiple-delta-plot', '.', fig.fmt), 
-#        plot = g.xdelta, width = 9, height = 6, path = fig.path)
+
 
 # printing the final plot -----
 fig.name <- 'fig___multiple-delta-plot'
-fig.width <- 12; fig.height <- 6;  # fig.fmt <- 'png'
+fig.width <- 4.5; fig.height <- 15;  # fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
 if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}
 if(fig.fmt == 'pdf'){pdf(fig.fullfname, width = fig.width, height = fig.height)}
 
-print(g_LEvsHG, vp = viewport(width = 0.33, height = 1.0, x = 0.00, y = 0.0, just = c(0,0)))
-print(g_LEvsRn, vp = viewport(width = 0.33, height = 1.0, x = 0.33, y = 0.0, just = c(0,0)))
-print(g_HGvsRn, vp = viewport(width = 0.33, height = 1.0, x = 0.66, y = 0.0, just = c(0,0)))
+
+print(g_LEvsHG, vp = viewport(width = 1, height = 0.38, x = 0.0, y = 0.62, just = c(0,0)))
+print(g_LEvsRn, vp = viewport(width = 1, height = 0.31, x = 0.0, y = 0.31, just = c(0,0)))
+print(g_HGvsRn, vp = viewport(width = 1, height = 0.31, x = 0.0, y = 0.00, just = c(0,0)))
 dev.off()
 
 
 
 # 
-# my_breaks <- c(0,1,10,100,1000,10000,100000)
+
+#   my_breaks <- c(0,1,10,100,1000,10000,100000)
 # 
 # ggplot(df_all %>%
 #          filter(delta_albedo >= -0.1)) +
