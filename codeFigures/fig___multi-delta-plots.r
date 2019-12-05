@@ -98,9 +98,9 @@ g_HGvsRn <- ggplot(df_all %>%
 
 
 
-
-ggsave(filename = paste0('fig___multiple-delta-plot', '.', fig.fmt), 
-       plot = g.xdelta, width = 9, height = 6, path = fig.path)
+# 
+# ggsave(filename = paste0('fig___multiple-delta-plot', '.', fig.fmt), 
+#        plot = g.xdelta, width = 9, height = 6, path = fig.path)
 
 # printing the final plot -----
 fig.name <- 'fig___multiple-delta-plot'
@@ -116,68 +116,68 @@ dev.off()
 
 
 
-
-my_breaks <- c(0,1,10,100,1000,10000,100000)
-
-ggplot(df_all %>%
-         filter(delta_albedo >= -0.1)) +
-  stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 2,
-                  fun = function(z){length(z)}) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  scale_fill_viridis_c('Number of samples', trans = "log",
-                       breaks = my_breaks, labels = my_breaks) +
-  theme(legend.position = 'top',
-        legend.key.width = unit(2.4, "cm")) +
-  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
-
-
-
-ggplot(df_all %>%
-         filter(delta_albedo < -0.1)) +
-  stat_summary_2d(aes(x = delta_Rn, y = delta_LSTday, z = dCFC), 
-                  binwidth = c(5, 0.5),
-                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = clr.Lims * 1.5, oob = scales::squish) +
-  theme(legend.position = 'top',
-        legend.key.width = unit(2.4, "cm")) +
-  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
-
-n = 0
-
-ggplot(df_all %>%
-         filter(delta_albedo < -0.1)) +
-  stat_summary_2d(aes(x = delta_albedo, y = delta_Rn, z = dCFC), 
-                  binwidth = c(0.01, 2),
-                  fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = clr.Lims*2, oob = scales::squish) +
-  theme(legend.position = 'top',
-        legend.key.width = unit(2.4, "cm")) +
-  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
-
-
-
-
-
-ggplot(df_all %>%
-         filter(delta_albedo < -0.1)) +
-  stat_summary_2d(aes(x = delta_albedo, y = delta_Rn, z = dCFC), 
-                  binwidth = c(0.01, 2),
-                  fun = function(z){length(z)}) +
-  geom_hline(yintercept = 0, color = col.cross) + 
-  geom_vline(xintercept = 0, color = col.cross) + 
-  scale_fill_viridis_c('Number of samples', trans = "log",
-                       breaks = my_breaks, labels = my_breaks) +
-  theme(legend.position = 'top',
-        legend.key.width = unit(2.4, "cm")) +
-  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
-
-
+# 
+# my_breaks <- c(0,1,10,100,1000,10000,100000)
+# 
+# ggplot(df_all %>%
+#          filter(delta_albedo >= -0.1)) +
+#   stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 2,
+#                   fun = function(z){length(z)}) +
+#   geom_hline(yintercept = 0, color = col.cross) + 
+#   geom_vline(xintercept = 0, color = col.cross) + 
+#   scale_fill_viridis_c('Number of samples', trans = "log",
+#                        breaks = my_breaks, labels = my_breaks) +
+#   theme(legend.position = 'top',
+#         legend.key.width = unit(2.4, "cm")) +
+#   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+# 
+# 
+# 
+# ggplot(df_all %>%
+#          filter(delta_albedo < -0.1)) +
+#   stat_summary_2d(aes(x = delta_Rn, y = delta_LSTday, z = dCFC), 
+#                   binwidth = c(5, 0.5),
+#                   fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
+#   geom_hline(yintercept = 0, color = col.cross) + 
+#   geom_vline(xintercept = 0, color = col.cross) + 
+#   scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
+#                        colours = RColorBrewer::brewer.pal(9,'RdBu'),
+#                        limits = clr.Lims * 1.5, oob = scales::squish) +
+#   theme(legend.position = 'top',
+#         legend.key.width = unit(2.4, "cm")) +
+#   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+# 
+# n = 0
+# 
+# ggplot(df_all %>%
+#          filter(delta_albedo < -0.1)) +
+#   stat_summary_2d(aes(x = delta_albedo, y = delta_Rn, z = dCFC), 
+#                   binwidth = c(0.01, 2),
+#                   fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
+#   geom_hline(yintercept = 0, color = col.cross) + 
+#   geom_vline(xintercept = 0, color = col.cross) + 
+#   scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
+#                        colours = RColorBrewer::brewer.pal(9,'RdBu'),
+#                        limits = clr.Lims*2, oob = scales::squish) +
+#   theme(legend.position = 'top',
+#         legend.key.width = unit(2.4, "cm")) +
+#   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+# 
+# 
+# 
+# 
+# 
+# ggplot(df_all %>%
+#          filter(delta_albedo < -0.1)) +
+#   stat_summary_2d(aes(x = delta_albedo, y = delta_Rn, z = dCFC), 
+#                   binwidth = c(0.01, 2),
+#                   fun = function(z){length(z)}) +
+#   geom_hline(yintercept = 0, color = col.cross) + 
+#   geom_vline(xintercept = 0, color = col.cross) + 
+#   scale_fill_viridis_c('Number of samples', trans = "log",
+#                        breaks = my_breaks, labels = my_breaks) +
+#   theme(legend.position = 'top',
+#         legend.key.width = unit(2.4, "cm")) +
+#   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+# 
+# 
