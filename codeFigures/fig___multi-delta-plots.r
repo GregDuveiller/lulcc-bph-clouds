@@ -36,9 +36,6 @@ Rn.axis.title <- bquote('Change in net radiation ('~Delta~R[n]~') [' ~ Wm^-2 ~ '
 n = 15
 
 
-
-
-
 g_LEvsRn <- ggplot(df_all %>%
                      filter(delta_albedo >= -0.1)) +
   stat_summary_2d(aes(x = delta_LE, y = delta_Rn, z = dCFC), 
