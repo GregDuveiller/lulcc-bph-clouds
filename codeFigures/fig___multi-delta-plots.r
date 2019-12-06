@@ -35,8 +35,12 @@ Rn.axis.title <- bquote('Change in net radiation ('~Delta~R[n]~') [' ~ Wm^-2 ~ '
   
 n = 15
 
+
+
+
+
 g_LEvsRn <- ggplot(df_all %>%
-         filter(delta_albedo >= -0.1)) +
+                     filter(delta_albedo >= -0.1)) +
   stat_summary_2d(aes(x = delta_LE, y = delta_Rn, z = dCFC), 
                   binwidth = 2,
                   fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
@@ -48,13 +52,16 @@ g_LEvsRn <- ggplot(df_all %>%
   coord_cartesian(xlim = LE.Lims, ylim = Rn.Lims) + 
   xlab(LE.axis.title) + 
   ylab(Rn.axis.title) +
+  labs(title = 'Effect of afforestation on cloud cover',
+       subtitle = 'Selection for bins with n > 15 and delta_albedo > -0.1') +
   theme(legend.position = 'none',
         legend.key.width = unit(2.4, "cm")) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 
+
 g_HGvsRn <- ggplot(df_all %>%
-         filter(delta_albedo >= -0.1)) +
+                     filter(delta_albedo >= -0.1)) +
   stat_summary_2d(aes(x = delta_HG, y = delta_Rn, z = dCFC), 
                   binwidth = 2, drop = T,
                   fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
@@ -70,27 +77,22 @@ g_HGvsRn <- ggplot(df_all %>%
         legend.key.width = unit(2.4, "cm")) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
-
-
 g_LEvsHG <- ggplot(df_all %>%
                      #filter(season == 'June to August (JJA)')) +
                      filter(delta_albedo >= -0.1)) +
-  stat_summary_2d(aes(x = delta_LE, y = delta_HG, z = dCFC), binwidth = 2,
+  stat_summary_2d(aes(y = delta_LE, x = delta_HG, z = dCFC), binwidth = 2,
                   fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
   scale_fill_gradientn('Change in cloud cover fraction', 
                        colours = RColorBrewer::brewer.pal(9,'RdBu'),
                        limits = clr.Lims, oob = scales::squish) +
-  coord_cartesian(xlim = LE.Lims, ylim = HG.Lims) + 
-  labs(title = 'Effect of afforestation on cloud cover',
-       subtitle = 'Selection for bins with n > 15 and delta_albedo > -0.1') +
-  xlab(LE.axis.title) + 
-  ylab(HG.axis.title) +
-  theme(legend.position = 'top',
-        legend.key.width = unit(2, "cm")) +
+  coord_cartesian(ylim = LE.Lims, xlim = HG.Lims) + 
+  ylab(LE.axis.title) + 
+  xlab(HG.axis.title) +
+  theme(legend.position = 'bottom',
+        legend.key.width = unit(1.9, "cm")) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
-
 
 
 # printing the final plot -----
@@ -100,10 +102,16 @@ fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
 if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}
 if(fig.fmt == 'pdf'){pdf(fig.fullfname, width = fig.width, height = fig.height)}
 
+print(g_LEvsRn, vp = viewport(width = 1, height = 0.34, x = 0.0, y = 0.66, just = c(0,0)))
+print(g_HGvsRn, vp = viewport(width = 1, height = 0.31, x = 0.0, y = 0.35, just = c(0,0)))
+print(g_LEvsHG, vp = viewport(width = 1, height = 0.35, x = 0.0, y = 0.00, just = c(0,0)))
 
-print(g_LEvsHG, vp = viewport(width = 1, height = 0.38, x = 0.0, y = 0.62, just = c(0,0)))
-print(g_LEvsRn, vp = viewport(width = 1, height = 0.31, x = 0.0, y = 0.31, just = c(0,0)))
-print(g_HGvsRn, vp = viewport(width = 1, height = 0.31, x = 0.0, y = 0.00, just = c(0,0)))
+
+grid.text(expression(bold("a")), x = unit(0.06, "npc"), y = unit(0.96, "npc"), gp = gpar(fontsize = 18))
+grid.text(expression(bold("b")), x = unit(0.06, "npc"), y = unit(0.64, "npc"), gp = gpar(fontsize = 18))
+grid.text(expression(bold("c")), x = unit(0.06, "npc"), y = unit(0.33, "npc"), gp = gpar(fontsize = 18))
+
+
 dev.off()
 
 
