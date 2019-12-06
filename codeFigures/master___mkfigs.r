@@ -32,13 +32,22 @@ if(Sys.info()['sysname'] == 'Darwin'){
 }
 
 
+# Set format for figures 
+fig.fmt <- 'png' # fig.fmt <- 'pdf'
+dir.create(paste0('textFigures/', fig.fmt), showWarnings = F, recursive = T)
+
+
 ## Global picture: map of 4 seasons
 source('codeFigures/fig___map-delta-CFC.r')
 
-
 ## SYNOP confrontation over Europe
 source('codeFigures/fig___SYNOP.r')
-source('codeFigures/figSM___SYNOP.r')
+
+## Exploring effects of different PFTs across Europe
+source('codeFigures/fig___map-PFT-effect.r')
+
+## Delta-3 plots
+source('codeFigures/fig___multi-delta-plots.r')
 
 ## Maps of scale effect over Europe
 source('codeFigures/figSM___map-scaling-Europe.r')
@@ -46,8 +55,5 @@ source('codeFigures/figSM___map-scaling-Europe.r')
 ## Confronting methodologies
 source('codeFigures/figSM___RAM-vs-S4T.r')
 
-## Exploring effects of different PFTs across Europe
-source('codeFigures/fig___map-PFT-effect.r')
-
-## Delta-3 plots
-source('codeFigures/fig___multi-delta-plots.r')
+## Extra SYNOP confrontations
+source('codeFigures/figSM___SYNOP.r')

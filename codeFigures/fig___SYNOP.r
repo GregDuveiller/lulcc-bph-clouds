@@ -1,23 +1,23 @@
+### FIGURE to show the SYNOP points ----
 
+# load packages
 require(sf)
 require(ggplot2)
 require(dplyr)
 require(tidyr)
 require(grid)
 
+## Initial data preparation and parametrization ---- 
 
-# set projection stuff -----
-
-
+# set projection stuff
 world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
 laes_prj <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
 europe_laea <- sf::st_intersection(world, st_set_crs(st_as_sf(as(raster::extent(-10, 55, 26, 72), "SpatialPolygons")), st_crs(world)))%>%
   st_transform(laes_prj)
 
-
-# set some general graphical parameters -----
+# set some specific graphical parameters 
 col.pal <-  RColorBrewer::brewer.pal(9,'RdBu')
-landColor <- 'grey60'
+landColor <- 'grey70'
 seaColor <- 'grey20'
 
 zlims <- c(-0.07, 0.07)
@@ -27,15 +27,14 @@ xLims <- c(2.5e6,6e6)
 yLims <- c(1.5e6,4.5e6)
 
 
-# set the parameters to select the target points -----
-
+# set the parameters to select the target points 
 i.thr.dist.max <- 100  # 60 80 100
 i.thr.dist.min <- 30  # 20 30 40
 i.thr.dfor.min <- 0   # 0.0 0.1 0.2
 i.thr.nyrs.min <- 7   # 5 7 9
 
 
-# Get the SYNOP data ready -----
+# Get the SYNOP data ready
 
 load('dataFigures/df_SYNOP_agr_4polarplots_eur.RData')
 
@@ -55,7 +54,7 @@ pts_buffer <- pts_df_sub %>%
   st_union()
 
 
-# Location map -----
+## SYNOP point location map -----
 
 g.synop.map <- ggplot(pts_df_sub) +
   geom_sf(data = europe_laea, fill = landColor, size = 0) +
@@ -63,7 +62,6 @@ g.synop.map <- ggplot(pts_df_sub) +
   geom_sf(aes(colour =  n), size = pointSize) + 
   scale_colour_viridis_c('Number of valid observations per pair') +
   coord_sf(xlim = xLims, ylim = yLims, expand = F) +
-  labs(tag = 'a') + 
   ggtitle('Location of suitable SYNOP station pairs') + 
   theme(panel.background = element_rect(fill = seaColor),
         legend.position = 'bottom',
@@ -78,7 +76,7 @@ g.synop.map <- ggplot(pts_df_sub) +
   guides(colour = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 
-# SYNOP wheel -----
+## SYNOP wheel -----
 
 big.title <- 'Effect of change in forest cover on cloud cover based on SYNOP'
 sub.title <-  paste0(' MinDist: ', i.thr.dist.min, 'km',
@@ -101,7 +99,6 @@ g.synop.wheel <- ggplot(df_SYNOP_agr %>%
                          colors = RColorBrewer::brewer.pal(9, 'RdBu'),
                          limits = zlims, oob = scales::squish) +
   coord_polar() +
-  labs(tag = 'b') + 
   ggtitle(label = big.title, subtitle = sub.title) + 
   theme(legend.position = 'bottom',
         legend.key.width = unit(2.4, "cm"),
@@ -111,7 +108,7 @@ g.synop.wheel <- ggplot(df_SYNOP_agr %>%
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 
-# comparison with MODIS...  -----
+## Comparison with MODIS...  -----
 
 df.SYNOP <- df_SYNOP_agr %>%
   filter(thr.dist.max == i.thr.dist.max,
@@ -140,7 +137,6 @@ df.MOD02 <- pts_MOD02_laea %>%
             MOD02.dCFC.se = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC))))
 
 
-
 load("dataFigures/df_dCFC_MOD05_FOR.Rdata") # df_dCFC_MOD05_FOR
 
 pts_MOD05_laea <- df_dCFC_MOD05_FOR %>%
@@ -159,9 +155,7 @@ df.MOD05 <- pts_MOD05_laea %>%
             MOD05.dCFC.se = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC))))
 
 
-
-
-
+# combine it all
 
 df.combo <- df.SYNOP %>%
   #transmute(month = factor(month, levels = month.abb), SYNOP.dCFC.mu = dCFC) %>%
@@ -169,7 +163,6 @@ df.combo <- df.SYNOP %>%
   dplyr::select(SYNOP.dCFC.mu, SYNOP.dCFC.se, val.signif, month) %>%
   left_join(df.MOD02, by = 'month') %>%
   left_join(df.MOD05, by = 'month')
-
 
 
 df.combo2 <- left_join(
@@ -193,68 +186,74 @@ df.combo2 <- left_join(
 g.confr.bars <- ggplot(df.combo2) +
   geom_errorbar(aes(ymin = dCFC.mu - dCFC.se, x = month, 
                     ymax = dCFC.mu + dCFC.se, group = source),
-           stat = 'identity', position = "dodge", color = 'grey30') +
+           stat = 'identity', position = "dodge", color = 'grey30', size = 0.4) +
   geom_bar(aes(x = month, y = dCFC.mu, fill = source), colour = 'grey30',
-           stat = 'identity', position = "dodge") + 
+           stat = 'identity', position = "dodge", size = 0.4) + 
   scale_y_continuous('Change in cloud fraction cover') +
   scale_fill_manual(values = c('MOD02'='chartreuse4', 'MOD05'='olivedrab2', 
                                'SYNOP'='cornflowerblue')) +
-  # scale_colour_manual(values = c('MOD02'='darkgreen', 'MOD05'='olivedrab', 
-  #                              'SYNOP'='cornflowerblue')) +
-  geom_hline(aes(yintercept = 0), colour = 'grey30') +
-  labs(tag = 'c') + 
-  theme(legend.position = c(0.9,0.85),
+  geom_hline(aes(yintercept = 0), colour = 'grey30', size = 1.2) +
+  theme_minimal()+
+  theme(legend.position = c(0.62,0.10),
+        #legend.position = c(0.9,0.85),
+        legend.direction = 'horizontal',
         legend.title = element_blank(),
-        legend.spacing.x = unit(1.0, 'mm'),
+        legend.spacing.x = unit(2.0, 'mm'),
+        panel.grid = element_blank(),
+        axis.line = element_line(size = 0.5, colour = 'Grey20'),
+        axis.ticks = element_line(size = 0.5, colour = 'Grey20'),
         axis.title = element_text(size = rel(1.1)), 
         axis.title.x = element_blank()) +
   ggtitle('Comparison with estimations from MODIS')
 
-
-# possible plot 2: based on scatterplot
-g.confr.scat <- ggplot(df.combo) +
-  geom_point(aes(x = MOD05.dCFC.mu, y = SYNOP.dCFC.mu, colour = month)) + 
-  geom_linerange(aes(x = MOD05.dCFC.mu, colour = month,
-                     ymin = SYNOP.dCFC.mu - 2*SYNOP.dCFC.se, 
-                     ymax = SYNOP.dCFC.mu + 2*SYNOP.dCFC.se)) + 
-  geom_errorbarh(aes(y = SYNOP.dCFC.mu, colour = month,
-                     xmin = MOD05.dCFC.mu - 2*MOD05.dCFC.se, 
-                     xmax = MOD05.dCFC.mu + 2*MOD05.dCFC.se)) + 
-  geom_abline()  +
-  scale_y_continuous('Delta CFC from SYNOP') +
-  scale_x_continuous('Delta CFC from MODIS') + 
-  coord_equal(xlim = c(-0.02, 0.11), ylim = c(-0.02, 0.11)) +
-  labs(tag = 'c') +
-  theme(legend.position = c(0.9,0.5),
-        axis.title = element_text(size = rel(1.1))) +
-  ggtitle('Comparison with MODIS')
-
-
-# possible plot 3: based on ranges... like simple boxplots 
-g.confr.boxs <- ggplot(df.combo2) +
-  geom_point(aes(x = month, y = dCFC.mu, colour = source),
-           stat = 'identity') + 
-  geom_linerange(aes(ymin = dCFC.mu - 2 * dCFC.se, x = month, 
-                    ymax = dCFC.mu + 2 * dCFC.se, colour = source),
-                stat = 'identity') +
-  geom_hline(aes(yintercept = 0), colour = 'grey30') + 
-  labs(tag = 'c') + 
-  theme(legend.position = c(0.9,0.9),
-        axis.title = element_text(size = rel(1.1)), 
-        axis.title.x = element_blank()) +
-  ggtitle('Comparison with MODIS')
-
+# # # Some alternatives
+# # possible plot 2: based on scatterplot
+# g.confr.scat <- ggplot(df.combo) +
+#   geom_point(aes(x = MOD05.dCFC.mu, y = SYNOP.dCFC.mu, colour = month)) + 
+#   geom_linerange(aes(x = MOD05.dCFC.mu, colour = month,
+#                      ymin = SYNOP.dCFC.mu - 2*SYNOP.dCFC.se, 
+#                      ymax = SYNOP.dCFC.mu + 2*SYNOP.dCFC.se)) + 
+#   geom_errorbarh(aes(y = SYNOP.dCFC.mu, colour = month,
+#                      xmin = MOD05.dCFC.mu - 2*MOD05.dCFC.se, 
+#                      xmax = MOD05.dCFC.mu + 2*MOD05.dCFC.se)) + 
+#   geom_abline()  +
+#   scale_y_continuous('Delta CFC from SYNOP') +
+#   scale_x_continuous('Delta CFC from MODIS') + 
+#   coord_equal(xlim = c(-0.02, 0.11), ylim = c(-0.02, 0.11)) +
+#   theme(legend.position = c(0.9,0.5),
+#         axis.title = element_text(size = rel(1.1))) +
+#   ggtitle('Comparison with MODIS')
+# 
+# 
+# # possible plot 3: based on ranges... like simple boxplots 
+# g.confr.boxs <- ggplot(df.combo2) +
+#   geom_point(aes(x = month, y = dCFC.mu, colour = source),
+#            stat = 'identity') + 
+#   geom_linerange(aes(ymin = dCFC.mu - 2 * dCFC.se, x = month, 
+#                     ymax = dCFC.mu + 2 * dCFC.se, colour = source),
+#                 stat = 'identity') +
+#   geom_hline(aes(yintercept = 0), colour = 'grey30') + 
+#   theme(legend.position = c(0.9,0.9),
+#         axis.title = element_text(size = rel(1.1)), 
+#         axis.title.x = element_blank()) +
+#   ggtitle('Comparison with MODIS')
+# 
 
 
-# printing the final plot -----
+## Printing the final plot -----
 fig.name <- 'fig___synop-delta-CFC'
 fig.width <- 12; fig.height <- 9;  # fig.fmt <- 'png'
-fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
+fig.fullfname <- paste0(fig.path, '/', fig.fmt, '/', fig.name, '.', fig.fmt)
 if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}
 if(fig.fmt == 'pdf'){pdf(fig.fullfname, width = fig.width, height = fig.height)}
 
-print(g.synop.map,   vp = viewport(width = 0.4, height = 0.6, x = 0.0, y = 0.4, just = c(0,0)))
-print(g.synop.wheel, vp = viewport(width = 0.6, height = 1.0, x = 0.4, y = 0.0, just = c(0,0)))
-print(g.confr.bars,  vp = viewport(width = 0.4, height = 0.4, x = 0.0, y = 0.0, just = c(0,0)))
-dev.off()
+print(g.synop.map,   vp = viewport(width = 0.40, height = 0.6, x = 0.00, y = 0.4, just = c(0,0)))
+print(g.synop.wheel, vp = viewport(width = 0.59, height = 1.0, x = 0.41, y = 0.0, just = c(0,0)))
+print(g.confr.bars,  vp = viewport(width = 0.40, height = 0.4, x = 0.00, y = 0.0, just = c(0,0)))
 
+grid.text(expression(bold("a")), x = unit(0.02, "npc"), y = unit(0.95, "npc"), gp = gpar(fontsize = 18))
+grid.text(expression(bold("b")), x = unit(0.42, "npc"), y = unit(0.94, "npc"), gp = gpar(fontsize = 18))
+grid.text(expression(bold("c")), x = unit(0.02, "npc"), y = unit(0.38, "npc"), gp = gpar(fontsize = 18))
+
+dev.off()
+  

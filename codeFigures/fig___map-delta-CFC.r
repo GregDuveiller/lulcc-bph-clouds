@@ -1,7 +1,4 @@
-# Maps of global CFC
-
-# Still to do...
-# - adjust font sizes if needed
+### FIGURE summarizing the global CFC ----
 
 # load necessary packages
 require(dplyr)
@@ -15,7 +12,7 @@ require(here)
 
 
 
-## data preparation ----
+## Initial data preparation and parametrization ---- 
 
 # some general plot parametrization
 col.pal <-  RColorBrewer::brewer.pal(9,'RdBu')
@@ -135,7 +132,7 @@ g.lat.month <- ggplot(df_dCFC_MOD05_FOR_1dd %>%
 
 
 
-##  sub-plots of bar graphs for selected zones ---- 
+## Sub-plots of bar graphs for selected zones ---- 
 
 # function to make the subplots
 mk.tmp.plot <- function(zn.dum, mon = NULL, ylims = NULL){
@@ -165,6 +162,7 @@ mk.tmp.plot <- function(zn.dum, mon = NULL, ylims = NULL){
     theme(legend.position = 'none',
           panel.grid = element_blank(),
           axis.line.y = element_line(size = 0.5),
+          axis.ticks.y = element_line(size = 0.5),
           axis.text.x = element_blank()) + 
     ggtitle(unique(zn.dum$lbl))
   
@@ -182,10 +180,10 @@ g.crn <- mk.tmp.plot(zn.crn, mon = NULL, ylims = ylims)
 g.chi <- mk.tmp.plot(zn.chi, mon = NULL, ylims = c(-0.05, 0.09))
 
 
-## printing the entire figure ----
+## Printing the entire figure ----
 fig.name <- 'fig___map-delta-CFC'
 fig.width <- 14; fig.height <- 13; #fig.fmt <- 'png'
-fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
+fig.fullfname <- paste0(fig.path, '/', fig.fmt, '/', fig.name, '.', fig.fmt)
 if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}
 if(fig.fmt == 'pdf'){pdf(fig.fullfname, width = fig.width, height = fig.height)}
 

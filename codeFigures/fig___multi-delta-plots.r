@@ -95,7 +95,7 @@ g_LEvsHG <- ggplot(df_all %>%
 # printing the final plot -----
 fig.name <- 'fig___multiple-delta-plot'
 fig.width <- 4.5; fig.height <- 15;  # fig.fmt <- 'png'
-fig.fullfname <- paste0(fig.path, fig.name, '.', fig.fmt)
+fig.fullfname <- paste0(fig.path, '/', fig.fmt, '/', fig.name, '.', fig.fmt)
 if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}
 if(fig.fmt == 'pdf'){pdf(fig.fullfname, width = fig.width, height = fig.height)}
 
