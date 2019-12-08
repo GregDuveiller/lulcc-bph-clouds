@@ -77,7 +77,7 @@ g.map.seasonal <- ggplot(df_dCFC_MOD05_FOR_1dd %>%
   scale_fill_gradientn(colours = col.pal,
                        limits = ylims, oob = scales::squish) +
   coord_sf(expand = F, ylim = latLims)+
-  ggtitle('Seasonal patterns of cloud change cover (CFC)',
+  ggtitle('Seasonal patterns of cloud fraction cover (CFC) change',
     subtitle = 'Resulting from potential afforestation') + 
   theme(panel.background = element_rect(fill = seaColor),
         legend.position = 'none',
