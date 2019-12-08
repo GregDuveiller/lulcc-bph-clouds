@@ -24,7 +24,6 @@ seaColor <- 'grey20'
 iMonths <- c('Jun','Jul','Aug')
 
 
-
 # set projection stuff
 world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
 # laes_prj <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
@@ -42,43 +41,6 @@ load('dataFigures/df_dCFC_MOD02_EFO.Rdata')     # df_dCFC_MOD02_EFO
 df_all <- bind_rows(
   df_dCFC_MOD02_DFO %>% mutate(PFT = 'Deciduous'),
   df_dCFC_MOD02_EFO %>% mutate(PFT = 'Evergreen'))
-
-
-
-## maps for summer ----
-
-
-df_sub <- df_all %>%
-  filter(month %in% iMonths) %>%
-  group_by(lat, lon, PFT) %>%
-  summarise(dCFC = mean(dCFC, na.rm = T)) %>%
-  ungroup()
-
-# df_sub_coord <- df_sub %>%
-#   st_as_sf(coords = c("lon","lat")) %>%
-#   st_set_crs(st_crs(world)) %>%
-#   st_transform(laes_prj) %>% ungroup()
-# 
-# df_sub$X <- st_coordinates(df_sub_coord$geometry)[,1]
-# df_sub$Y <- st_coordinates(df_sub_coord$geometry)[,2]
-
-g.maps <- ggplot(df_sub) + 
-  geom_sf(data = world, fill = landColor, size = 0) +
-  geom_raster(aes(x = lon, y = lat, fill = dCFC)) +
-  scale_fill_gradientn('Change in cloud fraction cover (CFC)',
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
-                       limits = clr.Lims, oob = scales::squish) +
-  facet_wrap(~PFT) +
-  coord_sf(expand = F, ylim = yLims, xlim = xLims) +
-  #  ggtitle('Effect of different forest types') +
-  theme(panel.background = element_rect(fill = seaColor),
-        legend.position = 'bottom',
-        legend.key.width = unit(2.4, "cm"),
-        panel.grid = element_line(color = seaColor),
-        axis.title = element_blank()) +
-  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
-
-
 
 ## Seasonal averages ---- 
 
@@ -117,46 +79,85 @@ g.lat.month <- ggplot(df_all %>%
                        limits = ylims, oob = scales::squish) +
   scale_y_continuous(labels = geo_labeller) + 
   coord_cartesian(ylim = yLims.zm, expand = F) +
+  ggtitle('Effect of affestation on cloud cover for different forest types') + 
   theme(panel.background = element_rect(fill = seaColor),
         legend.position = 'none',
         legend.key.width = unit(2.4, "cm"),
         legend.text = element_text(size = rel(1.1)),
         legend.title = element_text(size = rel(1.2)),
-        axis.text = element_text(size = rel(1.1)),
+        # axis.text = element_text(size = rel(1.1)),
+        strip.text = element_text(size = rel(1.2)),
         panel.grid = element_line(color = seaColor),
+        
         axis.title = element_blank()) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 
-# get some arrows in there...
-mygb = function(x,y) {
-  grid.bezier(x=x, y=y, gp=gpar(fill="grey20"), 
-              arrow=arrow(type="closed", length=unit(2,"mm")))
-}
+## maps for summer ----
+
+# NOTE: Ideally, it would be better to use the LAEA projection, but this needs 
+# reprojecting the initial raster during the 'harvesting' phase... (to be done)
+
+df_sub <- df_all %>%
+  filter(month %in% iMonths) %>%
+  group_by(lat, lon, PFT) %>%
+  summarise(dCFC = mean(dCFC, na.rm = T)) %>%
+  ungroup()
+
+# df_sub_coord <- df_sub %>%
+#   st_as_sf(coords = c("lon","lat")) %>%
+#   st_set_crs(st_crs(world)) %>%
+#   st_transform(laes_prj) %>% ungroup()
+# 
+# df_sub$X <- st_coordinates(df_sub_coord$geometry)[,1]
+# df_sub$Y <- st_coordinates(df_sub_coord$geometry)[,2]
+
+g.maps <- ggplot(df_sub) + 
+  geom_sf(data = world, fill = landColor, size = 0) +
+  geom_raster(aes(x = lon, y = lat, fill = dCFC)) +
+  scale_fill_gradientn('Change in cloud fraction cover (CFC)',
+                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       limits = clr.Lims, oob = scales::squish) +
+  facet_wrap(~PFT) +
+  coord_sf(expand = F, ylim = yLims, xlim = xLims) +
+  #  ggtitle('Effect of different forest types') +
+  theme(panel.background = element_rect(fill = seaColor),
+        legend.position = 'bottom',
+        legend.key.width = unit(2.4, "cm"),
+        panel.grid = element_line(color = seaColor),
+        strip.text = element_text(size = rel(1.2)),
+        axis.title = element_blank()) +
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
 
 
-# ggsave(filename = paste0('fig___PFT-effect-Europe', '.', fig.fmt),
-#        width = 9, height = 7, path = fig.path)
+
 
 
 ## Printing the final plot -----
 fig.name <- 'fig___PFT-effect-Europe'
-fig.width <- 9; fig.height <- 9;  # fig.fmt <- 'png'
+fig.width <- 9; fig.height <- 10;  # fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, '/', fig.fmt, '/', fig.name, '.', fig.fmt)
 if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}
 if(fig.fmt == 'pdf'){pdf(fig.fullfname, width = fig.width, height = fig.height)}
 
-ysh <- 0.45
+ysh <- 0.42
 print(g.lat.month, vp = viewport(width = 1, height = ysh, x = 0.0, y = 1 - ysh, just = c(0,0)))
 print(g.maps, vp = viewport(width = 1, height = 1 - ysh, x = 0.0, y = 0.0, just = c(0,0)))
 
+grid.text(expression(bold("a")), x = unit(0.02, "npc"), y = unit(0.98, "npc"), gp = gpar(fontsize = 18))
+grid.text(expression(bold("b")), x = unit(0.02, "npc"), y = unit(0.54, "npc"), gp = gpar(fontsize = 18))
 
-grid.lines(x = c(0.29, 0.29), y = c(0.585, 0.55), 
+
+# add arrows to link two plots
+grid.lines(x = c(0.28, 0.28), y = c(0.606, 0.55), 
            gp = gpar(col = "grey20", lwd = 2), 
            arrow = arrow(type = "open", length = unit(2,"mm")))
-grid.lines(x = c(0.76, 0.76), y = c(0.585, 0.55), 
+grid.lines(x = c(0.76, 0.76), y = c(0.606, 0.55), 
            gp = gpar(col = "grey20", lwd = 2),  
            arrow = arrow(type = "open", length = unit(2,"mm")))
+
+
+
 dev.off()
 
