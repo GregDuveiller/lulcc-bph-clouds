@@ -6,6 +6,7 @@ require(ggplot2)
 require(dplyr)
 require(tidyr)
 require(grid)
+require(raster)
 
 ## Initial data preparation and parametrization ---- 
 
@@ -32,6 +33,9 @@ i.thr.dist.max <- 100  # 60 80 100
 i.thr.dist.min <- 30  # 20 30 40
 i.thr.dfor.min <- 0   # 0.0 0.1 0.2
 i.thr.nyrs.min <- 7   # 5 7 9
+
+# set time from SYNOP to compare with MODIS overpass (Aqua platform)
+modisTime <- 14
 
 
 # Get the SYNOP data ready
@@ -81,23 +85,28 @@ g.synop.map <- ggplot(pts_df_sub) +
 big.title <- 'Effect of change in forest cover on cloud cover based on SYNOP'
 sub.title <-  paste0(' MinDist: ', i.thr.dist.min, 'km',
                      ' | MaxDist: ', i.thr.dist.max, 'km', 
-                     ' | MinYears: ', i.thr.nyrs.min, 'yrs',
-                     ' | MinDfor: ', 100 * i.thr.dfor.min, '%')
+                     ' | MinYears: ', i.thr.nyrs.min, 'yrs')
+# ' | MinDfor: ', 100 * i.thr.dfor.min, '%')
 
 g.synop.wheel <- ggplot(df_SYNOP_agr %>%
-         filter(thr.dist.max == i.thr.dist.max,
-                thr.dist.min == i.thr.dist.min,
-                thr.nyrs.min == i.thr.nyrs.min,
-                thr.dfor.min == i.thr.dfor.min), 
-       aes(x = hour, y = month)) +
-    geom_tile(aes(fill = dCFC)) +
-    geom_tile(aes(alpha = val.signif), fill = 'grey80') +
-    # geom_point(aes(alpha = val.signif)) +
-    scale_alpha_manual(values = c(1,0), guide = F) +
+                          filter(thr.dist.max == i.thr.dist.max,
+                                 thr.dist.min == i.thr.dist.min,
+                                 thr.nyrs.min == i.thr.nyrs.min,
+                                 thr.dfor.min == i.thr.dfor.min), 
+                        aes(x = hour, y = month)) +
+  geom_tile(aes(fill = dCFC)) +
+  geom_tile(aes(alpha = val.signif), fill = 'grey80') +
+  # geom_point(aes(alpha = val.signif)) +
+  geom_path(data = data.frame(y = c(0.5,12.5,12.5,0.5,0.5), 
+                              x = modisTime + c(0.5,0.5,1.5,1.5,1.5)), 
+            aes(x = x, y = y), colour = 'grey20', size = 0.7) + 
+  # annotate("segment", x=15, y=13.5, xend=15.5, yend=18,
+  #          col="grey20", arrow=arrow(length=unit(0.2, "cm"))) +
+  scale_alpha_manual(values = c(1,0), guide = F) +
   # scale_alpha_manual(values = c(0,1), guide = F) +
   scale_fill_gradientn('Change in cloud fraction cover',
-                         colors = RColorBrewer::brewer.pal(9, 'RdBu'),
-                         limits = zlims, oob = scales::squish) +
+                       colors = RColorBrewer::brewer.pal(9, 'RdBu'),
+                       limits = zlims, oob = scales::squish) +
   coord_polar() +
   ggtitle(label = big.title, subtitle = sub.title) + 
   theme(legend.position = 'bottom',
@@ -110,12 +119,13 @@ g.synop.wheel <- ggplot(df_SYNOP_agr %>%
 
 ## Comparison with MODIS...  -----
 
+
 df.SYNOP <- df_SYNOP_agr %>%
   filter(thr.dist.max == i.thr.dist.max,
          thr.dist.min == i.thr.dist.min,
          thr.nyrs.min == i.thr.nyrs.min,
          thr.dfor.min == i.thr.dfor.min, 
-         hour %in% c('13:00'))
+         hour %in% c(paste(modisTime,'00',sep = ':')))
 
 
 # load MODIS data
@@ -186,12 +196,14 @@ df.combo2 <- left_join(
 g.confr.bars <- ggplot(df.combo2) +
   geom_errorbar(aes(ymin = dCFC.mu - dCFC.se, x = month, 
                     ymax = dCFC.mu + dCFC.se, group = source),
-           stat = 'identity', position = "dodge", color = 'grey30', size = 0.4) +
+                stat = 'identity', position = "dodge", color = 'grey30', size = 0.4) +
   geom_bar(aes(x = month, y = dCFC.mu, fill = source), colour = 'grey30',
            stat = 'identity', position = "dodge", size = 0.4) + 
   scale_y_continuous('Change in cloud fraction cover') +
   scale_fill_manual(values = c('MOD02'='chartreuse4', 'MOD05'='olivedrab2', 
-                               'SYNOP'='cornflowerblue')) +
+                               'SYNOP'='cornflowerblue'),
+                    labels = c('MOD02'='Satellite\n(refined)', 
+                               'MOD05'='Satellite\n(original)', 'SYNOP'='Ground\nstation')) +
   geom_hline(aes(yintercept = 0), colour = 'grey30', size = 1.2) +
   theme_minimal()+
   theme(legend.position = c(0.62,0.10),
@@ -204,7 +216,7 @@ g.confr.bars <- ggplot(df.combo2) +
         axis.ticks = element_line(size = 0.5, colour = 'Grey20'),
         axis.title = element_text(size = rel(1.1)), 
         axis.title.x = element_blank()) +
-  ggtitle('Comparison with estimations from MODIS')
+  ggtitle('Comparison with satellite estimations')
 
 # # # Some alternatives
 # # possible plot 2: based on scatterplot
@@ -255,5 +267,10 @@ grid.text(expression(bold("a")), x = unit(0.02, "npc"), y = unit(0.95, "npc"), g
 grid.text(expression(bold("b")), x = unit(0.42, "npc"), y = unit(0.94, "npc"), gp = gpar(fontsize = 18))
 grid.text(expression(bold("c")), x = unit(0.02, "npc"), y = unit(0.38, "npc"), gp = gpar(fontsize = 18))
 
+grid.lines(x = c(0.55, 0.53, 0.41), 
+           y = c(0.25, 0.22, 0.22), 
+           arrow = arrow(angle = 40, length = unit(0.2, "cm"), 
+                         ends = "last", type = "open"))
+
 dev.off()
-  
+
