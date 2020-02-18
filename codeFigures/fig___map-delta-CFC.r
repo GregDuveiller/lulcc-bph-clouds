@@ -28,28 +28,8 @@ world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
 # Load data to plot...
 load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd.Rdata
 
-# function to delimit zones of interest (relevant for diff subplots)
-mk.zone <- function(lbl, xmn, xmx, ymn, ymx){
-  zn <- data.frame(lbl = lbl, 
-                   lon = c(xmn, xmn, xmx, xmx, xmn), 
-                   lat = c(ymn, ymx, ymx, ymn, ymn))}
-
-# make the actual zones
-zn.eur <- mk.zone('West/Central Europe',-10,20,38,62)
-zn.nam <- mk.zone('North America',-120,-60,40,60)
-zn.crn <- mk.zone('US corn belt',-95,-82,36,44)
-zn.ind <- mk.zone('Indian subcontinent',65,90,5,30)
-zn.aus <- mk.zone('Eastern Australia',140,155,-45,-18)
-zn.rus <- mk.zone('Russia/East Europe',20,110,45,65)
-zn.ama <- mk.zone('Southern Amazon',-70,-45,-15,-5)
-zn.afr <- mk.zone('Southern Africa',10,42,-30,-5)
-zn.chi <- mk.zone('Eastern China',105,125,20,37)
-
-zn <- bind_rows(zn.nam, zn.crn, zn.eur, zn.rus, zn.ama, zn.afr, zn.ind, zn.aus, zn.chi)
-
-
-
-
+# get ROIs
+source('codeFigures/ancillary__definingROIs.r')
 
 
 

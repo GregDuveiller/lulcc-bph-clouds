@@ -28,22 +28,10 @@ landColor <- 'grey60'
 seaColor <- 'grey20'
 latLims <- c(-56,86)
 
-mk.zone <- function(lbl, xmn, xmx, ymn, ymx){
-  zn <- data.frame(lbl = lbl, 
-                   lon = c(xmn, xmn, xmx, xmx, xmn), 
-                   lat = c(ymn, ymx, ymx, ymn, ymn))}
+# get ROIs
+source('codeFigures/ancillary__definingROIs.r')
 
-zn.eur <- mk.zone('eur',-10,20,42,58)
-zn.nam <- mk.zone('nam',-120,-60,40,60)
-zn.crn <- mk.zone('crn',-95,-82,36,44)
-zn.ind <- mk.zone('ind',70,90,5,30)
-zn.aus <- mk.zone('aus',140,155,-45,-18)
-zn.rus <- mk.zone('rus',20,110,45,65)
-zn.ama <- mk.zone('ama',-70,-45,-15,-5)
-zn.afr <- mk.zone('afr',10,42,-25,-5)
-
-zn <- bind_rows(zn.nam, zn.crn, zn.eur, zn.rus, zn.ama, zn.afr, zn.ind, zn.aus)
-
+# function to make subplots...
 mk.tmp.plot <- function(zn.dum, mon = NULL, ylims = NULL){
   
   df.dum  <- df_dCFC_MOD05_FOR %>%

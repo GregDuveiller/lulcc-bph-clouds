@@ -121,23 +121,23 @@ cz5_df <- as.data.frame(cz5_map, xy = T, long = T) %>%
   dplyr::select(-x, -y, -layer, -value)
 
 
-# # For all forest together
-# load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd
-# df_CFC_delta <- df_dCFC_MOD05_FOR_1dd %>% 
-#   left_join(cz5_df, by = c("lon", "lat"))
+# For all forest together
+load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd
+df_CFC_delta <- df_dCFC_MOD05_FOR_1dd %>%
+  left_join(cz5_df, by = c("lon", "lat"))
 
-# Separating between DFO and EFO
-# (but just on the CFC side, not on the other deltas... to be done?)
-load('dataFigures/df_dCFC_MOD05_DFO_1dd.Rdata') # df_dCFC_MOD05_DFO_1dd
-load('dataFigures/df_dCFC_MOD05_EFO_1dd.Rdata') # df_dCFC_MOD05_EFO_1dd
-
-df_CFC_delta_bothPFT <- bind_rows(
-  df_dCFC_MOD05_DFO_1dd %>% mutate(PFT = 'Deciduous'),
-  df_dCFC_MOD05_EFO_1dd %>% mutate(PFT = 'Evergreen'))
-
-df_CFC_delta <- df_CFC_delta_bothPFT %>% 
-  left_join(cz5_df, by = c("lon", "lat")) %>%
-  filter(!is.na(region))
+# # Separating between DFO and EFO
+# # (but just on the CFC side, not on the other deltas... to be done?)
+# load('dataFigures/df_dCFC_MOD05_DFO_1dd.Rdata') # df_dCFC_MOD05_DFO_1dd
+# load('dataFigures/df_dCFC_MOD05_EFO_1dd.Rdata') # df_dCFC_MOD05_EFO_1dd
+# 
+# df_CFC_delta_bothPFT <- bind_rows(
+#   df_dCFC_MOD05_DFO_1dd %>% mutate(PFT = 'Deciduous'),
+#   df_dCFC_MOD05_EFO_1dd %>% mutate(PFT = 'Evergreen'))
+# 
+# df_CFC_delta <- df_CFC_delta_bothPFT %>% 
+#   left_join(cz5_df, by = c("lon", "lat")) %>%
+#   filter(!is.na(region))
 
 
 
@@ -146,12 +146,17 @@ df_CFC_delta <- df_CFC_delta_bothPFT %>%
 
 # combine all
 df_all <- df_CFC_delta %>%
+  # the following are done with inner join because all are needed
   inner_join(df_LE_delta, by = c('lon', 'lat', 'month')) %>%
   inner_join(df_HG_delta, by = c('lon', 'lat', 'month')) %>%
   inner_join(df_Rn_delta, by = c('lon', 'lat', 'month')) %>%
-  inner_join(df_SW_delta, by = c('lon', 'lat', 'month')) %>%
-  inner_join(df_LSTday_delta, by = c('lon', 'lat', 'month')) %>%
-  inner_join(df_LSTnight_delta, by = c('lon', 'lat', 'month')) %>%
   inner_join(df_albedo_delta, by = c('lon', 'lat', 'month'))
+
+df_all <- df_all %>%
+  # these instead are done with left join to avoid losing data due to NAs here
+  left_join(df_SW_delta, by = c('lon', 'lat', 'month')) %>%
+  left_join(df_LSTday_delta, by = c('lon', 'lat', 'month')) %>%
+  left_join(df_LSTnight_delta, by = c('lon', 'lat', 'month'))
+
 
 save('df_all', file = 'dataFigures/df_multiDeltaDF.Rda')
