@@ -136,6 +136,10 @@ names(rs_FOR_delta) <- names(rs_DFO_delta)
 # aggregate
 rs_FOR_delta_1dd <- raster::resample(x = rs_FOR_delta, y = rs_dummy, method = 'bilinear')
 
+# export raster
+writeRaster(x = rs_FOR_delta, filename = "dataFigures/rstr_dCFC_MOD05_FOR.nc", 
+            format = "CDF", overwrite = TRUE)
+
 # export df at finer resolution
 df_dCFC_MOD05_FOR <- as.data.frame(rs_FOR_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y, dCFC = value) %>%
@@ -511,7 +515,9 @@ rs_FOR_delta_1dd <- raster::resample(x = rs_FOR_delta, y = rs_dummy, method = 'b
 # aggregate to MOD05 resolution
 rs_FOR_delta_agr <- raster::resample(x = rs_FOR_delta, y = rs_dum05, method = 'bilinear')
 
-
+# export raster
+writeRaster(x = rs_FOR_delta, filename = "dataFigures/rstr_dCFC_MOD02_FOR.nc", 
+            format = "CDF", overwrite = TRUE)
 
 # export df at finer resolution
 df_dCFC_MOD02_FOR <- as.data.frame(rs_FOR_delta, xy = T, long = T) %>% 
