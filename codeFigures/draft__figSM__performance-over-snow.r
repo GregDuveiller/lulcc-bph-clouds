@@ -1,57 +1,138 @@
-library(data.table)
 library(ggplot2)
 library(dplyr)
+library(tidyr)
 
-load("dataResults/Results_from_Jed/satsite.Rda")
+# get data
+load('dataFigures/df.groundDataRS.snowbias.Rda')
 
-## to get data from MODIS delta results
 
-# select the points
-tbl.pts <- as.data.frame(satsite) %>%
-  filter(time >= as.Date('2004-01-01'),
-         time <= as.Date('2014-12-31')) %>%
-  group_by(Kod) %>%
-  summarize(x = signif(unique(lon), digits = 4), 
-            y = signif(unique(lat), digits = 4))
-
-# extract data from MODIS S4T values
-dat0 <- raster::extract(x = brick('dataFigures/rstr_dCFC_MOD05_FOR.nc'), 
-                        y = dplyr::select(tbl.pts, -Kod)) 
-colnames(dat0) <- month.abb
-dat1 <- cbind(dplyr::select(tbl.pts, Kod), dat0)
-dat2 <- dat1[apply(is.na(dat0), 1, sum) < 5,]
-dat3 <- pivot_longer(data = dat2, cols = month.abb, 
-                     names_to = 'month', values_to = 'dCFC')
-
-tbl.s4t <- dat3 %>%
-  transmute(Kod = Kod, 
-            month = factor(month, levels = month.abb),
-            dCFC_afforestation = dCFC)
-
+## plot with various snow classes ----
 
 tbl.grd <- as.data.frame(satsite) %>%
   filter(!is.na(synop + aqua + SD)) %>%
   filter(time >= as.Date('2004-01-01'),
          time <= as.Date('2014-12-31')) %>%
   mutate(month = factor(format(time, '%b'), levels = month.abb)) %>%
-  mutate(SD_class = cut(SD, breaks = c(-1,0,1,5,30,400) , right = T, 
-                        labels = c('No Snow', '< 1', '(1,5]', '(5,30]', '< 30'))) %>%
+  mutate(SD_class = cut(SD, breaks = c(-1,0,5,30,400) , right = T, 
+                        labels = c('No Snow', '(0,5]', '(5,30]', '> 30'))) %>%
   group_by(SD_class, month, Kod) %>% 
   summarize(dCFC_aqua_synop = mean((aqua/100) - (synop/100), na.rm = T),
             num.obs = length(aqua)) %>%
   right_join(tbl.s4t, by = c('Kod', 'month'))
 
+tbl4plot.raw <- tbl.grd %>% filter(month %in% month.abb[1:4])
+tbl4plot.sum <- tbl4plot.raw %>% group_by(SD_class, month) %>%
+  summarize(mu.dCFC_af = mean(dCFC_afforestation, na.rm = T),
+            mu.dCFC_as = mean(dCFC_aqua_synop, na.rm = T))
 
-ggplot(tbl.grd %>% filter(month == 'Apr')) +
-  geom_boxplot(aes(x = SD_class, y = dCFC_aqua_synop), outlier.shape = 1)
-
-
-ggplot(tbl.grd %>% filter(month %in% month.abb[1:4])) +
+g1 <- ggplot(tbl4plot.raw) +
+  geom_hline(yintercept = 0, colour = 'grey70') + 
+  geom_vline(xintercept = 0, colour = 'grey70') + 
   geom_point(aes(x = dCFC_afforestation, y = dCFC_aqua_synop)) + 
-  facet_grid(month~SD_class)
+  geom_point(data = tbl4plot.sum,
+             aes(x = mu.dCFC_af, y = mu.dCFC_as),
+             shape = 21, fill = 'cornflowerblue', size = 3) + 
+  facet_grid(month~SD_class) +
+  labs(title = 'The effect of snow based on ground data') +
+  xlab('Change in CFC due to afforestation (from satellite)') +
+  ylab('Bias in CFC at stations (Satellite - SYNOP)')
+
+ggsave(filename = 'textFigures/xtras/figXtra_bias_snowClasses.png',
+       plot = g1, width = 9, height = 8)
 
 
 
+## plot with binary snow/no_snow separation ----
+
+tbl.grd2 <- as.data.frame(satsite) %>%
+  filter(!is.na(synop + aqua + SD)) %>%
+  filter(time >= as.Date('2004-01-01'),
+         time <= as.Date('2014-12-31')) %>%
+  mutate(month = factor(format(time, '%b'), levels = month.abb)) %>%
+  mutate(SnowFlag = cut(SD, breaks = c(-1,0,400) , right = T, 
+                        labels = c('NoSnow', 'Snow'))) %>%
+  group_by(SnowFlag, month, Kod) %>% 
+  summarize(dCFC_aqua_synop = mean((aqua/100) - (synop/100), na.rm = T),
+            num.obs = length(aqua)) %>%
+  right_join(tbl.s4t, by = c('Kod', 'month'))
+
+tbl4plot.raw <- tbl.grd2 %>% filter(month %in% month.abb[1:4])
+tbl4plot.sum <- tbl4plot.raw %>% group_by(SnowFlag, month) %>%
+  summarize(mu.dCFC_af = mean(dCFC_afforestation, na.rm = T),
+            mu.dCFC_as = mean(dCFC_aqua_synop, na.rm = T))
+
+g2 <- ggplot(tbl4plot.raw) +
+  geom_hline(yintercept = 0, colour = 'grey70') + 
+  geom_vline(xintercept = 0, colour = 'grey70') + 
+  geom_point(aes(x = dCFC_afforestation, y = dCFC_aqua_synop)) + 
+  geom_point(data = tbl4plot.sum,
+             aes(x = mu.dCFC_af, y = mu.dCFC_as),
+             shape = 21, fill = 'cornflowerblue', size = 3) + 
+  facet_grid(month~SnowFlag) +
+  labs(title = 'The effect of snow based on ground data') +
+  xlab('Change in CFC due to afforestation (from satellite)') +
+  ylab('Bias in CFC at stations (Satellite - SYNOP)')
+
+ggsave(filename = 'textFigures/xtras/figXtra_bias_snowBinary.png',
+       plot = g2, width = 6, height = 8)
+
+
+## Dev [some tests... of which I am not convinced]... ----
+
+# focusing only on the negative dCFC_aff values... 
+tbl.grd3 <- as.data.frame(satsite) %>%
+  filter(!is.na(synop + aqua + SD)) %>%
+  filter(time >= as.Date('2004-01-01'),
+         time <= as.Date('2014-12-31')) %>%
+  mutate(month = factor(format(time, '%b'), levels = month.abb)) %>%
+  right_join(tbl.s4t, by = c('Kod', 'month')) %>%
+  filter(dCFC_afforestation < -0.01) %>%
+  mutate(SnowFlag = cut(SD, breaks = c(-1,0,400) , right = T, 
+                        labels = c('NoSnow', 'Snow'))) %>%
+  group_by(SnowFlag, month, Kod) %>% 
+  summarize(dCFC_aqua_synop = mean((aqua/100) - (synop/100), na.rm = T),
+            num.obs = length(aqua)) %>%
+  right_join(tbl.s4t, by = c('Kod', 'month'))
+
+
+
+tbl4plot.raw <- tbl.grd3 %>% filter(month %in% month.abb[1:4])
+
+ggplot(tbl4plot.raw) +
+  geom_boxplot(aes(x = SnowFlag, y = dCFC_aqua_synop),
+               outlier.shape = NA) + 
+  facet_grid(month~.) 
+
+
+
+# Isolation of snow bias effect  ----
+
+tbl.grd3 <- tbl.grd2 %>% 
+  filter(month %in% month.abb[1:4]) %>% 
+  group_by(SnowFlag, month) %>%
+  summarize(mu.dCFC_as = mean(dCFC_aqua_synop, na.rm = T)) %>%
+  pivot_wider(names_from = SnowFlag, values_from = mu.dCFC_as) %>%
+  transmute(month = month, SnowBias = Snow - NoSnow) 
+
+tbl.grd4 <- tbl.grd2 %>% 
+  filter(month %in% month.abb[1:4]) %>%
+  left_join(y = tbl.grd3, by = 'month')
+
+tbl4plot.sum <- tbl4plot.raw %>% group_by(SD_class, month) %>%
+  summarize(mu.dCFC_af = mean(dCFC_afforestation, na.rm = T),
+            mu.dCFC_as = mean(dCFC_aqua_synop, na.rm = T))
+
+
+ggplot(tbl.grd4) +
+  geom_hline(yintercept = 0, colour = 'grey70') + 
+  geom_vline(xintercept = 0, colour = 'grey70') + 
+  geom_point(aes(x = dCFC_afforestation, y = dCFC_aqua_synop), color = 'grey50') + 
+  geom_point(aes(x = dCFC_afforestation, y = dCFC_aqua_synop - SnowBias)) + 
+  # geom_point(data = tbl4plot.sum,
+  #            aes(x = mu.dCFC_af, y = mu.dCFC_as),
+  #            shape = 21, fill = 'cornflowerblue', size = 3) + 
+  facet_grid(month~SnowFlag)
+  
 
 
 
