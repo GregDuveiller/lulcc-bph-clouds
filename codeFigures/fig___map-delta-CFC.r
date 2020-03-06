@@ -18,7 +18,7 @@ require(here)
 col.pal <-  RColorBrewer::brewer.pal(9,'RdBu')
 landColor <- 'grey70'
 seaColor <- 'grey20'
-boxColor <- 'grey45'
+boxColors <- c('light' = 'grey95', 'dark' = 'grey15')
 latLims <- c(-56,86)
 ylims <- c(-0.07, 0.07)
 
@@ -30,7 +30,11 @@ load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd.Rdata
 
 # get ROIs
 source('codeFigures/ancillary__definingROIs.r')
+zn <- zn %>% 
+  mutate(boxColor = ifelse(uid %in% c('crn', 'ama'), 
+                           'dark', 'light'))
 
+  
 
 
 ## Maps of 4 seasons ----
@@ -52,8 +56,9 @@ g.map.seasonal <- ggplot(df_dCFC_MOD05_FOR_1dd %>%
                        summarise(dCFC_seas = mean(dCFC, na.rm = T))) +
   geom_sf(data = world, fill = landColor, size = 0) +
   geom_raster(aes(x = lon, y = lat, fill = dCFC_seas)) +
-  geom_path(data = zn, aes(group = lbl, x = lon, y = lat), color = boxColor) +
+  geom_path(data = zn, aes(group = lbl, x = lon, y = lat, color = boxColor)) +
   facet_wrap(~season, nc = 1) +
+  scale_colour_manual(values = boxColors) +
   scale_fill_gradientn(colours = col.pal,
                        limits = ylims, oob = scales::squish) +
   coord_sf(expand = F, ylim = latLims)+
