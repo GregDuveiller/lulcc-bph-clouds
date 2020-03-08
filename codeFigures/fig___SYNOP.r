@@ -82,7 +82,7 @@ g.synop.map <- ggplot(pts_df_sub) +
 
 ## SYNOP wheel -----
 
-big.title <- 'Effect of change in forest cover on cloud cover based on SYNOP'
+big.title <- 'Effect of afforestation on cloud fractional cover based on SYNOP'
 sub.title <-  paste0(' MinDist: ', i.thr.dist.min, 'km',
                      ' | MaxDist: ', i.thr.dist.max, 'km', 
                      ' | MinYears: ', i.thr.nyrs.min, 'yrs')
@@ -104,8 +104,8 @@ g.synop.wheel <- ggplot(df_SYNOP_agr %>%
   #          col="grey20", arrow=arrow(length=unit(0.2, "cm"))) +
   scale_alpha_manual(values = c(1,0), guide = F) +
   # scale_alpha_manual(values = c(0,1), guide = F) +
-  scale_fill_gradientn('Change in cloud fraction cover',
-                       colors = RColorBrewer::brewer.pal(9, 'RdBu'),
+  scale_fill_gradientn('Change in cloud fractional cover',
+                       colors = col.pal,
                        limits = zlims, oob = scales::squish) +
   coord_polar() +
   ggtitle(label = big.title, subtitle = sub.title) + 

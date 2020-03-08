@@ -79,7 +79,7 @@ g.lat.month <- ggplot(df_all %>%
                        limits = ylims, oob = scales::squish) +
   scale_y_continuous(labels = geo_labeller) + 
   coord_cartesian(ylim = yLims.zm, expand = F) +
-  ggtitle('Effect of affestation on cloud cover for different forest types') + 
+  ggtitle('Effect of affestation on cloud fractional cover for different forest types') + 
   theme(panel.background = element_rect(fill = seaColor),
         legend.position = 'none',
         legend.key.width = unit(2.4, "cm"),
@@ -116,7 +116,7 @@ g.maps <- ggplot(df_sub) +
   geom_sf(data = world, fill = landColor, size = 0) +
   geom_raster(aes(x = lon, y = lat, fill = dCFC)) +
   scale_fill_gradientn('Change in cloud fraction cover (CFC)',
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       colours = col.pal,
                        limits = clr.Lims, oob = scales::squish) +
   facet_wrap(~PFT) +
   coord_sf(expand = F, ylim = yLims, xlim = xLims) +
