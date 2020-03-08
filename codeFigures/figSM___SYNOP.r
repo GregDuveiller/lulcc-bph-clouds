@@ -8,9 +8,9 @@ require(grid)
 
 
 # set some general graphical parameters -----
-col.pal <-  RColorBrewer::brewer.pal(9,'RdBu')
 landColor <- 'grey60'
 seaColor <- 'grey20'
+# col.pal <-  RColorBrewer::brewer.pal(9,'RdBu')
 
 zlims <- c(-0.07, 0.07)
 zlims.num <- c(0, 800)

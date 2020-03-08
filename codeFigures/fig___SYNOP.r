@@ -17,7 +17,7 @@ europe_laea <- sf::st_intersection(world, st_set_crs(st_as_sf(as(raster::extent(
   st_transform(laes_prj)
 
 # set some specific graphical parameters 
-col.pal <-  RColorBrewer::brewer.pal(9,'RdBu')
+#col.pal <-  RColorBrewer::brewer.pal(9,'RdBu')
 landColor <- 'grey70'
 seaColor <- 'grey20'
 

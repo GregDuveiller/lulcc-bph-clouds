@@ -15,7 +15,8 @@ require(here)
 ## Initial data preparation and parametrization ---- 
 
 # some general plot parametrization
-col.pal <-  RColorBrewer::brewer.pal(9,'RdBu')
+col.pal <- rev(c('#2B3677', '#327FBB', '#A2D5FF', '#F7F7F7', '#FFD181' ,'#EA965A', '#9C4D0C'))
+# col.pal <-  RColorBrewer::brewer.pal(9,'RdBu')
 landColor <- 'grey70'
 seaColor <- 'grey20'
 boxColors <- c('light' = 'grey95', 'dark' = 'grey15')
@@ -140,8 +141,8 @@ mk.tmp.plot <- function(zn.dum, mon = NULL, ylims = NULL){
     geom_hline(yintercept = 0) +
     scale_y_continuous('Change in CFC') + 
     scale_x_discrete('') +
-    scale_fill_manual(values = c('-1' = col.pal[2], '1' = col.pal[8], '0' = 'Grey30')) +
-    scale_colour_manual(values = c('-1'= col.pal[1], '1' = col.pal[9], '0' = 'Grey20')) +
+    scale_fill_manual(values = c('-1' = col.pal[3], '1' = col.pal[length(col.pal) - 2], '0' = 'Grey30')) +
+    scale_colour_manual(values = c('-1'= col.pal[2], '1' = col.pal[length(col.pal) - 1], '0' = 'Grey20')) +
     coord_cartesian(ylim = ylims) +
     theme_minimal()+
     theme(legend.position = 'none',

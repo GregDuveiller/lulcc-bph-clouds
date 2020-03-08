@@ -35,6 +35,7 @@ if(Sys.info()['sysname'] == 'Darwin'){
 # Set format for figures 
 fig.fmt <- 'png' # fig.fmt <- 'pdf'
 dir.create(paste0('textFigures/', fig.fmt), showWarnings = F, recursive = T)
+col.pal <- rev(c('#2B3677', '#327FBB', '#A2D5FF', '#F7F7F7', '#FFD181' ,'#EA965A', '#9C4D0C'))
 
 
 ## Global picture: map of 4 seasons

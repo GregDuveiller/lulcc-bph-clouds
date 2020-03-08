@@ -54,6 +54,8 @@ landColor <- 'grey60'
 seaColor <- 'grey20'
 
 
+#col.pal <- RColorBrewer::brewer.pal(9,'RdBu')
+
 
 ## Plot the maps ----
 
@@ -66,7 +68,7 @@ g.map <- ggplot(df_sub) +
   geom_sf(data = world, fill = landColor, size = 0) +
   geom_raster(aes(x = lon, y = lat, fill = dCFC)) +
   scale_fill_gradientn('Change in cloud cover fraction', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       colours = col.pal,
                        limits = clr.Lims, oob = scales::squish) +
   facet_wrap(~lbl.long, nc = 2) +
   coord_sf(expand = F, ylim = yLims, xlim = xLims) +

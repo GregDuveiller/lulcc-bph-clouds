@@ -5,6 +5,9 @@ require(grid)
 
 load('dataFigures/df_multiDeltaDF.Rda') # df_all
 
+col.pal <- RColorBrewer::brewer.pal(9,'RdBu')
+col.pal <- rev(c('#2B3677', '#327FBB', '#A2D5FF', '#F7F7F7', '#FFD181' ,'#EA965A', '#9C4D0C'))
+
 seasons <- factor(x = c(rep('DJF',2), rep('MAM',3), 
                         rep('JJA',3), rep('SON',3), 'DJF'), 
                   levels = c('DJF','MAM','JJA','SON'), 
@@ -44,7 +47,7 @@ g_LEvsRn_LAC <- ggplot(df_all %>%
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
   scale_fill_gradientn('Change in cloud cover fraction following afforestation', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       colours = col.pal,
                        limits = clr.Lims, oob = scales::squish) +
   coord_cartesian(xlim = LE.Lims, ylim = Rn.Lims) + 
   xlab(LE.axis.title) + 
@@ -66,7 +69,7 @@ g_HGvsRn_LAC <- ggplot(df_all %>%
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
   scale_fill_gradientn('Change in cloud cover fraction following afforestation', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       colours = col.pal,
                        limits = clr.Lims, oob = scales::squish) +
   coord_cartesian(xlim = HG.Lims, ylim = Rn.Lims) + 
   xlab(HG.axis.title) + 
@@ -83,7 +86,7 @@ g_LEvsHG_LAC <- ggplot(df_all %>%
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
   scale_fill_gradientn('Change in cloud cover fractionfollowing afforestation', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       colours = col.pal,
                        limits = clr.Lims, oob = scales::squish) +
   coord_cartesian(ylim = LE.Lims, xlim = HG.Lims) + 
   ylab(LE.axis.title) + 
@@ -101,7 +104,7 @@ g_LEvsHG_HAC <- ggplot(df_all %>%
  # geom_text(label = bquote(delta~"albedo"~<.(ALB_thr)), x = min(HG.Lims+25),
  #           y = min(LE.Lims)) +
   scale_fill_gradientn('Change in cloud cover fraction following afforestation', 
-                       colours = RColorBrewer::brewer.pal(9,'RdBu'),
+                       colours = col.pal,
                        limits = clr.Lims, oob = scales::squish) +
   coord_cartesian(ylim = LE.Lims, xlim = LE.Lims) + 
   ylab(LE.axis.title) + 
