@@ -50,6 +50,9 @@ source('codeFigures/fig___map-PFT-effect.r')
 ## Delta-3 plots
 source('codeFigures/fig___multi-delta-plots.r')
 
+## Extent of forest with positive CFC change
+source('codeFigures/figSM___extent-forest-with-sign.R')
+
 ## Maps of scale effect over Europe
 source('codeFigures/figSM___map-scaling-Europe.r')
 

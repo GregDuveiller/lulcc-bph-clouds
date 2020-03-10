@@ -63,7 +63,7 @@ g.map.seasonal <- ggplot(df_dCFC_MOD05_FOR_1dd %>%
   scale_fill_gradientn(colours = col.pal,
                        limits = ylims, oob = scales::squish) +
   coord_sf(expand = F, ylim = latLims)+
-  ggtitle('Seasonal patterns of cloud fraction cover (CFC) change',
+  ggtitle('Seasonal patterns of cloud fractional cover (CFC) change',
     subtitle = 'Resulting from potential afforestation') + 
   theme(panel.background = element_rect(fill = seaColor),
         legend.position = 'none',
@@ -100,7 +100,7 @@ g.lat.month <- ggplot(df_dCFC_MOD05_FOR_1dd %>%
                         summarise(dCFC_latmonth = mean(dCFC, na.rm = T))) +
   geom_raster(aes(x = month, y = as.numeric(levels(lat_bin))[lat_bin], 
                   fill = dCFC_latmonth)) +
-  scale_fill_gradientn('Change in cloud fraction cover (CFC)',
+  scale_fill_gradientn('Change in cloud fractional cover (CFC)',
                        colours = col.pal,
                        limits = ylims, oob = scales::squish) +
     scale_y_continuous(labels = geo_labeller) + 

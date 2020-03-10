@@ -46,7 +46,7 @@ g_LEvsRn_LAC <- ggplot(df_all %>%
                   fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
-  scale_fill_gradientn('Change in cloud cover fraction following afforestation', 
+  scale_fill_gradientn('Change in cloud fractional cover following afforestation', 
                        colours = col.pal,
                        limits = clr.Lims, oob = scales::squish) +
   coord_cartesian(xlim = LE.Lims, ylim = Rn.Lims) + 
@@ -68,7 +68,7 @@ g_HGvsRn_LAC <- ggplot(df_all %>%
                   fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
-  scale_fill_gradientn('Change in cloud cover fraction following afforestation', 
+  scale_fill_gradientn('Change in cloud fractional cover following afforestation', 
                        colours = col.pal,
                        limits = clr.Lims, oob = scales::squish) +
   coord_cartesian(xlim = HG.Lims, ylim = Rn.Lims) + 
@@ -85,7 +85,7 @@ g_LEvsHG_LAC <- ggplot(df_all %>%
                   fun = function(z){ifelse(length(z) > n, median(z), NA)}) +
   geom_hline(yintercept = 0, color = col.cross) + 
   geom_vline(xintercept = 0, color = col.cross) + 
-  scale_fill_gradientn('Change in cloud cover fractionfollowing afforestation', 
+  scale_fill_gradientn('Change in cloud fractional cover following afforestation', 
                        colours = col.pal,
                        limits = clr.Lims, oob = scales::squish) +
   coord_cartesian(ylim = LE.Lims, xlim = HG.Lims) + 
@@ -103,7 +103,7 @@ g_LEvsHG_HAC <- ggplot(df_all %>%
   geom_vline(xintercept = 0, color = col.cross) + 
  # geom_text(label = bquote(delta~"albedo"~<.(ALB_thr)), x = min(HG.Lims+25),
  #           y = min(LE.Lims)) +
-  scale_fill_gradientn('Change in cloud cover fraction following afforestation', 
+  scale_fill_gradientn('Change in cloud fractional cover following afforestation', 
                        colours = col.pal,
                        limits = clr.Lims, oob = scales::squish) +
   coord_cartesian(ylim = LE.Lims, xlim = LE.Lims) + 

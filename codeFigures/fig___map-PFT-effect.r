@@ -74,7 +74,7 @@ g.lat.month <- ggplot(df_all %>%
   geom_path(data = df.box, 
             aes(x = x, y = y), colour = 'grey20', size = 1) + 
   facet_wrap(~PFT) +
-  scale_fill_gradientn('Change in cloud fraction cover (CFC)',
+  scale_fill_gradientn('Change in cloud fractional cover (CFC)',
                        colours = col.pal,
                        limits = ylims, oob = scales::squish) +
   scale_y_continuous(labels = geo_labeller) + 
@@ -115,7 +115,7 @@ df_sub <- df_all %>%
 g.maps <- ggplot(df_sub) + 
   geom_sf(data = world, fill = landColor, size = 0) +
   geom_raster(aes(x = lon, y = lat, fill = dCFC)) +
-  scale_fill_gradientn('Change in cloud fraction cover (CFC)',
+  scale_fill_gradientn('Change in cloud fractional cover (CFC)',
                        colours = col.pal,
                        limits = clr.Lims, oob = scales::squish) +
   facet_wrap(~PFT) +

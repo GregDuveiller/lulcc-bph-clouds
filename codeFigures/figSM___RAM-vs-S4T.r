@@ -17,13 +17,15 @@ iPFT <- 'TOT'
 # NOTE: Should check if the df above actually used the right combo for TOT...
 # (did that harvester run after the tweaks in the DFO + EFO weighted combo)
 
+colour.meth1 <- c('#95559B', '#B892BB')
+colour.meth2 <- c('#D89800', '#ECD8A6')
 
 method.lbls <- c('S4T' = 'Space-for-time\nsubstitution', 'RAM' = 'Measure over\nreal changes')
 
 ## Make the bar plot ----
 g_bars <- ggplot(df_CZ5 %>% 
                    filter(PFT == iPFT)) +
-  geom_bar(aes(x = month, y = dCFC_CZ5, fill = method), 
+  geom_bar(aes(x = month, y = dCFC_CZ5, fill = method, colour = method), 
            stat = 'identity', position = 'dodge') +
   geom_errorbar(aes(x = month, color = method,
                     ymin = dCFC_CZ5 - dCFC_CZ5_STD_err, 
@@ -31,8 +33,11 @@ g_bars <- ggplot(df_CZ5 %>%
                 position = 'dodge', show.legend = F) +
   geom_hline(yintercept = 0, colour = 'grey40', size = 0.5) +
   facet_wrap(~region, nc = 1) + 
-  scale_fill_discrete('Method used:', labels = method.lbls) +
-  scale_y_continuous('Change in cloud cover fraction') +
+  scale_fill_manual('Method used:', labels = method.lbls, 
+                    values = c('S4T' = colour.meth1[2], 'RAM' = colour.meth2[2])) +
+  scale_color_manual('Method used:', labels = method.lbls, 
+                     values = c('S4T' = colour.meth1[1], 'RAM' = colour.meth2[1])) +
+  scale_y_continuous('Change in cloud fractional cover') +
   theme_minimal() +
   theme(legend.position = 'bottom',
         axis.title.x = element_blank(),
@@ -41,8 +46,8 @@ g_bars <- ggplot(df_CZ5 %>%
         axis.line = element_line(size = 0.5, colour = 'Grey20'),
         axis.ticks = element_line(size = 0.5, colour = 'Grey20'),
         axis.title = element_text(size = rel(1.1))) + 
-  ggtitle('Cloud fraction cover change following afforestation using different methods',
-          subtitle = 'Averages over major Koppen-Geiger climate zones')
+  ggtitle('Change in cloud fractional cover following afforestation',
+          subtitle = 'Averages over major Koppen-Geiger climate zones with different methods')
 
 
 

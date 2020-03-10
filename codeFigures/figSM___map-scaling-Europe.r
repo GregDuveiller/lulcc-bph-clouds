@@ -67,12 +67,12 @@ df_sub <- df_all %>%
 g.map <- ggplot(df_sub) + 
   geom_sf(data = world, fill = landColor, size = 0) +
   geom_raster(aes(x = lon, y = lat, fill = dCFC)) +
-  scale_fill_gradientn('Change in cloud cover fraction', 
+  scale_fill_gradientn('Change in cloud fractional cover', 
                        colours = col.pal,
                        limits = clr.Lims, oob = scales::squish) +
   facet_wrap(~lbl.long, nc = 2) +
   coord_sf(expand = F, ylim = yLims, xlim = xLims) +
-  ggtitle('The effect of scale on the estimation cloud fraction cover change due to afforestation', 
+  ggtitle('The effect of scale on the estimation cloud fractional cover change due to afforestation', 
           subtitle = paste('Values for the month of', month.name[which(month.abb == iMonth)], 
                            'across Europe')) +
   theme(panel.background = element_rect(fill = seaColor),
