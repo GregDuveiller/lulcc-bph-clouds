@@ -20,4 +20,3 @@ zn.chi <- mk.zone('chi','Eastern China',105,125,20,37)
 zn <- bind_rows(zn.nam, zn.crn, zn.eur, zn.rus, zn.ama, zn.afr, zn.ind, zn.aus, zn.chi)
 
 
-zn <- bind_rows(zn.nam, zn.crn, zn.eur, zn.rus, zn.ama, zn.afr, zn.ind, zn.aus)

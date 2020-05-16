@@ -76,10 +76,10 @@ g.lat.month <- ggplot(df_all %>%
   facet_wrap(~PFT) +
   scale_fill_gradientn('Change in cloud fractional cover (CFC)',
                        colours = col.pal,
-                       limits = ylims, oob = scales::squish) +
+                       limits = clr.Lims, oob = scales::squish) +
   scale_y_continuous(labels = geo_labeller) + 
   coord_cartesian(ylim = yLims.zm, expand = F) +
-  ggtitle('Effect of affestation on cloud fractional cover for different forest types') + 
+  ggtitle('Effect of afforestation on cloud fractional cover for different forest types') + 
   theme(panel.background = element_rect(fill = seaColor),
         legend.position = 'none',
         legend.key.width = unit(2.4, "cm"),
