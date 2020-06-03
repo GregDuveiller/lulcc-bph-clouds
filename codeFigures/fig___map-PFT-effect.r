@@ -14,8 +14,7 @@ require(sf)
 xLims <- c(-10,45)
 yLims <- c(35,65)
 
-clr.Lims <- c(-0.08,0.08)
-zLims <- c(-0.12, 0.12)
+#dcfcLims <- c(-0.06,0.06)
 
 landColor <- 'grey60'
 seaColor <- 'grey20'
@@ -76,7 +75,7 @@ g.lat.month <- ggplot(df_all %>%
   facet_wrap(~PFT) +
   scale_fill_gradientn('Change in cloud fractional cover (CFC)',
                        colours = col.pal,
-                       limits = clr.Lims, oob = scales::squish) +
+                       limits = dcfcLims, oob = scales::squish) +
   scale_y_continuous(labels = geo_labeller) + 
   coord_cartesian(ylim = yLims.zm, expand = F) +
   ggtitle('Effect of afforestation on cloud fractional cover for different forest types') + 
@@ -117,7 +116,7 @@ g.maps <- ggplot(df_sub) +
   geom_raster(aes(x = lon, y = lat, fill = dCFC)) +
   scale_fill_gradientn('Change in cloud fractional cover (CFC)',
                        colours = col.pal,
-                       limits = clr.Lims, oob = scales::squish) +
+                       limits = dcfcLims, oob = scales::squish) +
   facet_wrap(~PFT) +
   coord_sf(expand = F, ylim = yLims, xlim = xLims) +
   #  ggtitle('Effect of different forest types') +

@@ -48,8 +48,6 @@ df_all <- bind_rows(
 xLims <- c(-10,45)
 yLims <- c(35,65)
 
-clr.Lims <- c(-0.08,0.08)
-
 landColor <- 'grey60'
 seaColor <- 'grey20'
 
@@ -69,7 +67,7 @@ g.map <- ggplot(df_sub) +
   geom_raster(aes(x = lon, y = lat, fill = dCFC)) +
   scale_fill_gradientn('Change in cloud fractional cover', 
                        colours = col.pal,
-                       limits = clr.Lims, oob = scales::squish) +
+                       limits = dcfcLims, oob = scales::squish) +
   facet_wrap(~lbl.long, nc = 2) +
   coord_sf(expand = F, ylim = yLims, xlim = xLims) +
   ggtitle('The effect of scale on the estimation cloud fractional cover change due to afforestation', 

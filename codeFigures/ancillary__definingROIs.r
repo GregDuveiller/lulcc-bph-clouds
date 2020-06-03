@@ -9,9 +9,9 @@ mk.zone <- function(uid, lbl, xmn, xmx, ymn, ymx){
 # make the actual zones
 zn.eur <- mk.zone('eur','West/Central Europe',-10,20,38,62)
 zn.nam <- mk.zone('nam','North America',-120,-60,40,60)
-zn.crn <- mk.zone('crn','US corn belt',-95,-82,36,44)
-zn.ind <- mk.zone('ind','Indian subcontinent',65,90,5,30)
-zn.aus <- mk.zone('aus','Eastern Australia',140,155,-45,-18)
+zn.crn <- mk.zone('crn','US corn belt',-96,-84,38,44)   # -95,-82,36,44
+zn.ind <- mk.zone('ind','Indian subcontinent',66,90,5,29)
+zn.aus <- mk.zone('aus','Eastern Australia',138,155,-44,-21)
 zn.rus <- mk.zone('rus','Russia/East Europe',20,110,45,65)
 zn.ama <- mk.zone('ama','Southern Amazon',-70,-45,-15,-5)
 zn.afr <- mk.zone('afr','Southern Africa',10,42,-30,-5)

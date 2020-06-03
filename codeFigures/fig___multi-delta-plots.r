@@ -24,7 +24,6 @@ df_all <- df_all %>% left_join(df.seasonal, by = "month")
 
 
 col.cross <- 'grey30'
-clr.Lims <- c(-0.05, 0.05)
 pts.size <- 0.4
 
 
@@ -37,7 +36,7 @@ HG.axis.title <- bquote('Change in sensible and ground heat ('~Delta~(H+G)~') ['
 Rn.axis.title <- bquote('Change in net radiation ('~Delta~R[n]~') [' ~ Wm^-2 ~ ']')
   
 n = 15
-ALB_thr <- -0.1
+ALB_thr <- -0.15
 
 g_LEvsRn_LAC <- ggplot(df_all %>%
                      filter(delta_albedo >= ALB_thr)) +
@@ -48,7 +47,7 @@ g_LEvsRn_LAC <- ggplot(df_all %>%
   geom_vline(xintercept = 0, color = col.cross) + 
   scale_fill_gradientn('Change in cloud fractional cover following afforestation', 
                        colours = col.pal,
-                       limits = clr.Lims, oob = scales::squish) +
+                       limits = dcfcLims, oob = scales::squish) +
   coord_cartesian(xlim = LE.Lims, ylim = Rn.Lims) + 
   xlab(LE.axis.title) + 
   ylab(Rn.axis.title) +
@@ -70,7 +69,7 @@ g_HGvsRn_LAC <- ggplot(df_all %>%
   geom_vline(xintercept = 0, color = col.cross) + 
   scale_fill_gradientn('Change in cloud fractional cover following afforestation', 
                        colours = col.pal,
-                       limits = clr.Lims, oob = scales::squish) +
+                       limits = dcfcLims, oob = scales::squish) +
   coord_cartesian(xlim = HG.Lims, ylim = Rn.Lims) + 
   xlab(HG.axis.title) + 
   ylab(Rn.axis.title) +
@@ -87,7 +86,7 @@ g_LEvsHG_LAC <- ggplot(df_all %>%
   geom_vline(xintercept = 0, color = col.cross) + 
   scale_fill_gradientn('Change in cloud fractional cover following afforestation', 
                        colours = col.pal,
-                       limits = clr.Lims, oob = scales::squish) +
+                       limits = dcfcLims, oob = scales::squish) +
   coord_cartesian(ylim = LE.Lims, xlim = HG.Lims) + 
   ylab(LE.axis.title) + 
   xlab(HG.axis.title) +
@@ -105,7 +104,7 @@ g_LEvsHG_HAC <- ggplot(df_all %>%
  #           y = min(LE.Lims)) +
   scale_fill_gradientn('Change in cloud fractional cover following afforestation', 
                        colours = col.pal,
-                       limits = clr.Lims, oob = scales::squish) +
+                       limits = dcfcLims, oob = scales::squish) +
   coord_cartesian(ylim = LE.Lims, xlim = LE.Lims) + 
   ylab(LE.axis.title) + 
   xlab(HG.axis.title) +
@@ -174,7 +173,7 @@ dev.off()
 #   geom_vline(xintercept = 0, color = col.cross) + 
 #   scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
 #                        colours = RColorBrewer::brewer.pal(9,'RdBu'),
-#                        limits = clr.Lims * 1.5, oob = scales::squish) +
+#                        limits = dcfcLims * 1.5, oob = scales::squish) +
 #   theme(legend.position = 'top',
 #         legend.key.width = unit(2.4, "cm")) +
 #   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
@@ -190,7 +189,7 @@ dev.off()
 #   geom_vline(xintercept = 0, color = col.cross) + 
 #   scale_fill_gradientn('Change in cloud cover fraction\nfollowing afforestation of different forest types', 
 #                        colours = RColorBrewer::brewer.pal(9,'RdBu'),
-#                        limits = clr.Lims*2, oob = scales::squish) +
+#                        limits = dcfcLims*2, oob = scales::squish) +
 #   theme(legend.position = 'top',
 #         legend.key.width = unit(2.4, "cm")) +
 #   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))

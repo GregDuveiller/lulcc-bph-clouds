@@ -15,18 +15,29 @@ require(here)
 ## Initial data preparation and parametrization ---- 
 
 # some general plot parametrization
-# col.pal <- rev(c('#2B3677', '#327FBB', '#A2D5FF', '#F7F7F7', '#FFD181' ,'#EA965A', '#9C4D0C'))
+col.pal <- rev(c('#2B3677', '#327FBB', '#A2D5FF', '#F7F7F7', '#FFD181' ,'#EA965A', '#9C4D0C'))
 # col.pal <-  RColorBrewer::brewer.pal(9,'RdBu')
 landColor <- 'grey70'
 seaColor <- 'grey20'
 boxColors <- c('light' = 'grey95', 'dark' = 'grey15')
 latLims <- c(-56,86)
+relcfcLims <- c(-12, 12)
 
 # load vector data for background
 world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
 
 # Load data to plot...
 load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd.Rdata
+
+# Load data to serve as reference...
+load('dataFigures/df_CFC_MOD05_1dd.Rdata') # df_CFC_1dd.Rdata
+
+# join them together to get new variable to plot
+df <- df_dCFC_MOD05_FOR_1dd %>%
+  left_join(df_CFC_1dd, by = c('lon', 'lat', 'month')) %>%
+  mutate(rel_dCFC = 100 * dCFC/CFC)
+
+
 
 # get ROIs
 source('codeFigures/ancillary__definingROIs.r')
@@ -50,19 +61,19 @@ seasons <- factor(x = c(rep('DJF',2), rep('MAM',3),
 df.seasonal <- data.frame(month = month.abb, season = seasons)
 
 # make the plot
-g.map.seasonal <- ggplot(df_dCFC_MOD05_FOR_1dd %>% 
+g.map.seasonal <- ggplot(df %>% 
                        left_join(df.seasonal, by = 'month') %>%
                        group_by(lat, lon, season) %>%
-                       summarise(dCFC_seas = mean(dCFC, na.rm = T))) +
+                       summarise(dCFC_seas = mean(rel_dCFC, na.rm = T))) +
   geom_sf(data = world, fill = landColor, size = 0) +
   geom_raster(aes(x = lon, y = lat, fill = dCFC_seas)) +
   geom_path(data = zn, aes(group = lbl, x = lon, y = lat, color = boxColor)) +
   facet_wrap(~season, nc = 1) +
   scale_colour_manual(values = boxColors) +
   scale_fill_gradientn(colours = col.pal,
-                       limits = dcfcLims, oob = scales::squish) +
+                       limits = relcfcLims, oob = scales::squish) +
   coord_sf(expand = F, ylim = latLims)+
-  ggtitle('Seasonal patterns of cloud fractional cover (CFC) change',
+  ggtitle('Seasonal patterns of relative change',
     subtitle = 'Resulting from potential afforestation') + 
   theme(panel.background = element_rect(fill = seaColor),
         legend.position = 'none',
@@ -92,16 +103,16 @@ geo_labeller <- function(x) {
 # }
 
 # the plot
-g.lat.month <- ggplot(df_dCFC_MOD05_FOR_1dd %>%
+g.lat.month <- ggplot(df %>%
                         mutate(lat_bin = cut(lat, breaks = seq(-90,90,4), 
                                              labels = seq(-88,88,4))) %>%
                         group_by(lat_bin, month) %>%
-                        summarise(dCFC_latmonth = mean(dCFC, na.rm = T))) +
+                        summarise(dCFC_latmonth = mean(rel_dCFC, na.rm = T))) +
   geom_raster(aes(x = month, y = as.numeric(levels(lat_bin))[lat_bin], 
                   fill = dCFC_latmonth)) +
-  scale_fill_gradientn('Change in cloud fractional cover (CFC)',
+  scale_fill_gradientn('Relative change in cloud fractional cover [%]',
                        colours = col.pal,
-                       limits = dcfcLims, oob = scales::squish) +
+                       limits = relcfcLims, oob = scales::squish) +
     scale_y_continuous(labels = geo_labeller) + 
   coord_cartesian(ylim = c(-41.99,65.99), expand = F) +
   theme(panel.background = element_rect(fill = seaColor),
@@ -122,12 +133,12 @@ g.lat.month <- ggplot(df_dCFC_MOD05_FOR_1dd %>%
 # function to make the subplots
 mk.tmp.plot <- function(zn.dum, mon = NULL, ylims = NULL){
   
-  df.dum  <- df_dCFC_MOD05_FOR_1dd %>%
+  df.dum  <- df %>%
     filter(lat > min(zn.dum$lat), lat < max(zn.dum$lat), 
            lon > min(zn.dum$lon), lon < max(zn.dum$lon)) %>%
     group_by(month) %>%
-    summarize(mean_dCFC = mean(dCFC),
-              stdE_dCFC = sd(dCFC)/sqrt(length(dCFC))) %>%
+    summarize(mean_dCFC = mean(rel_dCFC),
+              stdE_dCFC = sd(rel_dCFC)/sqrt(length(rel_dCFC))) %>%
     mutate(sign = factor(sign(mean_dCFC), levels = c(-1,0,1) )) 
   
   if(!is.null(mon)){ df.dum$sign[df.dum$month == mon] <- 0 }
@@ -138,7 +149,7 @@ mk.tmp.plot <- function(zn.dum, mon = NULL, ylims = NULL){
                       ymin = mean_dCFC - stdE_dCFC,
                       ymax = mean_dCFC + stdE_dCFC))+
     geom_hline(yintercept = 0) +
-    scale_y_continuous('Change in CFC') + 
+    scale_y_continuous('Percent Change [%]') + 
     scale_x_discrete('', labels = strtrim(month.abb, 1)) +
     scale_fill_manual(values = c('-1' = col.pal[3], '1' = col.pal[length(col.pal) - 2], '0' = 'Grey30')) +
     scale_colour_manual(values = c('-1'= col.pal[2], '1' = col.pal[length(col.pal) - 1], '0' = 'Grey20')) +
@@ -156,19 +167,19 @@ mk.tmp.plot <- function(zn.dum, mon = NULL, ylims = NULL){
 }
 
 # subplots
-g.eur <- mk.tmp.plot(zn.eur, mon = NULL, ylims = dcfcLims)
-g.nam <- mk.tmp.plot(zn.nam, mon = NULL, ylims = dcfcLims)
-g.ind <- mk.tmp.plot(zn.ind, mon = NULL, ylims = dcfcLims)
-g.aus <- mk.tmp.plot(zn.aus, mon = NULL, ylims = dcfcLims + 0.02)
-g.rus <- mk.tmp.plot(zn.rus, mon = NULL, ylims = dcfcLims - 0.02)
-g.ama <- mk.tmp.plot(zn.ama, mon = NULL, ylims = dcfcLims)
-g.afr <- mk.tmp.plot(zn.afr, mon = NULL, ylims = dcfcLims + 0.02)
-g.crn <- mk.tmp.plot(zn.crn, mon = NULL, ylims = dcfcLims)
-g.chi <- mk.tmp.plot(zn.chi, mon = NULL, ylims = dcfcLims + 0.02 )
+g.eur <- mk.tmp.plot(zn.eur, mon = NULL, ylims = relcfcLims)
+g.nam <- mk.tmp.plot(zn.nam, mon = NULL, ylims = relcfcLims)
+g.ind <- mk.tmp.plot(zn.ind, mon = NULL, ylims = relcfcLims + 7)
+g.aus <- mk.tmp.plot(zn.aus, mon = NULL, ylims = relcfcLims + 7)
+g.rus <- mk.tmp.plot(zn.rus, mon = NULL, ylims = relcfcLims)
+g.ama <- mk.tmp.plot(zn.ama, mon = NULL, ylims = relcfcLims)
+g.afr <- mk.tmp.plot(zn.afr, mon = NULL, ylims = relcfcLims + 7)
+g.crn <- mk.tmp.plot(zn.crn, mon = NULL, ylims = relcfcLims)
+g.chi <- mk.tmp.plot(zn.chi, mon = NULL, ylims = relcfcLims)
 
 
 ## Printing the entire figure ----
-fig.name <- 'fig___map-delta-CFC'
+fig.name <- 'figSM___map-delta-CFC-relative'
 fig.width <- 14; fig.height <- 13; #fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, '/', fig.fmt, '/', fig.name, '.', fig.fmt)
 if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}

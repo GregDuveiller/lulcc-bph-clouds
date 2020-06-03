@@ -21,7 +21,6 @@ europe_laea <- sf::st_intersection(world, st_set_crs(st_as_sf(as(raster::extent(
 landColor <- 'grey70'
 seaColor <- 'grey20'
 
-zlims <- c(-0.07, 0.07)
 pointSize <- 1.5
 
 xLims <- c(2.5e6,6e6)
@@ -106,7 +105,7 @@ g.synop.wheel <- ggplot(df_SYNOP_agr %>%
   # scale_alpha_manual(values = c(0,1), guide = F) +
   scale_fill_gradientn('Change in cloud fractional cover',
                        colors = col.pal,
-                       limits = zlims, oob = scales::squish) +
+                       limits = dcfcLims, oob = scales::squish) +
   coord_polar() +
   ggtitle(label = big.title, subtitle = sub.title) + 
   theme(legend.position = 'bottom',
