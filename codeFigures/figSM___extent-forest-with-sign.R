@@ -56,8 +56,8 @@ df.surf <- df.surf.month %>%
 # mean(filter(df.surf, type == 'FOR', sign == 'pct.pos', month %in% month.abb[5:9])$pct)
 
 
-lbls.pct <- c('pct.pos' = paste('Sampled area where change in CFC is POSITIVE (above', thr,')'), 
-              'pct.neg' = paste('Sampled area pixels where change in CFC is NEGATIVE (below', -thr,')'))
+lbls.pct <- c('pct.pos' = paste('Sampled area where change in CFrC is POSITIVE (above', thr,')'), 
+              'pct.neg' = paste('Sampled area pixels where change in CFrC is NEGATIVE (below', -thr,')'))
 
 g_bars <- ggplot(df.surf) + 
   geom_bar(aes(x = month, y = pct, fill = sign), 
@@ -79,7 +79,7 @@ g_bars <- ggplot(df.surf) +
         axis.line = element_line(size = 0.5, colour = 'Grey20'),
         axis.ticks = element_line(size = 0.5, colour = 'Grey20'),
         axis.title = element_text(size = rel(1.1))) +
-  ggtitle('Extent of pixels showing a given effect on CFC',
+  ggtitle('Extent of pixels showing a given effect on CFrC',
           subtitle = 'Considering potential afforestation over short vegetation')
 
 

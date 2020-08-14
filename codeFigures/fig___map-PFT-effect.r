@@ -73,7 +73,7 @@ g.lat.month <- ggplot(df_all %>%
   geom_path(data = df.box, 
             aes(x = x, y = y), colour = 'grey20', size = 1) + 
   facet_wrap(~PFT) +
-  scale_fill_gradientn('Change in cloud fractional cover (CFC)',
+  scale_fill_gradientn('Change in cloud fractional cover',
                        colours = col.pal,
                        limits = dcfcLims, oob = scales::squish) +
   scale_y_continuous(labels = geo_labeller) + 

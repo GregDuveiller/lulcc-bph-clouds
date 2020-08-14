@@ -20,7 +20,7 @@ iPFT <- 'TOT'
 colour.meth1 <- c('#95559B', '#B892BB')
 colour.meth2 <- c('#D89800', '#ECD8A6')
 
-method.lbls <- c('S4T' = 'Space-for-time\nsubstitution', 'RAM' = 'Measure over\nreal changes')
+method.lbls <- c('S4T' = 'Space-for-time\nsubstitution', 'RAM' = 'Based on real\nforest cover changes')
 
 ## Make the bar plot ----
 g_bars <- ggplot(df_CZ5 %>% 
@@ -32,7 +32,7 @@ g_bars <- ggplot(df_CZ5 %>%
                     ymax = dCFC_CZ5 + dCFC_CZ5_STD_err),
                 position = 'dodge', show.legend = F) +
   geom_hline(yintercept = 0, colour = 'grey40', size = 0.5) +
-  facet_wrap(~region, nc = 1) + 
+  facet_wrap(~region, nc = 2) + 
   scale_fill_manual('Method used:', labels = method.lbls, 
                     values = c('S4T' = colour.meth1[2], 'RAM' = colour.meth2[2])) +
   scale_color_manual('Method used:', labels = method.lbls, 
@@ -42,6 +42,7 @@ g_bars <- ggplot(df_CZ5 %>%
   theme(legend.position = 'bottom',
         axis.title.x = element_blank(),
         panel.grid = element_blank(),
+        panel.border = element_rect(size = 0.5, fill = 'NA', colour = 'Grey20'),
         strip.text = element_text(size = rel(1.2)),
         axis.line = element_line(size = 0.5, colour = 'Grey20'),
         axis.ticks = element_line(size = 0.5, colour = 'Grey20'),
@@ -54,8 +55,9 @@ g_bars <- ggplot(df_CZ5 %>%
 
 ## printing the final plot -----
 fig.name <- 'figSM___RAM-vs-S4T'
-fig.width <- 6; fig.height <- 8;  # fig.fmt <- 'png'
+fig.width <- 8; fig.height <- 8;  # fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, '/', fig.fmt, '/', fig.name, '.', fig.fmt)
 
 ggsave(filename = fig.fullfname,
        plot = g_bars, width = fig.width, height = fig.height)
+

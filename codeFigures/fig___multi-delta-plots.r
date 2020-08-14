@@ -129,8 +129,8 @@ if(fig.fmt == 'pdf'){pdf(fig.fullfname, width = fig.width, height = fig.height)}
 
 print(g_LEvsRn_LAC, vp = viewport(width = 0.5, height = 0.5, x = 0.0, y = 0.5, just = c(0,0)))
 print(g_HGvsRn_LAC, vp = viewport(width = 0.5, height = 0.5, x = 0.5, y = 0.5, just = c(0,0)))
-print(g_LEvsHG_HAC, vp = viewport(width = 0.5, height = 0.5, x = 0.0, y = 0.0, just = c(0,0)))
-print(g_LEvsHG_LAC, vp = viewport(width = 0.5, height = 0.5, x = 0.5, y = 0.0, just = c(0,0)))
+print(g_LEvsHG_LAC, vp = viewport(width = 0.5, height = 0.5, x = 0.0, y = 0.0, just = c(0,0)))
+print(g_LEvsHG_HAC, vp = viewport(width = 0.5, height = 0.5, x = 0.5, y = 0.0, just = c(0,0)))
 
 
 grid.text(expression(bold("a")), x = unit(0.03, "npc"), y = unit(0.96, "npc"), gp = gpar(fontsize = 18))
