@@ -96,6 +96,11 @@ g.synop.wheel <- ggplot(df_SYNOP_agr %>%
   geom_tile(aes(fill = dCFC)) +
   geom_tile(aes(alpha = val.signif), fill = 'grey80') +
   # geom_point(aes(alpha = val.signif)) +
+  # # THESE BELOW TO ADD AN AXIS AT MIDNIGHT
+  # geom_path(data = data.frame(y = c(0.5,12.5), x = c(0.5,0.5)), 
+  #           aes(x = x, y = y), colour = 'grey50', size = 0.5) + 
+  # geom_point(data = data.frame(y = 1:12, x = rep(0.5, times = 12)), 
+  #           aes(x = x, y = y), colour = 'grey50', size = 1, shape = 3) + 
   geom_path(data = data.frame(y = c(0.5,12.5,12.5,0.5,0.5), 
                               x = modisTime + c(0.5,0.5,1.5,1.5,1.5)), 
             aes(x = x, y = y), colour = 'grey20', size = 0.7) + 
@@ -111,6 +116,10 @@ g.synop.wheel <- ggplot(df_SYNOP_agr %>%
   theme(legend.position = 'bottom',
         legend.key.width = unit(2.4, "cm"),
         panel.background = element_rect(fill = 'white'),
+        axis.ticks.y = element_line(colour = 'grey50', 
+                                    arrow = arrow(length = unit(0.15, "cm"),
+                                                  type = 'open')),
+        axis.ticks.length.y = unit(0.4, "cm"),
         axis.title = element_blank(),
         axis.text.y = element_text()) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
@@ -131,6 +140,7 @@ df.SYNOP <- df_SYNOP_agr %>%
 load("dataFigures/df_dCFC_MOD02_FOR.Rdata") # df_dCFC_MOD02_FOR
 
 pts_MOD02_laea <- df_dCFC_MOD02_FOR %>%
+  mutate(month = factor(month, ordered = T)) %>%
   filter(lon > -10, lon < 50,
          lat > 30, lat < 65) %>%
   st_as_sf(coords = c("lon","lat")) %>%
@@ -149,6 +159,7 @@ df.MOD02 <- pts_MOD02_laea %>%
 load("dataFigures/df_dCFC_MOD05_FOR.Rdata") # df_dCFC_MOD05_FOR
 
 pts_MOD05_laea <- df_dCFC_MOD05_FOR %>%
+  mutate(month = factor(month, ordered = T)) %>%
   filter(lon > -10, lon < 50,
          lat > 30, lat < 65) %>%
   st_as_sf(coords = c("lon","lat")) %>%
@@ -163,8 +174,15 @@ df.MOD05 <- pts_MOD05_laea %>%
             MOD05.dCFC.sd = sd(dCFC, na.rm = T),
             MOD05.dCFC.se = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC))))
 
+# df.MOD05 <- df.MOD05 %>%
+#   mutate(month = factor(df.MOD05$month,ordered = T))
+# df.MOD02 <- df.MOD02 %>%
+#   mutate(month = factor(df.MOD02$month,ordered = T))
+
+
 
 # combine it all
+
 
 df.combo <- df.SYNOP %>%
   #transmute(month = factor(month, levels = month.abb), SYNOP.dCFC.mu = dCFC) %>%
