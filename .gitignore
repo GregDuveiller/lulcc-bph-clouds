@@ -1,14 +1,8 @@
 # Project folders
-\dataInput
-\dataProcessing
-\dataResults
-\dataFigures
-\textFigures
-\tempFigures
-\xtraFigures
-\temp
-\textSubmission
-\textSubmission_
+/__devel__/dataFigures
+/__devel__/dataResults
+/data
+/docs
 
 
 # History files
