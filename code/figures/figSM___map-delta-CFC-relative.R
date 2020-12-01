@@ -1,6 +1,11 @@
-### FIGURE summarizing the global CFC ----
+#!/usr/local/bin/Rscript
+################################################################################
+# Purpose:  Make the main figure summarizing global effects in relative terms
+# License:  GPL v3
+# Authors:  Gregory Duveiller - Dec. 2020
+################################################################################
 
-# load necessary packages
+
 require(dplyr)
 require(tidyr)
 require(grid)
@@ -11,26 +16,21 @@ require(sf)
 require(here)
 
 
-
 ## Initial data preparation and parametrization ---- 
 
 # some general plot parametrization
-col.pal <- rev(c('#2B3677', '#327FBB', '#A2D5FF', '#F7F7F7', '#FFD181' ,'#EA965A', '#9C4D0C'))
-# col.pal <-  RColorBrewer::brewer.pal(9,'RdBu')
-landColor <- 'grey70'
-seaColor <- 'grey20'
 boxColors <- c('light' = 'grey95', 'dark' = 'grey15')
-latLims <- c(-56,86)
+latLims <- c(-56, 86)
 relcfcLims <- c(-12, 12)
 
 # load vector data for background
-world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
+world <- sf::st_read('data/input_data/world_vectors/ne_50m_land.shp', quiet = TRUE)
 
 # Load data to plot...
-load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd.Rdata
+load(paste0(dat4fig_path, '/df_dCFC_MOD05_FOR_1dd.Rdata')) # <--- "df_dCFC_MOD05_FOR_1dd"
 
 # Load data to serve as reference...
-load('dataFigures/df_CFC_MOD05_1dd.Rdata') # df_CFC_1dd.Rdata
+load(paste0(dat4fig_path, '/df_CFC_MOD05_1dd.Rdata'))  # <--- "df_CFC_1dd.Rdata"
 
 # join them together to get new variable to plot
 df <- df_dCFC_MOD05_FOR_1dd %>%
@@ -40,12 +40,10 @@ df <- df_dCFC_MOD05_FOR_1dd %>%
 
 
 # get ROIs
-source('codeFigures/ancillary__definingROIs.r')
+source('code/figures/ancillary__definingROIs.R')
 zn <- zn %>% 
   mutate(boxColor = ifelse(uid %in% c('crn', 'ama'), 
                            'dark', 'light'))
-
-  
 
 
 ## Maps of 4 seasons ----

@@ -1,12 +1,18 @@
-### FIGURE summarizing the global CFC ----
+#!/usr/local/bin/Rscript
+################################################################################
+# Purpose:  Make the main figure summarizing the global effects on cloud cover
+# License:  GPL v3
+# Authors:  Gregory Duveiller - Dec. 2020
+################################################################################
 
-# load necessary packages
+
 require(dplyr)
 require(tidyr)
 require(grid)
 require(ggplot2)
 require(sf)
 require(here)
+
 
 ## Initial data preparation and parametrization ---- 
 

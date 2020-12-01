@@ -1,6 +1,10 @@
-### FIGURE to show the PFT differences ----
+#!/usr/local/bin/Rscript
+################################################################################
+# Purpose:  Make figure showing cloud formation due to different forest types
+# License:  GPL v3
+# Authors:  Gregory Duveiller - Dec. 2020
+################################################################################
 
-# load packages
 
 require(ggplot2)
 require(dplyr)

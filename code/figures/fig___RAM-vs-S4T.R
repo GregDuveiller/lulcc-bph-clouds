@@ -1,6 +1,11 @@
-### XTRA FIGURE summarizing results with alt-methodology ----
+#!/usr/local/bin/Rscript
+################################################################################
+# Purpose:  Make figure comparing results from different methods (S4T vs RAM)
+# License:  GPL v3
+# Authors:  Gregory Duveiller - Dec. 2020
+################################################################################
 
-# load necessary packages
+
 require(dplyr)
 require(grid)
 require(ggplot2)
@@ -11,8 +16,7 @@ require(here)
 
 
 ## Initial data preparation and parametrization ---- 
-
-load('dataFigures/df_RAM-vs-S4T_CZ5.RData') # df_CZ5
+load(paste0(dat4fig_path, '/df_RAM-vs-S4T_CZ5.RData')) # <--- "df_CZ5"
 iPFT <- 'TOT'
 # NOTE: Should check if the df above actually used the right combo for TOT...
 # (did that harvester run after the tweaks in the DFO + EFO weighted combo)
@@ -20,7 +24,8 @@ iPFT <- 'TOT'
 colour.meth1 <- c('#95559B', '#B892BB')
 colour.meth2 <- c('#D89800', '#ECD8A6')
 
-method.lbls <- c('S4T' = 'Space-for-time\nsubstitution', 'RAM' = 'Based on real\nforest cover changes')
+method.lbls <- c('S4T' = 'Space-for-time\nsubstitution', 
+                 'RAM' = 'Based on real\nforest cover changes')
 
 ## Make the bar plot ----
 g_bars <- ggplot(df_CZ5 %>% 
@@ -50,11 +55,8 @@ g_bars <- ggplot(df_CZ5 %>%
   ggtitle('Change in cloud fractional cover following afforestation',
           subtitle = 'Averages over major Koppen-Geiger climate zones with different methods')
 
-
-
-
 ## printing the final plot -----
-fig.name <- 'figSM___RAM-vs-S4T'
+fig.name <- 'fig___RAM-vs-S4T'
 fig.width <- 8; fig.height <- 8;  # fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, '/', fig.fmt, '/', fig.name, '.', fig.fmt)
 

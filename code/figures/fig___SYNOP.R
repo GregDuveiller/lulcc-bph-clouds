@@ -1,12 +1,18 @@
-### FIGURE to show the SYNOP points ----
+#!/usr/local/bin/Rscript
+################################################################################
+# Purpose:  Make figure showing the results with the SYNOP points
+# License:  GPL v3
+# Authors:  Gregory Duveiller - Dec. 2020
+################################################################################
 
-# load packages
+
 require(sf)
 require(ggplot2)
 require(dplyr)
 require(tidyr)
 require(grid)
 require(raster)
+
 
 ## Initial data preparation and parametrization ---- 
 

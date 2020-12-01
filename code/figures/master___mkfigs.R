@@ -1,6 +1,9 @@
-# Master script for making all plots for the paper  -----
-#
-#
+#!/usr/local/bin/Rscript
+################################################################################
+# Purpose:  Master script for making all plots of the paper 
+# License:  GPL v3
+# Authors:  Gregory Duveiller - Dec. 2020
+################################################################################
 
 
 library(ggplot2)
@@ -11,8 +14,6 @@ library(scales)
 library(RColorBrewer)
 library(here)
 
-
-# vpath <- 'data/input_data/world_vectors'
 
 # define link where to find the 'harvested' data
 dat4fig_path <- 'data/final_data/__Zenodo__' 
@@ -32,6 +33,9 @@ seaColor <- 'grey20'
 
 ## Global picture: map of 4 seasons
 source('code/figures/fig___map-delta-CFC.R')
+
+## Confronting methodologies
+source('code/figures/fig___RAM-vs-S4T.R')
 
 ## SYNOP confrontation over Europe
 source('code/figures/fig___SYNOP.R')
@@ -54,5 +58,4 @@ source('code/figures/figSM___extent-forest-with-sign.R')
 ## Maps of scale effect over Europe
 source('codeFigures/figSM___map-scaling-Europe.r')
 
-## Confronting methodologies
-source('codeFigures/figSM___RAM-vs-S4T.r')
+

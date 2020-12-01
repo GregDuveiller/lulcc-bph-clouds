@@ -1,6 +1,11 @@
-### XTRA FIGURE showing the scaling effect ----
+#!/usr/local/bin/Rscript
+################################################################################
+# Purpose:  Make figure showing the effects of scaling on the method for Europe 
+# License:  GPL v3
+# Authors:  Gregory Duveiller - Dec. 2020
+################################################################################
 
-# load necessary packages
+
 require(dplyr)
 require(tidyr)
 require(grid)
@@ -12,18 +17,17 @@ require(here)
 
 ## Initial data preparation and parametrization ---- 
 
-world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
+world <- sf::st_read('data/input_data/world_vectors/ne_50m_land.shp', quiet = TRUE)
 # laes_prj <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
 # europe_laea <- sf::st_intersection(world, st_set_crs(st_as_sf(as(raster::extent(-10, 55, 26, 72), "SpatialPolygons")), st_crs(world)))%>%
 #   st_transform(laes_prj)
 # xLims <- c(2.5e6,6e6)
 # yLims <- c(1.5e6,4.5e6)
 
-
-load('dataFigures/df_dCFC_MOD05_FOR.Rdata')     # df_dCFC_MOD05_FOR
-load('dataFigures/df_dCFC_MOD02_FOR.Rdata')     # df_dCFC_MOD02_FOR
-load('dataFigures/df_dCFC_MODo2_FOR.Rdata')     # df_dCFC_MODo2_FOR
-load('dataFigures/df_dCFC_MOD02_FOR_agr.Rdata') # df_dCFC_MOD02_FOR_agr
+load(paste0(dat4fig_path, '/df_dCFC_MOD05_FOR.Rdata')) # <---  df_dCFC_MOD05_FOR
+load(paste0(dat4fig_path, '/df_dCFC_MOD02_FOR.Rdata')) # <---  df_dCFC_MOD02_FOR
+load(paste0(dat4fig_path, '/df_dCFC_MODo2_FOR.Rdata')) # <---  df_dCFC_MODo2_FOR
+load(paste0(dat4fig_path, '/df_dCFC_MOD02_FOR_agr.Rdata')) # <---  df_dCFC_MOD02_FOR_agr
 
 # combine all
 df_all <- bind_rows(

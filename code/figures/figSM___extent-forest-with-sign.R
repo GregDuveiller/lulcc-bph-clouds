@@ -1,15 +1,25 @@
+#!/usr/local/bin/Rscript
+################################################################################
+# Purpose:  Make figure showing proportions of positive/negative cloud effects
+# License:  GPL v3
+# Authors:  Gregory Duveiller - Dec. 2020
+################################################################################
+
+
 require(dplyr)
 require(tidyr)
 require(ggplot2)
 
-load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata')
-load('dataFigures/df_dCFC_MOD05_EFO_1dd.Rdata')
-load('dataFigures/df_dCFC_MOD05_DFO_1dd.Rdata')
 
-load('dataFigures/df_dCFC_MOD05_FOR.Rdata')
-load('dataFigures/df_dCFC_MOD05_EFO.Rdata')
-load('dataFigures/df_dCFC_MOD05_DFO.Rdata')
+# load all necessary data
+load(paste0(dat4fig_path, '/df_dCFC_MOD05_FOR_1dd.Rdata'))
+load(paste0(dat4fig_path, '/df_dCFC_MOD05_EFO_1dd.Rdata'))
+load(paste0(dat4fig_path, '/df_dCFC_MOD05_DFO_1dd.Rdata'))
+load(paste0(dat4fig_path, '/df_dCFC_MOD05_FOR.Rdata'))
+load(paste0(dat4fig_path, '/df_dCFC_MOD05_EFO.Rdata'))
+load(paste0(dat4fig_path, '/df_dCFC_MOD05_DFO.Rdata'))
 
+# structure it in a df
 df.avg <- bind_rows(
   df_dCFC_MOD05_FOR %>% 
     summarize(type = 'FOR', n = length(dCFC),

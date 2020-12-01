@@ -1,6 +1,12 @@
-### XTRA FIGURE showing high resolution ----
+#!/usr/local/bin/Rscript
+################################################################################
+# Purpose:  Make figure showing some close-ups of the spatial data 
+# License:  GPL v3
+# Authors:  Gregory Duveiller - Dec. 2020
+################################################################################
 
-# load necessary packages
+require(ncdf4)
+require(raster)
 require(dplyr)
 require(tidyr)
 require(grid)
@@ -12,19 +18,19 @@ require(here)
 
 ## Initial data preparation and parametrization ---- 
 
-world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
+world <- sf::st_read('data/input_data/world_vectors/ne_50m_land.shp', quiet = TRUE)
 # laes_prj <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
 # europe_laea <- sf::st_intersection(world, st_set_crs(st_as_sf(as(raster::extent(-10, 55, 26, 72), "SpatialPolygons")), st_crs(world)))%>%
 #   st_transform(laes_prj)
 # xLims <- c(2.5e6,6e6)
 # yLims <- c(1.5e6,4.5e6)
 
-provs <- sf::st_read(paste0(vpath,'ne_50m_admin_1_states_provinces_lines.shp'), quiet = TRUE)
-countries <- sf::st_read(paste0(vpath,'ne_50m_admin_0_countries.shp'), quiet = TRUE)
-lakes <- sf::st_read(paste0(vpath,'ne_50m_lakes.shp'), quiet = TRUE)
+provs <- sf::st_read('data/input_data/world_vectors/ne_50m_admin_1_states_provinces_lines.shp', quiet = TRUE)
+countries <- sf::st_read('data/input_data/world_vectors/ne_50m_admin_0_countries.shp', quiet = TRUE)
+lakes <- sf::st_read('data/input_data/world_vectors/ne_50m_lakes.shp', quiet = TRUE)
 
 # get ROIs
-source('codeFigures/ancillary__definingROIs.r')
+source('code/figures/ancillary__definingROIs.R')
 zn <- zn %>% 
   filter(uid %in% c('crn', 'ama', 'ind', 'aus'))
 
@@ -32,10 +38,10 @@ zn <- zn %>%
 ## get map data from netcdf
 require(raster)
 
-dpath <- 'dataResults/Results_from_Federico'
-fname <- 'ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology_topography_masked_s4t_winsize7_s4t_subset_masked_aggregated_0.35.nc'
+# dpath <- 'dataResults/Results_from_Federico'
+# fname <- 'ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology_topography_masked_s4t_winsize7_s4t_subset_masked_aggregated_0.35.nc'
 
-r <- brick('dataFigures/rstr_dCFC_MOD05_FOR.nc')
+r <- brick(x = paste0(dat4fig_path, '/rstr_dCFC_MOD05_FOR.nc'))
 
 plot.seq <- function(z, m, d, l){
 
