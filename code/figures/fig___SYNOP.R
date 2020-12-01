@@ -11,21 +11,15 @@ require(raster)
 ## Initial data preparation and parametrization ---- 
 
 # set projection stuff
-world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
+world <- sf::st_read('data/input_data/world_vectors/ne_50m_land.shp', quiet = TRUE)
 laes_prj <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
 europe_laea <- sf::st_intersection(world, st_set_crs(st_as_sf(as(raster::extent(-10, 55, 26, 72), "SpatialPolygons")), st_crs(world)))%>%
   st_transform(laes_prj)
 
 # set some specific graphical parameters 
-#col.pal <-  RColorBrewer::brewer.pal(9,'RdBu')
-landColor <- 'grey70'
-seaColor <- 'grey20'
-
 pointSize <- 1.5
-
 xLims <- c(2.5e6,6e6)
 yLims <- c(1.5e6,4.5e6)
-
 
 # set the parameters to select the target points 
 i.thr.dist.max <- 100  # 60 80 100
@@ -36,10 +30,8 @@ i.thr.nyrs.min <- 7   # 5 7 9
 # set time from SYNOP to compare with MODIS overpass (Aqua platform)
 modisTime <- 14
 
-
 # Get the SYNOP data ready
-
-load('dataFigures/df_SYNOP_agr_4polarplots_eur.RData')
+load(paste0(dat4fig_path, '/df_SYNOP_agr_4polarplots_eur.Rdata'))  #  <--- "df_SYNOP_agr" and "df_SYNOP_loc"
 
 pts_df <- df_SYNOP_loc %>% 
   st_as_sf(coords = c("lon","lat")) %>%
@@ -127,7 +119,7 @@ g.synop.wheel <- ggplot(df_SYNOP_agr %>%
 
 ## Comparison with MODIS...  -----
 
-
+# select the right SYNOP parametrisations
 df.SYNOP <- df_SYNOP_agr %>%
   filter(thr.dist.max == i.thr.dist.max,
          thr.dist.min == i.thr.dist.min,
@@ -135,19 +127,18 @@ df.SYNOP <- df_SYNOP_agr %>%
          thr.dfor.min == i.thr.dfor.min, 
          hour %in% c(paste(modisTime,'00',sep = ':')))
 
-
 # load MODIS data
-load("dataFigures/df_dCFC_MOD02_FOR.Rdata") # df_dCFC_MOD02_FOR
+load(paste0(dat4fig_path, "/df_dCFC_MOD02_FOR.Rdata")) #  <--- "df_dCFC_MOD02_FOR"
+load(paste0(dat4fig_path, "/df_dCFC_MOD05_FOR.Rdata")) #  <--- "df_dCFC_MOD05_FOR"
 
-pts_MOD02_laea <- df_dCFC_MOD02_FOR %>%
+# get data from the MOD02 CFrC dataset
+df.MOD02 <- df_dCFC_MOD02_FOR %>%
   mutate(month = factor(month, ordered = T)) %>%
   filter(lon > -10, lon < 50,
          lat > 30, lat < 65) %>%
   st_as_sf(coords = c("lon","lat")) %>%
   st_set_crs(st_crs(world)) %>%
-  st_transform(laes_prj) 
-
-df.MOD02 <- pts_MOD02_laea %>%
+  st_transform(laes_prj) %>%
   st_intersection(y = pts_buffer) %>%   # This is the limiting step... 
   as.data.frame() %>%
   dplyr::group_by(month) %>%
@@ -156,17 +147,14 @@ df.MOD02 <- pts_MOD02_laea %>%
             MOD02.dCFC.se = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC))))
 
 
-load("dataFigures/df_dCFC_MOD05_FOR.Rdata") # df_dCFC_MOD05_FOR
-
-pts_MOD05_laea <- df_dCFC_MOD05_FOR %>%
+# get data from the MOD02 CFrC dataset
+df.MOD05 <- df_dCFC_MOD05_FOR %>%
   mutate(month = factor(month, ordered = T)) %>%
   filter(lon > -10, lon < 50,
          lat > 30, lat < 65) %>%
   st_as_sf(coords = c("lon","lat")) %>%
   st_set_crs(st_crs(world)) %>%
-  st_transform(laes_prj) 
-
-df.MOD05 <- pts_MOD05_laea %>%
+  st_transform(laes_prj) %>%
   st_intersection(y = pts_buffer) %>%   # This is the limiting step... 
   as.data.frame() %>%
   dplyr::group_by(month) %>%
@@ -174,23 +162,13 @@ df.MOD05 <- pts_MOD05_laea %>%
             MOD05.dCFC.sd = sd(dCFC, na.rm = T),
             MOD05.dCFC.se = sd(dCFC, na.rm = T)/sqrt(sum(!is.na(dCFC))))
 
-# df.MOD05 <- df.MOD05 %>%
-#   mutate(month = factor(df.MOD05$month,ordered = T))
-# df.MOD02 <- df.MOD02 %>%
-#   mutate(month = factor(df.MOD02$month,ordered = T))
 
-
-
-# combine it all
-
-
+# combine it all together
 df.combo <- df.SYNOP %>%
-  #transmute(month = factor(month, levels = month.abb), SYNOP.dCFC.mu = dCFC) %>%
   rename(SYNOP.dCFC.mu = dCFC, SYNOP.dCFC.se = se.fit) %>%
   dplyr::select(SYNOP.dCFC.mu, SYNOP.dCFC.se, val.signif, month) %>%
   left_join(df.MOD02, by = 'month') %>%
   left_join(df.MOD05, by = 'month')
-
 
 df.combo2 <- left_join(
   df.combo %>% 
@@ -207,9 +185,7 @@ df.combo2 <- left_join(
                  values_to = 'dCFC.se'),
   by = c('month', 'source'))
 
-
-
-# possible plot 1: based on barplot 
+# making the barplot 
 g.confr.bars <- ggplot(df.combo2) +
   geom_errorbar(aes(ymin = dCFC.mu - dCFC.se, x = month, 
                     ymax = dCFC.mu + dCFC.se, group = source),
@@ -235,38 +211,6 @@ g.confr.bars <- ggplot(df.combo2) +
         axis.title.x = element_blank()) +
   ggtitle('Comparison with satellite estimations')
 
-# # # Some alternatives
-# # possible plot 2: based on scatterplot
-# g.confr.scat <- ggplot(df.combo) +
-#   geom_point(aes(x = MOD05.dCFC.mu, y = SYNOP.dCFC.mu, colour = month)) + 
-#   geom_linerange(aes(x = MOD05.dCFC.mu, colour = month,
-#                      ymin = SYNOP.dCFC.mu - 2*SYNOP.dCFC.se, 
-#                      ymax = SYNOP.dCFC.mu + 2*SYNOP.dCFC.se)) + 
-#   geom_errorbarh(aes(y = SYNOP.dCFC.mu, colour = month,
-#                      xmin = MOD05.dCFC.mu - 2*MOD05.dCFC.se, 
-#                      xmax = MOD05.dCFC.mu + 2*MOD05.dCFC.se)) + 
-#   geom_abline()  +
-#   scale_y_continuous('Delta CFC from SYNOP') +
-#   scale_x_continuous('Delta CFC from MODIS') + 
-#   coord_equal(xlim = c(-0.02, 0.11), ylim = c(-0.02, 0.11)) +
-#   theme(legend.position = c(0.9,0.5),
-#         axis.title = element_text(size = rel(1.1))) +
-#   ggtitle('Comparison with MODIS')
-# 
-# 
-# # possible plot 3: based on ranges... like simple boxplots 
-# g.confr.boxs <- ggplot(df.combo2) +
-#   geom_point(aes(x = month, y = dCFC.mu, colour = source),
-#            stat = 'identity') + 
-#   geom_linerange(aes(ymin = dCFC.mu - 2 * dCFC.se, x = month, 
-#                     ymax = dCFC.mu + 2 * dCFC.se, colour = source),
-#                 stat = 'identity') +
-#   geom_hline(aes(yintercept = 0), colour = 'grey30') + 
-#   theme(legend.position = c(0.9,0.9),
-#         axis.title = element_text(size = rel(1.1)), 
-#         axis.title.x = element_blank()) +
-#   ggtitle('Comparison with MODIS')
-# 
 
 
 ## Printing the final plot -----

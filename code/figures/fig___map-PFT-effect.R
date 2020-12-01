@@ -13,18 +13,11 @@ require(sf)
 
 xLims <- c(-10,45)
 yLims <- c(35,65)
-
-#dcfcLims <- c(-0.06,0.06)
-
-landColor <- 'grey60'
-seaColor <- 'grey20'
-
-
 iMonths <- c('Jun','Jul','Aug')
 
 
 # set projection stuff
-world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
+world <- sf::st_read('data/input_data/world_vectors/ne_50m_land.shp', quiet = TRUE)
 # laes_prj <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
 # europe_laea <- sf::st_intersection(world, st_set_crs(st_as_sf(as(raster::extent(-10, 55, 26, 72), "SpatialPolygons")), st_crs(world)))%>%
 #   st_transform(laes_prj)
@@ -33,8 +26,8 @@ world <- sf::st_read(paste0(vpath,'ne_50m_land.shp'), quiet = TRUE)
 
 
 # load data
-load('dataFigures/df_dCFC_MOD02_DFO.Rdata')     # df_dCFC_MOD02_DFO
-load('dataFigures/df_dCFC_MOD02_EFO.Rdata')     # df_dCFC_MOD02_EFO
+load(paste0(dat4fig_path, "/df_dCFC_MOD02_DFO.Rdata")) # <-- "df_dCFC_MOD02_DFO"
+load(paste0(dat4fig_path, "/df_dCFC_MOD02_EFO.Rdata")) # <-- "df_dCFC_MOD02_EFO"
 
 # combine them
 df_all <- bind_rows(
