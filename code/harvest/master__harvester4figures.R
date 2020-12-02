@@ -6,6 +6,9 @@
 ################################################################################
 
 
-dat4fig_path <- 'data/final_data/__Zenodo__' 
+harvest_path <- 'data/final_data/__Zenodo__' 
+dir.create(harvest_path, recursive = T, showWarnings = F)
 
-source('')
+source('code/harvest/harvest___get-S4T-results-in-df.R')
+source('code/harvest/harvest___get-SYNOP-agr-summarized-values.R')
+source('code/harvest/harvest___get-RAM-results-w-S4T.R')

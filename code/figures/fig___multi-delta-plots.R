@@ -117,7 +117,7 @@ g_LEvsHG_HAC <- ggplot(df_all %>%
   labs(title = bquote(Delta~alpha<.(ALB_thr))) + 
   theme(legend.position = c(0.5,0.85),
         legend.background = element_rect(colour = 'grey40', fill = 'white', linetype = 'solid'),
-        legend.margin = margin(2, 10, 2, 10, "mm"),
+        legend.margin = margin(2, 6, 2, 6, "mm"),
         legend.direction = "horizontal", 
         legend.key.width = unit(1.6, "cm")) +
   guides(fill = guide_colourbar(title.position = "top", 
