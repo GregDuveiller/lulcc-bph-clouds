@@ -6,17 +6,13 @@
 ################################################################################
 
 
-
 require(ncdf4)
 require(dplyr)
 require(raster)
 require(ggplot2)
 
 
-### !!! NEed to make sure we use the correct values ... either the original or the smoothed ones... 
-
-# input delta_LE and delta_H  
-
+# specify path to find the data
 dpath1 <- 'data/input_data/S4T_ancillary'
 
 nc_lvar <- 4 # to specify that we use the 4th dimension (iTr) to select what to put in the raster bricks
@@ -25,8 +21,6 @@ nc_level <- 2 # to specify the level of the variable nc_lvar to select, in this 
 ## LE ----
 rs_LE_delta <- brick(x = paste0(dpath1, '/LE_IGBPgen_ext.nc'),
                      varname = 'Delta_LE', lvar = nc_lvar, level = nc_level)
-# rs_LE_sigma <- brick(x = paste0(dpath1, '/LE_IGBPgen_ext.nc'),
-#                      varname = 'SD_Delta_LE', lvar = nc_lvar, level = nc_level)
 
 df_LE_delta <- as.data.frame(rs_LE_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y) %>% 
@@ -39,8 +33,6 @@ df_LE_delta <- as.data.frame(rs_LE_delta, xy = T, long = T) %>%
 ## HG ----
 rs_HG_delta <- brick(x = paste0(dpath1, '/HG_IGBPgen_ext.nc'),
                      varname = 'Delta_HG', lvar = nc_lvar, level = nc_level)
-# rs_HG_sigma <- brick(x = paste0(dpath1, '/HG_IGBPgen_ext.nc'),
-#                      varname = 'SD_Delta_HG', lvar = nc_lvar, level = nc_level)
 
 df_HG_delta <- as.data.frame(rs_HG_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y) %>% 
@@ -52,8 +44,6 @@ df_HG_delta <- as.data.frame(rs_HG_delta, xy = T, long = T) %>%
 ## Albedo ----
 rs_albedo_delta <- brick(x = paste0(dpath1, '/albedo_IGBPgen_ext.nc'),
                          varname = 'Delta_albedo', lvar = nc_lvar, level = nc_level)
-# rs_albedo_sigma <- brick(x = paste0(dpath1, '/albedo_IGBPgen_ext.nc'),
-#                          varname = 'SD_Delta_albedo', lvar = nc_lvar, level = nc_level)
 
 df_albedo_delta <- as.data.frame(rs_albedo_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y) %>%
@@ -66,8 +56,6 @@ df_albedo_delta <- as.data.frame(rs_albedo_delta, xy = T, long = T) %>%
 ## LSTday ----
 rs_LSTday_delta <- brick(x = paste0(dpath1, '/LSTday_IGBPgen_ext.nc'),
                          varname = 'Delta_LSTday', lvar = nc_lvar, level = nc_level)
-# rs_LSTday_sigma <- brick(x = paste0(dpath1, '/LSTday_IGBPgen_ext.nc'),
-#                          varname = 'SD_Delta_LSTday', lvar = nc_lvar, level = nc_level)
 
 df_LSTday_delta <- as.data.frame(rs_LSTday_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y) %>%
@@ -79,8 +67,6 @@ df_LSTday_delta <- as.data.frame(rs_LSTday_delta, xy = T, long = T) %>%
 ## LST nighttime ----
 rs_LSTnight_delta <- brick(x = paste0(dpath1, '/LSTnight_IGBPgen_ext.nc'),
                            varname = 'Delta_LSTnight', lvar = nc_lvar, level = nc_level)
-# rs_LSTnight_sigma <- brick(x = paste0(dpath1, '/LSTnight_IGBPgen_ext.nc'),
-#                            varname = 'SD_Delta_LSTnight', lvar = nc_lvar, level = nc_level)
 
 df_LSTnight_delta <- as.data.frame(rs_LSTnight_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y) %>%
@@ -93,8 +79,6 @@ df_LSTnight_delta <- as.data.frame(rs_LSTnight_delta, xy = T, long = T) %>%
 ## SW reflected ----
 rs_SW_delta <- brick(x = paste0(dpath1, '/SWreflected_IGBPgen_ext.nc'),
                      varname = 'Delta_SWreflected', lvar = nc_lvar, level = nc_level)
-# rs_SW_sigma <- brick(x = paste0(dpath1, '/SWreflected_IGBPgen_ext.nc'),
-#                      varname = 'SD_Delta_SWreflected', lvar = nc_lvar, level = nc_level)
 
 df_SW_delta <- as.data.frame(rs_SW_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y) %>%
@@ -107,14 +91,9 @@ df_SW_delta <- as.data.frame(rs_SW_delta, xy = T, long = T) %>%
 ## Calculate Rn from LW and SW ----
 rs_LW_delta <- brick(x = paste0(dpath1, '/LWemitted_IGBPgen_ext.nc'),
                      varname = 'Delta_LWemitted', lvar = nc_lvar, level = nc_level)
-# rs_LW_sigma <- brick(x = paste0(dpath1, '/LWemitted_IGBPgen_ext.nc'),
-#                      varname = 'SD_Delta_LWemitted', lvar = nc_lvar, level = nc_level)
 
 rs_Rn_delta <- - (rs_SW_delta + rs_LW_delta)
 rs_Rn_delta <- setZ(rs_Rn_delta, getZ(rs_SW_delta), name = 'mon (months)')
-
-# rs_Rn_sigma <- sqrt(rs_SW_sigma^2 + rs_LW_sigma^2)  # ! Assuming no co-variance term, which is probably wrong, but 'conservative'
-# rs_Rn_sigma <- setZ(rs_Rn_sigma, getZ(rs_SW_sigma), name = 'mon (months)')
 
 df_Rn_delta <- as.data.frame(rs_Rn_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y) %>%
