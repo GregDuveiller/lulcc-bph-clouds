@@ -56,6 +56,6 @@ source('code/figures/figSM___map-delta-CFC-zoom.R')
 source('code/figures/figSM___extent-forest-with-sign.R')
 
 ## Maps of scale effect over Europe
-source('codeFigures/figSM___map-scaling-Europe.r')
+source('code/figures/figSM___map-scaling-Europe.R')
 
 

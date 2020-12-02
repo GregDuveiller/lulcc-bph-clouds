@@ -109,4 +109,4 @@ df_CZ5 <- bind_rows(
     dplyr::mutate(method = factor('S4T', levels = c('S4T', 'RAM'))))
 
 
-save('df_CZ5', file = paste0(harvest_path, '/df_RAM-vs-S4T_CZ5.RData'))
+save('df_CZ5', 'cz5_df', file = paste0(harvest_path, '/df_RAM-vs-S4T_CZ5.RData'))
