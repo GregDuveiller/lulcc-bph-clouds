@@ -17,7 +17,7 @@ library(here)
 
 # define link where to find the 'harvested' data
 dat4fig_path <- 'data/final_data/__Zenodo__' 
-dat4fig_path <- '__devel__/dataFigures' 
+###dat4fig_path <- '__devel__/dataFigures' 
 
 # Set format for figures 
 fig.fmt <- 'png'  # fig.fmt <- 'pdf'

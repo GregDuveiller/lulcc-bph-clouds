@@ -22,13 +22,11 @@ dpath1 <- 'data/input_data/S4T_ancillary'
 nc_lvar <- 4 # to specify that we use the 4th dimension (iTr) to select what to put in the raster bricks
 nc_level <- 2 # to specify the level of the variable nc_lvar to select, in this case the second transition
 
-nc_LE <- nc_open(filename = paste0(dpath1, '/LE_IGBPgen_ext.nc'))
-
-
-rs_LE_delta <- brick(x = paste0(dpath1, '/LE_IGBPgen.nc'),
+## LE ----
+rs_LE_delta <- brick(x = paste0(dpath1, '/LE_IGBPgen_ext.nc'),
                      varname = 'Delta_LE', lvar = nc_lvar, level = nc_level)
-rs_LE_sigma <- brick(x = paste0(dpath1, '/LE_IGBPgen.nc'),
-                     varname = 'SD_Delta_LE', lvar = nc_lvar, level = nc_level)
+# rs_LE_sigma <- brick(x = paste0(dpath1, '/LE_IGBPgen_ext.nc'),
+#                      varname = 'SD_Delta_LE', lvar = nc_lvar, level = nc_level)
 
 df_LE_delta <- as.data.frame(rs_LE_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y) %>% 
@@ -38,10 +36,11 @@ df_LE_delta <- as.data.frame(rs_LE_delta, xy = T, long = T) %>%
   dplyr::filter(!is.na(delta_LE))
 
 
-rs_HG_delta <- brick(x = paste0(dpath1, '/HG_IGBPgen.nc'),
+## HG ----
+rs_HG_delta <- brick(x = paste0(dpath1, '/HG_IGBPgen_ext.nc'),
                      varname = 'Delta_HG', lvar = nc_lvar, level = nc_level)
-rs_HG_sigma <- brick(x = paste0(dpath1, '/HG_IGBPgen.nc'),
-                     varname = 'SD_Delta_HG', lvar = nc_lvar, level = nc_level)
+# rs_HG_sigma <- brick(x = paste0(dpath1, '/HG_IGBPgen_ext.nc'),
+#                      varname = 'SD_Delta_HG', lvar = nc_lvar, level = nc_level)
 
 df_HG_delta <- as.data.frame(rs_HG_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y) %>% 
@@ -50,37 +49,11 @@ df_HG_delta <- as.data.frame(rs_HG_delta, xy = T, long = T) %>%
   dplyr::select(-Z, -value) %>%
   dplyr::filter(!is.na(delta_HG))
 
-
-rs_Rn_delta <- brick(x = paste0(dpath1, '/Rn_IGBPgen.nc'),
-                     varname = 'Delta_Rn', lvar = nc_lvar, level = nc_level)
-rs_Rn_sigma <- brick(x = paste0(dpath1, '/Rn_IGBPgen.nc'),
-                     varname = 'SD_Delta_Rn', lvar = nc_lvar, level = nc_level)
-
-df_Rn_delta <- as.data.frame(rs_Rn_delta, xy = T, long = T) %>% 
-  dplyr::rename(lon = x, lat = y) %>%
-  dplyr::mutate(month = factor(month.abb[Z], levels = month.abb),
-                delta_Rn = -value) %>% # Note change in sign to flip transition
-  dplyr::select(-Z, -value) %>%
-  dplyr::filter(!is.na(delta_Rn))
-
-
-rs_SW_delta <- brick(x = paste0(dpath1, '/SWreflected_IGBPgen.nc'),
-                     varname = 'Delta_SWreflected', lvar = nc_lvar, level = nc_level)
-rs_SW_sigma <- brick(x = paste0(dpath1, '/SWreflected_IGBPgen.nc'),
-                     varname = 'SD_Delta_SWreflected', lvar = nc_lvar, level = nc_level)
-
-df_SW_delta <- as.data.frame(rs_SW_delta, xy = T, long = T) %>% 
-  dplyr::rename(lon = x, lat = y) %>%
-  dplyr::mutate(month = factor(month.abb[Z], levels = month.abb),
-                delta_SW = -value) %>% # Note change in sign to flip transition
-  dplyr::select(-Z, -value) %>%
-  dplyr::filter(!is.na(delta_SW))
-
-
-rs_albedo_delta <- brick(x = paste0(dpath1, '/albedo_IGBPgen.nc'),
+## Albedo ----
+rs_albedo_delta <- brick(x = paste0(dpath1, '/albedo_IGBPgen_ext.nc'),
                          varname = 'Delta_albedo', lvar = nc_lvar, level = nc_level)
-rs_albedo_sigma <- brick(x = paste0(dpath1, '/albedo_IGBPgen.nc'),
-                         varname = 'SD_Delta_albedo', lvar = nc_lvar, level = nc_level)
+# rs_albedo_sigma <- brick(x = paste0(dpath1, '/albedo_IGBPgen_ext.nc'),
+#                          varname = 'SD_Delta_albedo', lvar = nc_lvar, level = nc_level)
 
 df_albedo_delta <- as.data.frame(rs_albedo_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y) %>%
@@ -90,11 +63,11 @@ df_albedo_delta <- as.data.frame(rs_albedo_delta, xy = T, long = T) %>%
   dplyr::filter(!is.na(delta_albedo))
 
 
-
-rs_LSTday_delta <- brick(x = paste0(dpath1, '/LSTday_IGBPgen.nc'),
+## LSTday ----
+rs_LSTday_delta <- brick(x = paste0(dpath1, '/LSTday_IGBPgen_ext.nc'),
                          varname = 'Delta_LSTday', lvar = nc_lvar, level = nc_level)
-rs_LSTday_sigma <- brick(x = paste0(dpath1, '/LSTday_IGBPgen.nc'),
-                         varname = 'SD_Delta_LSTday', lvar = nc_lvar, level = nc_level)
+# rs_LSTday_sigma <- brick(x = paste0(dpath1, '/LSTday_IGBPgen_ext.nc'),
+#                          varname = 'SD_Delta_LSTday', lvar = nc_lvar, level = nc_level)
 
 df_LSTday_delta <- as.data.frame(rs_LSTday_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y) %>%
@@ -103,11 +76,11 @@ df_LSTday_delta <- as.data.frame(rs_LSTday_delta, xy = T, long = T) %>%
   dplyr::select(-Z, -value) %>%
   dplyr::filter(!is.na(delta_LSTday))
 
-
-rs_LSTnight_delta <- brick(x = paste0(dpath1, '/LSTnight_IGBPgen.nc'),
+## LST nighttime ----
+rs_LSTnight_delta <- brick(x = paste0(dpath1, '/LSTnight_IGBPgen_ext.nc'),
                            varname = 'Delta_LSTnight', lvar = nc_lvar, level = nc_level)
-rs_LSTnight_sigma <- brick(x = paste0(dpath1, '/LSTnight_IGBPgen.nc'),
-                           varname = 'SD_Delta_LSTnight', lvar = nc_lvar, level = nc_level)
+# rs_LSTnight_sigma <- brick(x = paste0(dpath1, '/LSTnight_IGBPgen_ext.nc'),
+#                            varname = 'SD_Delta_LSTnight', lvar = nc_lvar, level = nc_level)
 
 df_LSTnight_delta <- as.data.frame(rs_LSTnight_delta, xy = T, long = T) %>% 
   dplyr::rename(lon = x, lat = y) %>%
@@ -117,9 +90,43 @@ df_LSTnight_delta <- as.data.frame(rs_LSTnight_delta, xy = T, long = T) %>%
   dplyr::filter(!is.na(delta_LSTnight))
 
 
+## SW reflected ----
+rs_SW_delta <- brick(x = paste0(dpath1, '/SWreflected_IGBPgen_ext.nc'),
+                     varname = 'Delta_SWreflected', lvar = nc_lvar, level = nc_level)
+# rs_SW_sigma <- brick(x = paste0(dpath1, '/SWreflected_IGBPgen_ext.nc'),
+#                      varname = 'SD_Delta_SWreflected', lvar = nc_lvar, level = nc_level)
 
-# get ClimZones
-cz5_map <- raster('/ESS_EarthObs/CLIMATE_DATA/koppen-Geiger/koppen-Geiger_360x180_5zones.nc', varname = 'climzone')
+df_SW_delta <- as.data.frame(rs_SW_delta, xy = T, long = T) %>% 
+  dplyr::rename(lon = x, lat = y) %>%
+  dplyr::mutate(month = factor(month.abb[Z], levels = month.abb),
+                delta_SW = -value) %>% # Note change in sign to flip transition
+  dplyr::select(-Z, -value) %>%
+  dplyr::filter(!is.na(delta_SW))
+
+
+## Calculate Rn from LW and SW ----
+rs_LW_delta <- brick(x = paste0(dpath1, '/LWemitted_IGBPgen_ext.nc'),
+                     varname = 'Delta_LWemitted', lvar = nc_lvar, level = nc_level)
+# rs_LW_sigma <- brick(x = paste0(dpath1, '/LWemitted_IGBPgen_ext.nc'),
+#                      varname = 'SD_Delta_LWemitted', lvar = nc_lvar, level = nc_level)
+
+rs_Rn_delta <- - (rs_SW_delta + rs_LW_delta)
+rs_Rn_delta <- setZ(rs_Rn_delta, getZ(rs_SW_delta), name = 'mon (months)')
+
+# rs_Rn_sigma <- sqrt(rs_SW_sigma^2 + rs_LW_sigma^2)  # ! Assuming no co-variance term, which is probably wrong, but 'conservative'
+# rs_Rn_sigma <- setZ(rs_Rn_sigma, getZ(rs_SW_sigma), name = 'mon (months)')
+
+df_Rn_delta <- as.data.frame(rs_Rn_delta, xy = T, long = T) %>% 
+  dplyr::rename(lon = x, lat = y) %>%
+  dplyr::mutate(month = factor(month.abb[Z], levels = month.abb),
+                delta_Rn = -value) %>% # Note change in sign to flip transition
+  dplyr::select(-Z, -value) %>%
+  dplyr::filter(!is.na(delta_Rn))
+
+
+
+## get ClimZones ----
+cz5_map <- raster('data/inter_data/Results_from_RAM/koppen-Geiger_360x180_5zones.nc', varname = 'climzone')
 cz5_df <- as.data.frame(cz5_map, xy = T, long = T) %>% 
   dplyr::mutate(lon = round(x, digits = 8), lat = round(y, digits = 8)) %>%
   dplyr::filter(!is.na(value), value < 5) %>%
@@ -127,30 +134,13 @@ cz5_df <- as.data.frame(cz5_map, xy = T, long = T) %>%
   dplyr::select(-x, -y, -layer, -value)
 
 
+## Join to dCFC samples ----
 # For all forest together
-load('dataFigures/df_dCFC_MOD05_FOR_1dd.Rdata') # df_dCFC_MOD05_FOR_1dd
+load(paste0(harvest_path, '/df_dCFC_MOD05_FOR_1dd.Rdata')) # <--- df_dCFC_MOD05_FOR_1dd
 df_CFC_delta <- df_dCFC_MOD05_FOR_1dd %>%
   left_join(cz5_df, by = c("lon", "lat"))
 
-# # Separating between DFO and EFO
-# # (but just on the CFC side, not on the other deltas... to be done?)
-# load('dataFigures/df_dCFC_MOD05_DFO_1dd.Rdata') # df_dCFC_MOD05_DFO_1dd
-# load('dataFigures/df_dCFC_MOD05_EFO_1dd.Rdata') # df_dCFC_MOD05_EFO_1dd
-# 
-# df_CFC_delta_bothPFT <- bind_rows(
-#   df_dCFC_MOD05_DFO_1dd %>% mutate(PFT = 'Deciduous'),
-#   df_dCFC_MOD05_EFO_1dd %>% mutate(PFT = 'Evergreen'))
-# 
-# df_CFC_delta <- df_CFC_delta_bothPFT %>% 
-#   left_join(cz5_df, by = c("lon", "lat")) %>%
-#   filter(!is.na(region))
-
-
-
-### THE INNER JOINS MAY BE EXCLUDING TOO MUCH DATA!!!
-# In the CRN region (corn belt) we see a step drop in the non-winter months...
-
-# combine all
+## combine all and save ----
 df_all <- df_CFC_delta %>%
   # the following are done with inner join because all are needed
   inner_join(df_LE_delta, by = c('lon', 'lat', 'month')) %>%
@@ -165,4 +155,4 @@ df_all <- df_all %>%
   left_join(df_LSTnight_delta, by = c('lon', 'lat', 'month'))
 
 
-save('df_all', file = 'dataFigures/df_multiDeltaDF.Rda')
+save('df_all', file = paste0(harvest_path, '/df_multiDeltaDF.Rdata'))

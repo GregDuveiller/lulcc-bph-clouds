@@ -14,7 +14,7 @@ require(grid)
 # preparing the data for the plots ----
 
 # load the necessary data
-load(paste0(dat4fig_path, "/df_multiDeltaDF.Rda")) # <-- "df_all"
+load(paste0(dat4fig_path, "/df_multiDeltaDF.Rdata")) # <-- "df_all"
 
 # set some specific graphical parameters 
 col.cross <- 'grey30'
