@@ -6,7 +6,7 @@
 ################################################################################
 
 
-harvest_path <- 'data/final_data/__Zenodo__' 
+harvest_path <- 'data/final_data/__Zenodo__/study_results' 
 dir.create(harvest_path, recursive = T, showWarnings = F)
 
 source('code/harvest/harvest___get-S4T-results-in-df.R')

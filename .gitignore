@@ -1,8 +1,12 @@
 # Project folders
 /__devel__/dataFigures
-/__devel__/dataResults
-/data
+/__devel__/dataProcessing
+/data/inter_data
+/data/input_data
+/data/final_data/data_for_figures
+/data/final_data/study_results
 /docs
+
 
 
 # History files
