@@ -5,8 +5,8 @@
 # Authors: Gregory Duveiller - Dec. 2020
 ################################################################################
 
-
-harvest_path <- 'data/final_data/__Zenodo__/study_results' 
+results_path <- 'data/final_data/study_results' 
+harvest_path <- 'data/final_data/data_for_figures' 
 dir.create(harvest_path, recursive = T, showWarnings = F)
 
 source('code/harvest/harvest___get-S4T-results-in-df.R')

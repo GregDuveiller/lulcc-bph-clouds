@@ -20,7 +20,7 @@ data.tag <- '_absolute_'
 ###data.tag <- '_binedby4percentChange_'
 ###data.tag <- '_binedby2percentChange_'
 
-data.path <- paste0('data/inter_data/Results_from_RAM/', data.tag, '/')
+data.path <- paste0(results_path, '/', 'time4time_analysis')
 
 
 CZ5_regions <- c('Tropical', 'Arid', 'Temperate', 'Boreal')
@@ -28,7 +28,7 @@ PFTs <- c('TOT','EFO','DFO')
 df_CZ5_RAM <- data.frame()
 for(region in CZ5_regions){
   for(pft in PFTs){
-    dum <- read.csv(file = paste0(data.path, region, data.tag, pft, '.csv')) %>%
+    dum <- read.csv(file = paste0(data.path, '/', region, data.tag, pft, '.csv')) %>%
       mutate(month = factor(month.abb, levels = month.abb),
              region = factor(region, levels = CZ5_regions),
              PFT = factor(pft, levels = PFTs),
@@ -48,7 +48,8 @@ load(paste0(harvest_path, '/df_dCFC_MOD05_EFO_1dd.Rdata')) #  <---  df_dCFC_MOD0
 
 
 # get ClimZones
-cz5_map <- raster('data/inter_data/Results_from_RAM/koppen-Geiger_360x180_5zones.nc', varname = 'climzone')
+cz5_map_fname <- paste0(results_path, '/ancillary_information/koppen-Geiger_360x180_5zones.nc')
+cz5_map <- raster(cz5_map_fname, varname = 'climzone')
 cz5_df <- as.data.frame(cz5_map, xy = T, long = T) %>% 
   dplyr::mutate(lon = round(x, digits = 8), lat = round(y, digits = 8)) %>%
   dplyr::filter(!is.na(value), value < 5) %>%

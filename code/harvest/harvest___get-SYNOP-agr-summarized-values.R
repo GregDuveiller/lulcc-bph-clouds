@@ -11,9 +11,8 @@ require(tidyr)
 require(purrr)
 
 
-## Prepraring the data ----
-
-load('data/inter_data/Results_from_Andrej/forGregNew.RData') # paired.new
+## Preparing the data ----
+load(paste0(results_path, '/', 'groundstation_analysis', '/paired_stations.RData')) # paired.new
 
 # some cleaning up..
 df1 <- paired.new %>% 

@@ -11,8 +11,8 @@ library(raster)
 library(dplyr)
 
 
-dpath <- 'data/inter_data/s4t_processing/s4t_cloud_modis_aqua_global/dataInput/'
-fname <- 'ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology_topography_masked.nc'
+dpath <- paste0(results_path, '/ancillary_information')
+fname <- 'ESACCI-L3X_CLOUD-JRC-MODIS_AQUA-PM-fv2.0_cfc_all_2004_2014_monthly_avg_climatology.nc'
 
 r_CFC <- brick(x = paste0(dpath, '/', fname))
 

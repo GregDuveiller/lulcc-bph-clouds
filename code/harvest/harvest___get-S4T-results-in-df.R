@@ -14,14 +14,14 @@ require(lubridate)
 require(here)
 
 
-# data needed:
-lcvr.file <- 'data/input_data/ESACCI-LC-L4-LCCS-Map-300m-P1Y-aggregated-0.050000Deg-2015-v2.0.7.nc'
-S4T_path <- 'data/final_data/__JRCdatCatalogue__'
+# get data needed:
+lcvr.fname <- 'ESACCI-LC-L4-LCCS-Map-300m-P1Y-aggregated-0.050000Deg-2015-v2.0.7.nc'
+lcvr.file <- paste0(results_path, '/', 'ancillary_information' ,'/', lcvr.fname)
+S4T_path <- paste0(results_path, '/', 'space4time_analysis')
 
 # dummy raster to aggregate the output data in
 rs_dummy <- raster(nrows = 180, ncols = 360, xmn = -180, xmx = 180, ymn = -90, ymx = 90, 
                    crs = CRS('+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0'), vals = NULL)
-
 
 # get fractions of each forest type per pixel
 DFO.frct <- raster(lcvr.file, varname = 'DFO')
