@@ -1,0 +1,30 @@
+#!/bin/sh
+
+#######################################################
+#
+# Script Name: Space4Time
+# Version: 1.0
+#
+# Author: Federico Filipponi
+# Date : 13.12.2018
+#
+# Copyright name: CC BY-SA
+# License: GPLv3
+#
+# Purpose: Orchestrate Space4Time algorithm processing
+#
+#######################################################
+
+# set variables
+S4T_HOME='/storage/filipfe/codes/space4time'
+K_FILE='/eos/jeodpp/home/users/filipfe/data/s4t_test/ESACCI-LC-L4-LCCS-Map-300m-P1Y-aggregated-0.020000Deg-USER_REGION-2014-v2.0.7_resize.nc'
+Z_FILE='/eos/jeodpp/home/users/filipfe/data/s4t_test/ESACCI-L3U_CLOUD-CLD_PRODUCTS-MODIS_AQUA_Europe-fv2.0_cmask_2003_2014_monthly_avg_climatology.nc'
+MASK_FILE='/eos/jeodpp/home/users/filipfe/data/s4t_test/DEM_Europe_0.02dd_mask.nc'
+
+#${S4T_HOME}/s4t.r --k_file=$K_FILE --z_file=$Z_FILE --mask=$MASK_FILE --output=/home/filipfe/s4t_output/ESACCI-L3U_CLOUD-CLD_PRODUCTS-MODIS_AQUA_Europe-fv2.0_cmask_2003_2014_monthly_avg_climatology_s4t.nc --exclude_list WAT,No_Data --list BRF,NEF,SAV,SHR,CaG --Pdelta_error --Ppredicted --Prsquared --Pestimates --Pcumulated_variance --Pco_occurrence --keep_low_co_occurrence -q 32 --verbose
+${S4T_HOME}/s4t.r --k_file=$K_FILE --z_file=$Z_FILE --output='/home/filipfe/s4t_output/ESACCI-L3U_CLOUD-CLD_PRODUCTS-MODIS_AQUA_Europe-fv2.0_cmask_2003_2014_monthly_avg_climatology_s4t.nc' --exclude_list WAT,No_Data --list BRF,NEF,SAV,SHR,CaG --Pdelta_error --Prsquared --Pco_occurrence --keep_low_co_occurrence -w 7 -q 32 --verbose
+
+${S4T_HOME}/s4t_masking.r --input='/home/filipfe/s4t_output/ESACCI-L3U_CLOUD-CLD_PRODUCTS-MODIS_AQUA_Europe-fv2.0_cmask_2003_2014_monthly_avg_climatology_s4t.nc' --output='/home/filipfe/s4t_output/ESACCI-L3U_CLOUD-CLD_PRODUCTS-MODIS_AQUA_Europe-fv2.0_cmask_2003_2014_monthly_avg_climatology_s4t_masked.nc' --mask=$MASK_FILE --minmax=-1,1 --co_occurrence_thresholds=0.5 --rsquared_thresholds=0.10 -k --verbose
+
+${S4T_HOME}/s4t_decorrelate.r --input='/home/filipfe/s4t_output/ESACCI-L3U_CLOUD-CLD_PRODUCTS-MODIS_AQUA_Europe-fv2.0_cmask_2003_2014_monthly_avg_climatology_s4t_masked.nc' --output='/home/filipfe/s4t_output/ESACCI-L3U_CLOUD-CLD_PRODUCTS-MODIS_AQUA_Europe-fv2.0_cmask_2003_2014_monthly_avg_climatology_s4t_masked_aggregated_0.1deg.nc' -w 7 -q 32 --verbose
+
