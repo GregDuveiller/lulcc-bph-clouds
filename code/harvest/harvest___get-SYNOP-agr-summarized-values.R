@@ -12,7 +12,7 @@ require(purrr)
 
 
 ## Preparing the data ----
-load(paste0(results_path, '/', 'groundstation_analysis', '/paired_stations.RData')) # paired.new
+load(paste0(results_path, '/', 'groundstation_analysis', '/final_synop_paired_data.RData')) # paired.new
 
 # some cleaning up..
 df1 <- paired.new %>% 
