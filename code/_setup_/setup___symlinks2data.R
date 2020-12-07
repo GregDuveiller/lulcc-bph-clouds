@@ -11,6 +11,12 @@ data_path <- '/Volumes/home/work/data/internal_datasets/lulcc-bph-clouds/sourceD
 file.symlink(to = 'data/input_data/source_cloud_data', from = data_path)
 # Source: Stengel ESA CCI v2
 
+## setup path for ground station (SYNOP data)
+data_path <- '/Volumes/home/work/data/internal_datasets/lulcc-bph-clouds/SYNOP_pairs_global/'
+file.symlink(to = 'data/input_data/ground_station', from = data_path)
+# Source: Stengel ESA CCI v2
+
+
 ## ancillary shapefiles for exploring in the space4time domain
 data_path <- '/Users/greg/work/data/external_datasets/lulcc_bph_RS_S4T/v2.0/'
 file.symlink(to = 'data/input_data/S4T_ancillary', from = data_path)

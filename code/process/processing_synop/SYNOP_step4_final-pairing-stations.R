@@ -16,7 +16,7 @@ synop.g = readOGR("data/inter_data/synop_analysis",
 synop = read.table("data/input_data/ground_station/synop.csv",
                    header = TRUE,
                    sep = ",")
-input_synop_path <- "SYNOP_pairs_global/"
+input_synop_path <- "data/input_data/ground_station/SYNOP_pairs_global"
 
 
 # define empty array
@@ -88,12 +88,12 @@ for (i in 1:dim(p.1)[1])
 {
   if (!is.nan(p.1$area[i]) &
       !is.nan(p.2$area[i]) &
-      file.exists(paste(input_synop_path, p.1[i, 1], ".Rda", sep = "")) &
-      file.exists(paste(input_synop_path, p.2[i, 1], ".Rda", sep = "")))
+      file.exists(paste(input_synop_path, '/', p.1[i, 1], ".Rda", sep = "")) &
+      file.exists(paste(input_synop_path, '/', p.2[i, 1], ".Rda", sep = "")))
   {
-    load(paste(input_synop_path, p.1[i, 1], ".Rda", sep = ""))
+    load(paste(input_synop_path, '/', p.1[i, 1], ".Rda", sep = ""))
     p1 = r
-    load(paste(input_synop_path, p.2[i, 1], ".Rda", sep = ""))
+    load(paste(input_synop_path, '/', p.2[i, 1], ".Rda", sep = ""))
     p2 = r
     
     p1$Time = local2Solar(p1$Time, lon = p.1$lon[i])

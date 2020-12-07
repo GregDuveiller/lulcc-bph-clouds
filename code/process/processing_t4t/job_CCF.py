@@ -1,5 +1,12 @@
 # -*- coding: latin-1 -*- 
 
+################################################################################
+# Purpose: Apply the time for time estimation of cloud effects
+# License: GPL v3
+# Authors: Ramdane Alkama - Dec. 2020
+################################################################################
+
+
 import cdms2 as cdms, MV2 as MV, os.path
 import numpy as N, cdutil, os, sys,random
 import  interpol 

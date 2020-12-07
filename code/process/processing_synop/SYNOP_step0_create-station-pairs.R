@@ -1,4 +1,11 @@
-# selection of synop pairs
+#!/usr/local/bin/Rscript
+################################################################################
+# Purpose: Select SYNOP pairs, preliminary step
+# License: GPL v3
+# Authors: Andrej Ceglar - Dec. 2020
+################################################################################
+
+ 
 library(geosphere)
 library(raster)
 

@@ -23,7 +23,7 @@ europe_laea <- sf::st_intersection(world, st_set_crs(st_as_sf(as(raster::extent(
   st_transform(laes_prj)
 
 # set some specific graphical parameters 
-pointSize <- 1.5
+pointSize <- 1.2
 xLims <- c(2.5e6,6e6)
 yLims <- c(1.5e6,4.5e6)
 
@@ -31,10 +31,11 @@ yLims <- c(1.5e6,4.5e6)
 i.thr.dist.max <- 100  # 60 80 100
 i.thr.dist.min <- 30  # 20 30 40
 i.thr.dfor.min <- 0   # 0.0 0.1 0.2
-i.thr.nyrs.min <- 7   # 5 7 9
+#i.thr.nyrs.min <- 7   # 5 7 9
+
 
 # set time from SYNOP to compare with MODIS overpass (Aqua platform)
-modisTime <- 14
+modisTime <- 13
 
 # Get the SYNOP data ready
 load(paste0(dat4fig_path, '/df_SYNOP_agr_4polarplots_eur.Rdata'))  #  <--- "df_SYNOP_agr" and "df_SYNOP_loc"
@@ -47,7 +48,7 @@ pts_df <- df_SYNOP_loc %>%
 pts_df_sub <- pts_df %>%
   filter(thr.dist.max == i.thr.dist.max,
          thr.dist.min == i.thr.dist.min,
-         thr.nyrs.min == i.thr.nyrs.min,
+         #thr.nyrs.min == i.thr.nyrs.min,
          thr.dfor.min == i.thr.dfor.min)
 
 pts_buffer <- pts_df_sub %>%
@@ -60,8 +61,9 @@ pts_buffer <- pts_df_sub %>%
 g.synop.map <- ggplot(pts_df_sub) +
   geom_sf(data = europe_laea, fill = landColor, size = 0) +
   geom_sf(data = pts_buffer , fill = 'grey70') + 
-  geom_sf(aes(colour =  n), size = pointSize) + 
-  scale_colour_viridis_c('Number of valid observations per pair') +
+  geom_sf(aes(colour =  n/(12 * 24)), size = pointSize) + 
+  scale_colour_viridis_c('Station pair coverage',
+                         limits = c(0,1), oob = squish) +
   coord_sf(xlim = xLims, ylim = yLims, expand = F) +
   ggtitle('Location of suitable SYNOP station pairs') + 
   theme(panel.background = element_rect(fill = seaColor),
@@ -81,14 +83,13 @@ g.synop.map <- ggplot(pts_df_sub) +
 
 big.title <- 'Effect of afforestation on cloud fractional cover based on SYNOP'
 sub.title <-  paste0(' MinDist: ', i.thr.dist.min, 'km',
-                     ' | MaxDist: ', i.thr.dist.max, 'km', 
-                     ' | MinYears: ', i.thr.nyrs.min, 'yrs')
+                     ' | MaxDist: ', i.thr.dist.max, 'km')
 # ' | MinDfor: ', 100 * i.thr.dfor.min, '%')
 
 g.synop.wheel <- ggplot(df_SYNOP_agr %>%
                           filter(thr.dist.max == i.thr.dist.max,
                                  thr.dist.min == i.thr.dist.min,
-                                 thr.nyrs.min == i.thr.nyrs.min,
+                                 #thr.nyrs.min == i.thr.nyrs.min,
                                  thr.dfor.min == i.thr.dfor.min), 
                         aes(x = hour, y = month)) +
   geom_tile(aes(fill = dCFC)) +
@@ -114,6 +115,7 @@ g.synop.wheel <- ggplot(df_SYNOP_agr %>%
   theme(legend.position = 'bottom',
         legend.key.width = unit(2.4, "cm"),
         panel.background = element_rect(fill = 'white'),
+        axis.text.x = element_text(hjust = 0), 
         axis.ticks.y = element_line(colour = 'grey50', 
                                     arrow = arrow(length = unit(0.15, "cm"),
                                                   type = 'open')),
@@ -129,9 +131,9 @@ g.synop.wheel <- ggplot(df_SYNOP_agr %>%
 df.SYNOP <- df_SYNOP_agr %>%
   filter(thr.dist.max == i.thr.dist.max,
          thr.dist.min == i.thr.dist.min,
-         thr.nyrs.min == i.thr.nyrs.min,
+        # thr.nyrs.min == i.thr.nyrs.min,
          thr.dfor.min == i.thr.dfor.min, 
-         hour %in% c(paste(modisTime,'00',sep = ':')))
+         hour %in% c(paste(modisTime, '00', sep = ':')))
 
 # load MODIS data
 load(paste0(dat4fig_path, "/df_dCFC_MOD02_FOR.Rdata")) #  <--- "df_dCFC_MOD02_FOR"

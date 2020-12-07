@@ -83,7 +83,7 @@ get.SYNOP.agr.values <- function(df, zn = NULL, min.num.samples = 5,
     hour = rep(unique(df$hour), each = 12), 
     thr.dist.max = thr.dist.max, 
     thr.dist.min = thr.dist.min, 
-    thr.nyrs.min = thr.nyrs.min, 
+    #thr.nyrs.min = thr.nyrs.min, 
     thr.dfor.min = thr.dfor.min)
   
   
@@ -95,7 +95,7 @@ get.SYNOP.agr.values <- function(df, zn = NULL, min.num.samples = 5,
     #filter(month == iMonth) %>% # should tweak to make it not per month
     filter(dist <= thr.dist.max, 
            dist >= thr.dist.min,
-           nyrs >= thr.nyrs.min,
+           #nyrs >= thr.nyrs.min,
            abs(dfor) >= thr.dfor.min) %>%
     mutate(cases = paste(month, hour))
   
@@ -176,14 +176,16 @@ get.SYNOP.unique.loc <- function(df, zn = NULL, min.num.samples = 5,
   df.sub <- df.loc %>% 
     filter(dist <= thr.dist.max, 
            dist >= thr.dist.min,
-           nyrs >= thr.nyrs.min,
+           # nyrs >= thr.nyrs.min,
            abs(dfor) >= thr.dfor.min) %>%
     mutate(cases = paste(month, hour)) %>% 
-    group_by(lat, lon) %>%
+  #  group_by(pair) %>%
+  #  group_by(lat, lon) %>%
+    group_by(pair, lat, lon) %>%
     count() %>%
     mutate(thr.dist.max = thr.dist.max, 
            thr.dist.min = thr.dist.min, 
-           thr.nyrs.min = thr.nyrs.min, 
+           # thr.nyrs.min = thr.nyrs.min, 
            thr.dfor.min = thr.dfor.min) %>%
     ungroup()
   
@@ -199,23 +201,25 @@ df_SYNOP_loc <- data.frame(NULL)
 
 for(i.thr.dist.max in seq(60,100,20)){
   for(i.thr.dist.min in seq(20,40,10)){
-    for(i.thr.nyrs.min in seq(5,9,2)){
+  #  for(i.thr.nyrs.min in seq(5,9,2)){
       for(i.thr.dfor.min in seq(0,0.2,0.1)){
         out.df <- get.SYNOP.agr.values(df, zn = zn.eur, 
                                        thr.dfor.min = i.thr.dfor.min,
-                                       thr.nyrs.min = i.thr.nyrs.min,
+                                       #thr.nyrs.min = i.thr.nyrs.min,
                                        thr.dist.max = i.thr.dist.max,
                                        thr.dist.min = i.thr.dist.min)
         df_SYNOP_agr <- rbind(df_SYNOP_agr, out.df)
         
         out.df <- get.SYNOP.unique.loc(df, zn = zn.eur, 
                                        thr.dfor.min = i.thr.dfor.min,
-                                       thr.nyrs.min = i.thr.nyrs.min,
+                                       #thr.nyrs.min = i.thr.nyrs.min,
                                        thr.dist.max = i.thr.dist.max,
                                        thr.dist.min = i.thr.dist.min)
         df_SYNOP_loc <- rbind(df_SYNOP_loc, out.df)
         
-      }}}
+      }
+    #}
+  }
 }
 
 
