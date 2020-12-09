@@ -36,9 +36,23 @@ i.thr.dfor.min <- 0   # 0.0 0.1 0.2
 
 # set time from SYNOP to compare with MODIS overpass (Aqua platform)
 modisTime <- 13
+bin_cover <- 0.95
 
 # Get the SYNOP data ready
 load(paste0(dat4fig_path, '/df_SYNOP_agr_4polarplots_eur.Rdata'))  #  <--- "df_SYNOP_agr" and "df_SYNOP_loc"
+
+# # filter out everything here...
+# 
+# 
+# df_SYNOP_agr <- df_SYNOP_agr  %>% 
+#   filter(thr.dist.max == i.thr.dist.max,
+#                       thr.dist.min == i.thr.dist.min,
+#                       #thr.nyrs.min == i.thr.nyrs.min,
+#                       thr.dfor.min == i.thr.dfor.min)
+# 
+# 
+
+
 
 pts_df <- df_SYNOP_loc %>% 
   st_as_sf(coords = c("lon","lat")) %>%
@@ -86,7 +100,7 @@ sub.title <-  paste0(' MinDist: ', i.thr.dist.min, 'km',
                      ' | MaxDist: ', i.thr.dist.max, 'km')
 # ' | MinDfor: ', 100 * i.thr.dfor.min, '%')
 
-g.synop.wheel <- ggplot(df_SYNOP_agr %>%
+g.synop.wheel <- ggplot(df_SYNOP_agr %>% 
                           filter(thr.dist.max == i.thr.dist.max,
                                  thr.dist.min == i.thr.dist.min,
                                  #thr.nyrs.min == i.thr.nyrs.min,
@@ -109,7 +123,7 @@ g.synop.wheel <- ggplot(df_SYNOP_agr %>%
   # scale_alpha_manual(values = c(0,1), guide = F) +
   scale_fill_gradientn('Change in cloud fractional cover',
                        colors = col.pal,
-                       limits = dcfcLims, oob = scales::squish) +
+                       limits = dcfcLims*1.5, oob = scales::squish) +
   coord_polar() +
   ggtitle(label = big.title, subtitle = sub.title) + 
   theme(legend.position = 'bottom',
@@ -200,14 +214,14 @@ g.confr.bars <- ggplot(df.combo2) +
                 stat = 'identity', position = "dodge", color = 'grey30', size = 0.4) +
   geom_bar(aes(x = month, y = dCFC.mu, fill = source), colour = 'grey30',
            stat = 'identity', position = "dodge", size = 0.4) + 
-  scale_y_continuous('Change in cloud fraction cover') +
+  scale_y_continuous('Change in cloud fraction cover', limits = c(-0.01, 0.095)) +
   scale_fill_manual(values = c('MOD02'='chartreuse4', 'MOD05'='olivedrab2', 
                                'SYNOP'='cornflowerblue'),
                     labels = c('MOD02'='Satellite\n(refined)', 
                                'MOD05'='Satellite\n(original)', 'SYNOP'='Ground\nstation')) +
   geom_hline(aes(yintercept = 0), colour = 'grey30', size = 1.2) +
   theme_minimal()+
-  theme(legend.position = c(0.62,0.10),
+  theme(legend.position = c(0.62,0.06),
         #legend.position = c(0.9,0.85),
         legend.direction = 'horizontal',
         legend.title = element_blank(),
@@ -236,8 +250,8 @@ grid.text(expression(bold("a")), x = unit(0.02, "npc"), y = unit(0.95, "npc"), g
 grid.text(expression(bold("b")), x = unit(0.42, "npc"), y = unit(0.94, "npc"), gp = gpar(fontsize = 18))
 grid.text(expression(bold("c")), x = unit(0.02, "npc"), y = unit(0.38, "npc"), gp = gpar(fontsize = 18))
 
-grid.lines(x = c(0.55, 0.53, 0.41), 
-           y = c(0.25, 0.22, 0.22), 
+grid.lines(x = c(0.62, 0.61, 0.41), 
+           y = c(0.20, 0.17, 0.17), 
            arrow = arrow(angle = 40, length = unit(0.2, "cm"), 
                          ends = "last", type = "open"))
 

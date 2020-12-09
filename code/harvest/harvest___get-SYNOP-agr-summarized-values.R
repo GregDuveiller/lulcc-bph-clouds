@@ -20,7 +20,8 @@ df1 <- paired.new %>%
   mutate(dCFC = diff/100,
          dfor = hl,
          for.cvr.pt1 = area.h,
-         for.cvr.pt2 = area.l) 
+         for.cvr.pt2 = area.l) %>%
+  filter(N >= 210)  # filter stations that do not report for an equivalent of roughtly 7 years... 
 
 # shuffle directions of the effect... 
 set.seed(1982)
@@ -55,6 +56,9 @@ mk.zone <- function(lbl, xmn, xmx, ymn, ymx){
 zn.eur <- mk.zone('eur', -10, 50, 30, 65)
 regio.name <- levels(zn.eur$lbl)
 
+# filter out stations that do not report at least 15 hours (out of 24)
+df.hr.count <- df %>% group_by(pair) %>% summarize(num.hrs = length(unique(hour)))
+df <- df %>% inner_join(df.hr.count, by = 'pair') %>% filter(num.hrs >= 15)
 
 ## Define the functions that will do the job  ----
 
