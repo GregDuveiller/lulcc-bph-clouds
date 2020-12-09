@@ -14,7 +14,7 @@ synop = read.table("data/data_input/synop.csv", header=TRUE, sep=",")
 
 # calculate distances between stations
 dists = c()
-for(loc in 4569:(dim(synop)[1]-1))
+for(loc in 1:(dim(synop)[1]-1))
 {
   for(comp in (loc+1):dim(synop)[1])
   {
