@@ -130,6 +130,10 @@ for (i in 1:dim(p.1)[1])
       L = 7
     }
     
+    # consider period between 2004-2014 / match remote sensing temporal range
+    p1 = p1[p1$year >= 2004 & p1$year <=2014,]
+    p2 = p2[p2$year >= 2004 & p2$year <=2014,]
+    
     test = match(data.frame(t(p1[, 3:6])), data.frame(t(p2[, 3:6])))
     p1$CA2[which(!is.na(test))] = p2$CA[test[which(!is.na(test))]]
     
@@ -152,6 +156,7 @@ for (i in 1:dim(p.1)[1])
                 area.l = area.l,
                 dist = p.1$dist[i],
                 diff = mean(p1[which_, H] - p1[which_, L]) / 8 * 100,
+                nyrs = length(unique(p1$year[which_])),
                 N = length(which_),
                 lon = (p.1$lon[i] + p.2$lon[i]) * 0.5,
                 lat = (p.1$lat[i] + p.2$lat[i]) * 0.5
@@ -163,6 +168,7 @@ for (i in 1:dim(p.1)[1])
     print(paste("Done pair", i, "out of ", dim(p.1)[1]))
   }
 }
+paired.new = paired
 paired.new$hl = paired.new$area.h - paired.new$area.l # difference between forest areas surrounding both stations
 
 # export to final result folder
