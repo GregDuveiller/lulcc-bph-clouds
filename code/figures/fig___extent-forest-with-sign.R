@@ -22,10 +22,15 @@ df.avg <- df_dCFC_MOD05_FOR %>%
               avg = mean(dCFC), sd = sd(dCFC), se = sd/sqrt(n))
 
 
-thr <- 0.0001 # This is close to one std. err. around the mean dCFC ...
+thr <- 0.001 
+
+month6s <- month.abb[c(7:12,1:6)]
+names(month6s) = month.abb 
 
 df.surf.month <- df_dCFC_MOD05_FOR %>% 
-  group_by(month) %>% 
+  mutate(monthS = factor(ifelse(lat >= 0, month.abb[month], month6s[month]),
+                         levels = month.abb, ordered = T)) %>%
+  group_by(monthS) %>% 
     summarize(type = 'All forest types combined',
               pos = sum((dCFC > (0 + thr)), na.rm = T),
               neg = sum((dCFC < (0 - thr)), na.rm = T),
@@ -43,15 +48,15 @@ df.surf <- df.surf.month %>%
 # mean(filter(df.surf, type == 'FOR', sign == 'pct.pos', month %in% month.abb[5:9])$pct)
 
 
-lbls.pct <- c('pct.pos' = paste('Sampled area where change in CFrC is POSITIVE (above', thr,')'), 
-              'pct.neg' = paste('Sampled area pixels where change in CFrC is NEGATIVE (below', -thr,')'))
+lbls.pct <- c('pct.pos' = paste('Pixels where change in cloud fraction cover is POSITIVE (above', thr,')'), 
+              'pct.neg' = paste('Pixels where change in cloud fraction cover is NEGATIVE (below', -thr,')'))
 
 g_bars <- ggplot(df.surf) + 
-  geom_bar(aes(x = month, y = pct, fill = sign), 
+  geom_bar(aes(x = monthS, y = pct, fill = sign), 
            stat = 'identity', position = 'dodge') + 
   geom_hline(aes(yintercept = avg.pct, colour = sign)) + 
   geom_hline(yintercept = 0) +
-  facet_wrap(~type, nc = 1) +
+  #facet_wrap(~type, nc = 1) +
   scale_x_discrete('') + 
   scale_y_continuous('Percentage of sampled pixels', expand = c(0,0)) +
   scale_fill_manual('', labels = lbls.pct, guide = guide_legend(nrow = 2), 
@@ -72,7 +77,7 @@ g_bars <- ggplot(df.surf) +
 
 ## printing the final plot -----
 fig.name <- 'fig___ExtentForestWithSign'
-fig.width <- 6; fig.height <- 4;  # fig.fmt <- 'png'
+fig.width <- 8; fig.height <- 6;  # fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, '/', fig.fmt, '/', fig.name, '.', fig.fmt)
 
 ggsave(filename = fig.fullfname,
