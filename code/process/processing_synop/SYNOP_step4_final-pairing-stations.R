@@ -25,9 +25,17 @@ p.2 = c()
 pairs = c()
 
 # apply selection criteria
-synop.g.1 = synop.g[synop.g$lcl_wt_ < 0.05 &
-                      synop.g$lcl_tr_ > 0 &
-                      synop.g$avg_fc_ < 200 & synop.g$sd_fcl_v < 50, ]
+synop.g.1 = synop.g[synop.g$lcl_wt_ < 0.05 & 
+                    synop.g$lcl_tr_ > 0 & 
+                    synop.g$avg_fc_ < 100 &     # <-- v2 in the paper
+                    synop.g$sd_fcl_v < 50 &     # <-- v1 in the paper
+                    synop.g$sd_fcl_d < 100, ]   # <-- v3 in the paper 
+
+# synop.g.1 = synop.g[synop.g$lcl_wt_ < 0.05 &
+#                       synop.g$lcl_tr_ > 0 &
+#                       synop.g$avg_fc_ < 200 &
+#                       synop.g$sd_fcl_v < 50, ]
+
 crds = coordinates(synop.g.1)
 
 #
@@ -84,6 +92,10 @@ for (i in 1:dim(crds)[1])
 
 # assess differences in cloudiness
 paired = c()
+which_ = which(p.1$lon > -10 & p.2$lon > -10 & p.1 $lon < 20 & p.2$lon < 20 & p.1$lat > 38 & p.2$lat > 38 & p.1 $lat < 62 & p.2$lat < 62)
+p.1 = p.1[which_,]
+p.2 = p.2[which_,]
+
 for (i in 1:dim(p.1)[1])
 {
   if (!is.nan(p.1$area[i]) &

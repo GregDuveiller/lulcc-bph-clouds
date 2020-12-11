@@ -7,9 +7,9 @@ require(here)
 
 topoDataPath <- 'data/inter_data/topo_global_005dd'
 
-r1 <- raster(paste0(topoDataPath,'/DEM_0.05dd_avg_focal_diff.tif'))
-r2 <- raster(paste0(topoDataPath,'/DEM_0.05dd_sd_focal_avg.tif'))
-r3 <- raster(paste0(topoDataPath,'/DEM_0.05dd_sd_focal_diff.tif'))
+r1 <- raster(paste0(topoDataPath,'/DEM_0.05dd_avg_focal_diff.tif'))  # <-- v2 in the paper
+r2 <- raster(paste0(topoDataPath,'/DEM_0.05dd_sd_focal_avg.tif'))    # <-- v1 in the paper
+r3 <- raster(paste0(topoDataPath,'/DEM_0.05dd_sd_focal_diff.tif'))   # <-- v3 in the paper 
 r4 <- raster(paste0(topoDataPath,'/DEM_global_0.05dd_mask.tif'))
 
 # load shp from GEE with extracted polygons and tree + water cover pcts

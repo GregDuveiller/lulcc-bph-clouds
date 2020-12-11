@@ -84,7 +84,7 @@ g.map <- ggplot(df_sub) +
         axis.title = element_blank()) +
   guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
 
-fig.name <- 'figSM___show-scale-effect'
+fig.name <- 'fig___show-scale-effect'
 fig.width <- 8; fig.height <- 9;  # fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, '/', fig.fmt, '/', fig.name, '.', fig.fmt)
 
