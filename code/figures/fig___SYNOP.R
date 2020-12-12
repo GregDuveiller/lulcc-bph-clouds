@@ -212,7 +212,7 @@ g.confr.bars <- ggplot(df.combo2) +
   geom_errorbar(aes(ymin = dCFC.mu - dCFC.se, x = month, 
                     ymax = dCFC.mu + dCFC.se, group = source),
                 stat = 'identity', position = "dodge", color = 'grey30', size = 0.4) +
-  geom_bar(aes(x = month, y = dCFC.mu, fill = source), colour = 'grey30',
+  geom_bar(aes(x = month, y = dCFC.mu, fill = source), # colour = 'grey30',
            stat = 'identity', position = "dodge", size = 0.4) + 
   scale_y_continuous('Change in cloud fraction cover', limits = c(-0.01, 0.095)) +
   scale_fill_manual(values = c('MOD02'='chartreuse4', 'MOD05'='olivedrab2', 

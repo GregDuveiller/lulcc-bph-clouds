@@ -128,10 +128,10 @@ mk.tmp.plot <- function(zn.dum, mon = NULL, ylims = NULL){
   if(!is.null(mon)){ df.dum$sign[df.dum$month == mon] <- 0 }
   
   g.tmp <- ggplot(df.dum) + 
-    geom_bar(aes(x = month, y = mean_dCFC, fill = sign, colour = sign), stat = 'identity') +
     geom_errorbar(aes(x = month, colour = sign,
                       ymin = mean_dCFC - stdE_dCFC,
-                      ymax = mean_dCFC + stdE_dCFC))+
+                      ymax = mean_dCFC + stdE_dCFC)) +
+    geom_bar(aes(x = month, y = mean_dCFC, fill = sign), stat = 'identity') +
     geom_hline(yintercept = 0) +
     scale_y_continuous('Change in CFrC') + 
     scale_x_discrete('', labels = strtrim(month.abb, 1)) +

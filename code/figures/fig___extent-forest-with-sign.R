@@ -83,3 +83,33 @@ fig.fullfname <- paste0(fig.path, '/', fig.fmt, '/', fig.name, '.', fig.fmt)
 ggsave(filename = fig.fullfname,
        plot = g_bars, width = fig.width, height = fig.height)
   
+
+
+# # Alt version... 
+# df.surf.bis <- df.surf %>%
+#   mutate(pct.sgn = ifelse(sign == 'pct.neg', -pct, pct),
+#          avg.pct.sgn = ifelse(sign == 'pct.neg', -avg.pct, avg.pct),)
+# 
+# g_bars <- ggplot(df.surf.bis) + 
+#   # geom_point(aes(x = monthS, y = pct_sgn, fill = sign), shape = 21, size = 4) +
+#   geom_bar(aes(x = monthS, y = pct.sgn, fill = sign), width = 1, colour = 'grey20',
+#            stat = 'identity') + 
+#   geom_hline(aes(yintercept = avg.pct.sgn, colour = sign)) + 
+#   geom_hline(yintercept = 0) +
+#   #facet_wrap(~type, nc = 1) +
+#   scale_x_discrete('') + 
+#   scale_y_continuous('Percentage of sampled pixels', expand = c(0,0)) +
+#   scale_fill_manual('', labels = lbls.pct, guide = guide_legend(nrow = 2), 
+#                     values = c('pct.neg' = col.pal[3], 'pct.pos' = col.pal[length(col.pal)-2])) +
+#   scale_colour_manual('', guide = 'none', 
+#                       values = c('pct.neg' = col.pal[2], 'pct.pos' = col.pal[length(col.pal)-1])) +
+#   theme_minimal() +
+#   theme(legend.position = 'bottom',
+#         axis.title.x = element_blank(),
+#         panel.grid = element_blank(),
+#         strip.text = element_text(size = rel(1.2)),
+#         axis.line = element_line(size = 0.5, colour = 'Grey20'),
+#         axis.ticks = element_line(size = 0.5, colour = 'Grey20'),
+#         axis.title = element_text(size = rel(1.1))) +
+#   ggtitle('Extent of pixels showing a given effect on CFrC',
+#           subtitle = 'Considering potential afforestation over short vegetation')

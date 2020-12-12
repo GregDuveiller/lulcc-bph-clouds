@@ -19,7 +19,7 @@ library(here)
 dat4fig_path <- 'data/final_data/data_for_figures' 
 
 # Set format for figures 
-fig.fmt <- 'png'  # fig.fmt <- 'pdf' png
+fig.fmt <- 'pdf'  # fig.fmt <- 'pdf' png
 fig.path <- 'docs/article_Figures'
 dir.create(paste0(fig.path, '/', fig.fmt), showWarnings = F, recursive = T)
 
