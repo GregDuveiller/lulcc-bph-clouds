@@ -1,4 +1,4 @@
-# lulcc-bph_clouds
+# lulcc-bph-clouds
 
 This repository contains the code related to the following paper (in press):
 
