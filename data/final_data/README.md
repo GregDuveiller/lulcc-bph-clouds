@@ -6,7 +6,7 @@ G. Duveiller, F. Filiponni, A. Ceglar, J. Bojanowski, R. Alkama & A. Cescatti. W
 
 The data are stored in a dedicated __data repository__ that is archived on Zenodo under this DOI: [DOI: 10.5281/zenodo.4727774]
 
-The code associated with this data is stored in a distinct __code repository__, also archived on Zenodo under this DOI: [DOI: 10.xxxx/zenodo.xxxxxxx]
+The code associated with this data is stored in a distinct __code repository__, also archived on Zenodo under this DOI: [DOI: 10.5281/zenodo.4727822]
 
 ## Organisation of the data
 
