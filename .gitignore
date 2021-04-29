@@ -2,6 +2,7 @@
 /__devel__/dataFigures
 /__devel__/dataProcessing
 /data/inter_data
+/data/input_data/ground_station
 /data/input_data/world_vectors
 /data/input_data/source_cloud_data
 /data/input_data/S4T_ancillary
