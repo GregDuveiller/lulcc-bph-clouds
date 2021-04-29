@@ -177,7 +177,7 @@ g.chi <- mk.tmp.plot(zn.chi, mon = NULL, ylims = relcfcLims)
 
 
 ## Printing the entire figure ----
-fig.name <- 'figSM___map-delta-CFC-relative'
+fig.name <- 'fig___map-delta-CFC-relative'
 fig.width <- 14; fig.height <- 13; #fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, '/', fig.fmt, '/', fig.name, '.', fig.fmt)
 if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}

@@ -19,7 +19,7 @@ library(here)
 dat4fig_path <- 'data/final_data/data_for_figures' 
 
 # Set format for figures 
-fig.fmt <- 'pdf'  # fig.fmt <- 'pdf' png
+fig.fmt <- 'png'  # fig.fmt <- 'pdf' png
 fig.path <- 'docs/article_Figures'
 dir.create(paste0(fig.path, '/', fig.fmt), showWarnings = F, recursive = T)
 
@@ -57,13 +57,13 @@ source('code/figures/fig___map-PFT-effect.R')
 # SUPPLEMENTARY INFORMATION FIGURES
 
 ## Global picture: map of 4 seasons in relative terms
-source('code/figures/figSM___map-delta-CFC-relative.R')
+source('code/figures/fig___map-delta-CFC-relative.R')
 
 ## Extent of forest with positive CFC change for all types
-source('code/figures/figSM___extent-forest-with-sign.R')
+source('code/figures/fig___extent-forest-with-sign.R')
 
 ## Zoom of selected regions
-source('code/figures/figSM___map-delta-CFC-zoom.R')
+source('code/figures/fig___map-delta-CFC-zoom.R')
 
 
 

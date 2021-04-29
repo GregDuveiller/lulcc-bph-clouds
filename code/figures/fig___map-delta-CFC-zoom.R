@@ -88,7 +88,7 @@ g.ind <- plot.seq(z = 'ind', m = 5:7, d = c(1,3), l = T)
 
 
 ## Printing the entire figure ----
-fig.name <- 'figSM___map-delta-CFC-zoom'
+fig.name <- 'fig___map-delta-CFC-zoom'
 fig.width <- 9; fig.height <- 12; #fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, '/', fig.fmt, '/', fig.name, '.', fig.fmt)
 if(fig.fmt == 'png'){png(fig.fullfname, width = fig.width, height = fig.height, units = "in", res= 150)}

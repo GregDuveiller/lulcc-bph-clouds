@@ -105,7 +105,7 @@ g_bars <- ggplot(df.surf) +
 
 
 ## printing the final plot -----
-fig.name <- 'figSM___ExtentForestWithSign'
+fig.name <- 'fig___ExtentForestWithSignDetailed'
 fig.width <- 6; fig.height <- 8;  # fig.fmt <- 'png'
 fig.fullfname <- paste0(fig.path, '/', fig.fmt, '/', fig.name, '.', fig.fmt)
 
