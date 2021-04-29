@@ -1,6 +1,5 @@
 # Project folders
-/__devel__/dataFigures
-/__devel__/dataProcessing
+/__devel__
 /data/inter_data
 /data/input_data/ground_station
 /data/input_data/world_vectors
