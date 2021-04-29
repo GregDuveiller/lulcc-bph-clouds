@@ -11,4 +11,4 @@ This repository includes the main scripts to perform all the calculations descri
 This repository is available on GitHub at https://github.com/GregDuveiller/lulcc-bph-clouds/. All versions of this repository, including the last release, are archived on Zenodo: [![DOI: 10.5281/zenodo.4724527](https://zenodo.org/badge/275664164.svg)](https://zenodo.org/badge/latestdoi/275664164)
 
 ## Data
-Data produced in this project are stored in another Zenodo repository: [!DOI: ...]
+Data produced in this project are stored in another Zenodo repository: [!DOI: 10.5281/zenodo.4727774]
