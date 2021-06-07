@@ -102,8 +102,8 @@ geo_labeller <- function(x) {
 
 # the plot
 g.lat.month <- ggplot(df %>%
-                        mutate(lat_bin = cut(lat, breaks = seq(-90,90,4), 
-                                             labels = seq(-88,88,4))) %>%
+                        mutate(lat_bin = cut(lat, breaks = seq(-90, 90, 4), 
+                                             labels = seq(-88, 88, 4))) %>%
                         group_by(lat_bin, month) %>%
                         summarise(dCFC_latmonth = mean(rel_dCFC, na.rm = T))) +
   geom_raster(aes(x = month, y = as.numeric(levels(lat_bin))[lat_bin], 
@@ -112,7 +112,7 @@ g.lat.month <- ggplot(df %>%
                        colours = col.pal,
                        limits = relcfcLims, oob = scales::squish) +
     scale_y_continuous(labels = geo_labeller) + 
-  coord_cartesian(ylim = c(-41.99,65.99), expand = F) +
+  coord_cartesian(ylim = c(-41.99, 65.99), expand = F) +
   theme(panel.background = element_rect(fill = seaColor),
         legend.position = 'top',
         legend.key.width = unit(2.4, "cm"),
@@ -137,15 +137,15 @@ mk.tmp.plot <- function(zn.dum, mon = NULL, ylims = NULL){
     group_by(month) %>%
     summarize(mean_dCFC = mean(rel_dCFC),
               stdE_dCFC = sd(rel_dCFC)/sqrt(length(rel_dCFC))) %>%
-    mutate(sign = factor(sign(mean_dCFC), levels = c(-1,0,1) )) 
+    mutate(sign = factor(sign(mean_dCFC), levels = c(-1, 0, 1) )) 
   
   if(!is.null(mon)){ df.dum$sign[df.dum$month == mon] <- 0 }
   
   g.tmp <- ggplot(df.dum) + 
+    geom_bar(aes(x = month, y = mean_dCFC, fill = sign), stat = 'identity') +
     geom_errorbar(aes(x = month, colour = sign,
                       ymin = mean_dCFC - stdE_dCFC,
                       ymax = mean_dCFC + stdE_dCFC))+
-    geom_bar(aes(x = month, y = mean_dCFC, fill = sign), stat = 'identity') +
     geom_hline(yintercept = 0) +
     scale_y_continuous('Percent Change [%]') + 
     scale_x_discrete('', labels = strtrim(month.abb, 1)) +

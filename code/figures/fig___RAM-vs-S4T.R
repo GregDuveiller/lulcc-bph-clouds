@@ -27,12 +27,12 @@ method.lbls <- c('S4T' = 'Space-for-time\nsubstitution',
 ## Make the bar plot ----
 g_bars <- ggplot(df_CZ5 %>% 
                    filter(PFT == iPFT)) +
+  geom_bar(aes(x = month, y = dCFC_CZ5, fill = method), 
+           stat = 'identity', position = 'dodge') +
   geom_errorbar(aes(x = month, color = method,
                     ymin = dCFC_CZ5 - dCFC_CZ5_STD_err, 
                     ymax = dCFC_CZ5 + dCFC_CZ5_STD_err),
                 position = 'dodge', show.legend = F) +
-  geom_bar(aes(x = month, y = dCFC_CZ5, fill = method), 
-           stat = 'identity', position = 'dodge') +
   geom_hline(yintercept = 0, colour = 'grey40', size = 0.5) +
   facet_wrap(~region, nc = 2) + 
   scale_fill_manual('Method used:', labels = method.lbls, 

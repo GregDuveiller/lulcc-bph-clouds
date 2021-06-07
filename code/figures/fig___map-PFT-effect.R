@@ -111,7 +111,7 @@ df_sub <- df_all %>%
 g.maps <- ggplot(df_sub) + 
   geom_sf(data = world, fill = landColor, size = 0) +
   geom_raster(aes(x = lon, y = lat, fill = dCFC)) +
-  scale_fill_gradientn('Change in cloud fractional cover (CFC)',
+  scale_fill_gradientn('Change in cloud fractional cover',
                        colours = col.pal,
                        limits = dcfcLims, oob = scales::squish) +
   facet_wrap(~PFT) +

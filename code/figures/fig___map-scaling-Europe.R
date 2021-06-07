@@ -82,7 +82,7 @@ g.map <- ggplot(df_sub) +
         legend.key.width = unit(2.4, "cm"),
         panel.grid = element_line(color = seaColor),
         axis.title = element_blank()) +
-  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5))
+  guides(fill = guide_colourbar(title.position = "top", title.hjust = 0.5)) 
 
 fig.name <- 'fig___show-scale-effect'
 fig.width <- 8; fig.height <- 9;  # fig.fmt <- 'png'
